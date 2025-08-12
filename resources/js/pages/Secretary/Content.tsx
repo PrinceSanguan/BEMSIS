@@ -1,243 +1,246 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
-import { Head } from '@inertiajs/react';
-import { Award, Download, FileText, MessageSquare, Star } from 'lucide-react';
-import { useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import { Award, BookOpen, Calendar, CheckCircle, FileText, Info, Settings, Shield, Users, XCircle } from 'lucide-react';
 
-// Mock data
-const mockFeedback = [
-    {
-        id: 1,
-        eventName: 'Community Clean-up Drive',
-        userName: 'Juan Dela Cruz',
-        rating: 5,
-        comment: 'Great event! Very well organized and meaningful for our community.',
-        date: '2025-08-20',
-    },
-    {
-        id: 2,
-        eventName: 'Basketball Tournament',
-        userName: 'Maria Santos',
-        rating: 4,
-        comment: 'Fun tournament, but could use better scheduling.',
-        date: '2025-08-25',
-    },
-    {
-        id: 3,
-        eventName: 'Health Seminar',
-        userName: 'Pedro Garcia',
-        rating: 5,
-        comment: 'Very informative. Learned a lot about health and wellness.',
-        date: '2025-08-15',
-    },
-];
+interface Props {
+    className?: string;
+}
 
-const mockCertifications = [
-    {
-        id: 1,
-        eventName: 'Community Clean-up Drive',
-        userName: 'Juan Dela Cruz',
-        attendanceHours: 4,
-        status: 'eligible',
-        date: '2025-08-20',
-    },
-    {
-        id: 2,
-        eventName: 'Health Seminar',
-        userName: 'Maria Santos',
-        attendanceHours: 3,
-        status: 'issued',
-        date: '2025-08-15',
-    },
-    {
-        id: 3,
-        eventName: 'Basketball Tournament',
-        userName: 'Pedro Garcia',
-        attendanceHours: 6,
-        status: 'pending',
-        date: '2025-08-25',
-    },
-];
-
-export default function Content() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
-    const [certifications, setCertifications] = useState(mockCertifications);
-
-    const generateCertificate = (certId: number) => {
-        setCertifications((certs) => certs.map((cert) => (cert.id === certId ? { ...cert, status: 'issued' } : cert)));
-        alert('Certificate generated successfully!');
+interface PageProps {
+    [key: string]: any;
+    flash?: {
+        success?: string;
+        error?: string;
     };
+}
 
-    const downloadCertificate = (cert: any) => {
-        // Mock download
-        alert(`Downloading certificate for ${cert.userName} - ${cert.eventName}`);
-    };
+export default function Content({ className }: Props) {
+    const { flash } = usePage<PageProps>().props;
 
-    const renderStars = (rating: number) => {
-        return Array.from({ length: 5 }, (_, i) => (
-            <Star key={i} className={`h-4 w-4 ${i < rating ? 'fill-current text-yellow-400' : 'text-gray-300'}`} />
-        ));
-    };
+    const contentSections = [
+        {
+            title: 'User Management Guidelines',
+            icon: Users,
+            description: 'Best practices for reviewing and managing user registrations',
+            content: [
+                'Review user information carefully before approval',
+                'Verify purok assignments for residents',
+                'Check for duplicate registrations',
+                'Ensure partner agencies provide valid credentials',
+            ],
+        },
+        {
+            title: 'Event Management Process',
+            icon: Calendar,
+            description: 'Step-by-step guide for creating and managing events',
+            content: [
+                'Events require captain approval before publication',
+                'Specify target purok or select all residents',
+                'Enable certificates for training/educational events',
+                'Assign QR codes before event starts',
+            ],
+        },
+        {
+            title: 'Attendance Tracking',
+            icon: Award,
+            description: 'How to manage attendance and certificates',
+            content: [
+                'Scan QR codes during events to record attendance',
+                'Generate attendance reports after events',
+                'Assign certificates only to verified attendees',
+                'Monitor attendance rates for improvement',
+            ],
+        },
+        {
+            title: 'System Responsibilities',
+            icon: Shield,
+            description: 'Key responsibilities as a Secretary',
+            content: [
+                'Approve or decline user registrations promptly',
+                'Create community events with proper targeting',
+                'Manage QR code assignments and scanning',
+                'Review resident feedback and suggestions',
+            ],
+        },
+    ];
 
-    const getCertStatusColor = (status: string) => {
-        switch (status) {
-            case 'issued':
-                return 'bg-green-100 text-green-800';
-            case 'eligible':
-                return 'bg-blue-100 text-blue-800';
-            default:
-                return 'bg-yellow-100 text-yellow-800';
-        }
-    };
+    const quickActions = [
+        {
+            title: 'View Pending Users',
+            description: 'Review users waiting for approval',
+            icon: Users,
+            link: '/secretary/users',
+            color: 'bg-orange-50 border-orange-200 text-orange-800',
+        },
+        {
+            title: 'Create New Event',
+            description: 'Organize community activities',
+            icon: Calendar,
+            link: '/secretary/events',
+            color: 'bg-blue-50 border-blue-200 text-blue-800',
+        },
+        {
+            title: 'Check Attendance',
+            description: 'Monitor event participation',
+            icon: Award,
+            link: '/secretary/attendance',
+            color: 'bg-green-50 border-green-200 text-green-800',
+        },
+    ];
 
     return (
         <>
-            <Head title="Content Management" />
-            <div className="flex h-screen bg-gray-50">
-                {/* Sidebar - Desktop */}
-                <div className="hidden lg:block">
-                    <Sidebar currentPage="secretary.content" />
-                </div>
+            <Head title="Content & Guidelines - Secretary" />
+            <Header />
 
-                {/* Mobile Sidebar Overlay */}
-                {sidebarOpen && (
-                    <div className="fixed inset-0 z-50 lg:hidden">
-                        <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-                        <div className="absolute top-0 left-0 h-full">
-                            <Sidebar currentPage="secretary.content" />
-                        </div>
+            <div className="flex">
+                <Sidebar currentPage="secretary.content" />
+                <div className={`flex-1 space-y-6 p-6 ${className || ''}`}>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Content & Guidelines</h1>
+                        <p className="mt-2 text-gray-600">Resources and guidelines for secretary operations</p>
                     </div>
-                )}
 
-                {/* Main Content */}
-                <div className="flex flex-1 flex-col">
-                    <Header userName="Secretary" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                    {/* Flash Messages */}
+                    {flash?.success && (
+                        <Alert className="border-green-200 bg-green-50">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <AlertDescription className="text-green-800">{flash.success}</AlertDescription>
+                        </Alert>
+                    )}
 
-                    <main className="flex-1 overflow-auto p-4 lg:p-6">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Content Management</h2>
-                            <p className="text-gray-600">Manage feedback and certificates</p>
-                        </div>
+                    {flash?.error && (
+                        <Alert className="border-red-200 bg-red-50">
+                            <XCircle className="h-4 w-4 text-red-600" />
+                            <AlertDescription className="text-red-800">{flash.error}</AlertDescription>
+                        </Alert>
+                    )}
 
-                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                            {/* Feedback Section */}
-                            <div className="space-y-4">
-                                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                                    <MessageSquare className="h-5 w-5" />
-                                    Event Feedback
-                                </h3>
+                    {/* Welcome Info */}
+                    <Alert className="border-blue-200 bg-blue-50">
+                        <Info className="h-4 w-4 text-blue-600" />
+                        <AlertDescription className="text-blue-800">
+                            Welcome to the Secretary Dashboard! Here you'll find guidelines and best practices for managing community events and user
+                            registrations.
+                        </AlertDescription>
+                    </Alert>
 
-                                {mockFeedback.map((feedback) => (
-                                    <Card key={feedback.id} className="shadow-sm">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div>
-                                                    <CardTitle className="text-base">{feedback.eventName}</CardTitle>
-                                                    <p className="text-sm text-gray-600">{feedback.userName}</p>
-                                                </div>
-                                                <div className="flex items-center gap-1">{renderStars(feedback.rating)}</div>
+                    {/* Quick Actions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Settings className="h-5 w-5" />
+                                Quick Actions
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                {quickActions.map((action, index) => {
+                                    const IconComponent = action.icon;
+                                    return (
+                                        <a
+                                            key={index}
+                                            href={action.link}
+                                            className={`rounded-lg border p-4 transition-colors hover:shadow-md ${action.color}`}
+                                        >
+                                            <div className="mb-2 flex items-center gap-3">
+                                                <IconComponent className="h-5 w-5" />
+                                                <h3 className="font-semibold">{action.title}</h3>
                                             </div>
-                                        </CardHeader>
-
-                                        <CardContent>
-                                            <p className="mb-2 text-sm text-gray-700">{feedback.comment}</p>
-                                            <p className="text-xs text-gray-500">{feedback.date}</p>
-
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="mt-2"
-                                                        onClick={() => setSelectedFeedback(feedback)}
-                                                    >
-                                                        View Details
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Feedback Details</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="space-y-4">
-                                                        <div>
-                                                            <p className="font-semibold">{feedback.eventName}</p>
-                                                            <p className="text-sm text-gray-600">by {feedback.userName}</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm">Rating:</span>
-                                                            <div className="flex gap-1">{renderStars(feedback.rating)}</div>
-                                                        </div>
-                                                        <div>
-                                                            <p className="mb-2 font-medium">Comment:</p>
-                                                            <Textarea value={feedback.comment} readOnly className="min-h-[100px]" />
-                                                        </div>
-                                                        <p className="text-sm text-gray-500">Submitted: {feedback.date}</p>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                            <p className="text-sm opacity-80">{action.description}</p>
+                                        </a>
+                                    );
+                                })}
                             </div>
+                        </CardContent>
+                    </Card>
 
-                            {/* Certification Section */}
-                            <div className="space-y-4">
-                                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                                    <Award className="h-5 w-5" />
-                                    Certificates
-                                </h3>
+                    {/* Content Guidelines */}
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {contentSections.map((section, index) => {
+                            const IconComponent = section.icon;
+                            return (
+                                <Card key={index}>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <IconComponent className="h-5 w-5" />
+                                            {section.title}
+                                        </CardTitle>
+                                        <p className="text-sm text-gray-600">{section.description}</p>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ul className="space-y-2">
+                                            {section.content.map((item, itemIndex) => (
+                                                <li key={itemIndex} className="flex items-start gap-2 text-sm text-gray-700">
+                                                    <div className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400"></div>
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
 
-                                {certifications.map((cert) => (
-                                    <Card key={cert.id} className="shadow-sm">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-start justify-between">
-                                                <div>
-                                                    <CardTitle className="text-base">{cert.eventName}</CardTitle>
-                                                    <p className="text-sm text-gray-600">{cert.userName}</p>
-                                                </div>
-                                                <Badge className={getCertStatusColor(cert.status)}>
-                                                    {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                </Badge>
-                                            </div>
-                                        </CardHeader>
-
-                                        <CardContent>
-                                            <div className="space-y-2 text-sm">
-                                                <p>
-                                                    <span className="font-medium">Hours:</span> {cert.attendanceHours}
-                                                </p>
-                                                <p>
-                                                    <span className="font-medium">Date:</span> {cert.date}
-                                                </p>
-                                            </div>
-
-                                            <div className="mt-3 flex gap-2">
-                                                {cert.status === 'eligible' && (
-                                                    <Button size="sm" onClick={() => generateCertificate(cert.id)} className="gap-2">
-                                                        <FileText className="h-4 w-4" />
-                                                        Generate
-                                                    </Button>
-                                                )}
-
-                                                {cert.status === 'issued' && (
-                                                    <Button size="sm" variant="outline" onClick={() => downloadCertificate(cert)} className="gap-2">
-                                                        <Download className="h-4 w-4" />
-                                                        Download
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                    {/* System Information */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                System Information
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <div>
+                                    <h3 className="mb-3 font-semibold text-gray-900">Role Permissions</h3>
+                                    <ul className="space-y-2 text-sm text-gray-600">
+                                        <li>• Approve/decline user registrations</li>
+                                        <li>• Create events (requires captain approval)</li>
+                                        <li>• Manage event attendance and QR codes</li>
+                                        <li>• Assign certificates to attendees</li>
+                                        <li>• Review resident feedback</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="mb-3 font-semibold text-gray-900">Important Notes</h3>
+                                    <ul className="space-y-2 text-sm text-gray-600">
+                                        <li>• All events require captain approval</li>
+                                        <li>• QR codes should be assigned before events</li>
+                                        <li>• Certificates only for verified attendees</li>
+                                        <li>• Regular monitoring of pending users</li>
+                                        <li>• Feedback review helps improve services</li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                    </main>
+                        </CardContent>
+                    </Card>
+
+                    {/* Help Section */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <BookOpen className="h-5 w-5" />
+                                Need Help?
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2 text-sm text-gray-600">
+                                <p>
+                                    If you encounter any issues or need assistance with your secretary duties, please contact the system administrator
+                                    or refer to the user manual.
+                                </p>
+                                <p className="font-medium text-gray-900">
+                                    Remember: Your role is crucial in maintaining smooth community operations and ensuring residents have access to
+                                    quality events and services.
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </>

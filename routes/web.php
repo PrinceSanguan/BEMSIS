@@ -71,14 +71,26 @@ Route::middleware(SecretaryMiddleware::class)->group(function () {
   // Dashboard
   Route::get('secretary/dashboard', [SecretaryController::class, 'index'])->name('secretary.dashboard');
 
-  // Users
+  // Users Management
   Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
+  Route::patch('secretary/users/{user}/approve', [SecretaryController::class, 'approveUser'])->name('secretary.users.approve');
+  Route::patch('secretary/users/{user}/decline', [SecretaryController::class, 'declineUser'])->name('secretary.users.decline');
 
-  // Events
+  // Events Management
   Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');
+  Route::post('secretary/events', [SecretaryController::class, 'createEvent'])->name('secretary.events.create');
+  Route::get('secretary/events/{event}/attendees', [SecretaryController::class, 'eventAttendees'])->name('secretary.events.attendees');
+  Route::post('secretary/events/{event}/assign-qr', [SecretaryController::class, 'assignQrCodes'])->name('secretary.events.assign-qr');
+  Route::post('secretary/events/{event}/assign-certificates', [SecretaryController::class, 'assignCertificates'])->name('secretary.events.assign-certificates');
 
-  // Attendance
+  // QR Code Scanning
+  Route::post('secretary/scan-qr', [SecretaryController::class, 'scanQrCode'])->name('secretary.scan-qr');
+
+  // Attendance Management
   Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
+
+  // Feedback Review
+  Route::get('secretary/feedback', [SecretaryController::class, 'feedback'])->name('secretary.feedback');
 
   // Content
   Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');

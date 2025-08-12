@@ -1,157 +1,253 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
-import { Head } from '@inertiajs/react';
-import { Mail, MapPin, Phone, User } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { CheckCircle, Clock, Mail, MapPin, Phone, UserCheck, Users as UsersIcon, UserX, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const mockUsers = [
-    {
-        id: 1,
-        name: 'Juan Dela Cruz',
-        email: 'juan@email.com',
-        phone: '09123456789',
-        role: 'resident',
-        purok: 'Purok 1',
-        status: 'pending',
-        registeredAt: '2025-08-10',
-    },
-    {
-        id: 2,
-        name: 'Maria Santos',
-        email: 'maria@email.com',
-        phone: '09987654321',
-        role: 'partner_agency',
-        purok: null,
-        status: 'pending',
-        registeredAt: '2025-08-11',
-    },
-    {
-        id: 3,
-        name: 'Pedro Garcia',
-        email: 'pedro@email.com',
-        phone: '09555123456',
-        role: 'resident',
-        purok: 'Purok 3',
-        status: 'approved',
-        registeredAt: '2025-08-09',
-    },
-];
+interface Purok {
+    id: number;
+    name: string;
+}
 
-type UserStatus = 'pending' | 'approved' | 'disapproved';
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    role: 'resident' | 'partner_agency' | 'secretary' | 'captain';
+    status: 'pending' | 'approved' | 'declined';
+    purok?: Purok;
+    created_at: string;
+}
 
-export default function Users() {
-    const [users, setUsers] = useState(mockUsers);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+interface Props {
+    pendingUsers: User[];
+    className?: string;
+}
 
-    const handleUserAction = (userId: number, action: 'approved' | 'disapproved') => {
-        setUsers(users.map((user) => (user.id === userId ? { ...user, status: action as UserStatus } : user)));
+interface PageProps {
+    [key: string]: any;
+    flash?: {
+        success?: string;
+        error?: string;
+    };
+}
+
+export default function Users({ pendingUsers, className }: Props) {
+    const { flash } = usePage<PageProps>().props;
+    const [processingUsers, setProcessingUsers] = useState<Set<number>>(new Set());
+
+    const handleApproveUser = (userId: number) => {
+        setProcessingUsers((prev) => new Set([...prev, userId]));
+
+        router.patch(
+            `/secretary/users/${userId}/approve`,
+            {},
+            {
+                onFinish: () => {
+                    setProcessingUsers((prev) => {
+                        const newSet = new Set(prev);
+                        newSet.delete(userId);
+                        return newSet;
+                    });
+                },
+            },
+        );
     };
 
-    const getStatusColor = (status: UserStatus) => {
-        switch (status) {
-            case 'approved':
-                return 'bg-green-100 text-green-800';
-            case 'disapproved':
-                return 'bg-red-100 text-red-800';
-            default:
-                return 'bg-yellow-100 text-yellow-800';
-        }
+    const handleDeclineUser = (userId: number) => {
+        setProcessingUsers((prev) => new Set([...prev, userId]));
+
+        router.patch(
+            `/secretary/users/${userId}/decline`,
+            {},
+            {
+                onFinish: () => {
+                    setProcessingUsers((prev) => {
+                        const newSet = new Set(prev);
+                        newSet.delete(userId);
+                        return newSet;
+                    });
+                },
+            },
+        );
     };
 
-    const getRoleDisplay = (role: string) => {
-        return role === 'partner_agency' ? 'Partner Agency' : 'Resident';
+    const getRoleDisplay = (role: 'resident' | 'partner_agency' | 'secretary' | 'captain') => {
+        const roleMap: Record<string, { label: string; color: string }> = {
+            resident: { label: 'Resident', color: 'bg-blue-100 text-blue-800' },
+            partner_agency: { label: 'Partner Agency', color: 'bg-green-100 text-green-800' },
+            secretary: { label: 'Secretary', color: 'bg-purple-100 text-purple-800' },
+            captain: { label: 'Captain', color: 'bg-red-100 text-red-800' },
+        };
+        return roleMap[role] || { label: role, color: 'bg-gray-100 text-gray-800' };
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     };
 
     return (
         <>
-            <Head title="User Management" />
-            <div className="flex h-screen bg-gray-50">
-                {/* Sidebar - Desktop */}
-                <div className="hidden lg:block">
-                    <Sidebar currentPage="secretary.users" />
-                </div>
+            <Head title="User Management - Secretary" />
+            <Header />
 
-                {/* Mobile Sidebar Overlay */}
-                {sidebarOpen && (
-                    <div className="fixed inset-0 z-50 lg:hidden">
-                        <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-                        <div className="absolute top-0 left-0 h-full">
-                            <Sidebar currentPage="secretary.users" />
-                        </div>
+            <div className="flex">
+                <Sidebar currentPage="secretary.users" />
+                <div className={`flex-1 space-y-6 p-6 ${className || ''}`}>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+                        <p className="mt-2 text-gray-600">Review and approve pending user registrations</p>
                     </div>
-                )}
 
-                {/* Main Content */}
-                <div className="flex flex-1 flex-col">
-                    <Header userName="Secretary" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                    {/* Flash Messages */}
+                    {flash?.success && (
+                        <Alert className="border-green-200 bg-green-50">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <AlertDescription className="text-green-800">{flash.success}</AlertDescription>
+                        </Alert>
+                    )}
 
-                    <main className="flex-1 overflow-auto p-4 lg:p-6">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-                            <p className="text-gray-600">Review and approve user registrations</p>
-                        </div>
+                    {flash?.error && (
+                        <Alert className="border-red-200 bg-red-50">
+                            <XCircle className="h-4 w-4 text-red-600" />
+                            <AlertDescription className="text-red-800">{flash.error}</AlertDescription>
+                        </Alert>
+                    )}
 
-                        <div className="grid gap-4 md:gap-6">
-                            {users.map((user) => (
-                                <Card key={user.id} className="shadow-sm">
-                                    <CardHeader className="pb-3">
-                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                            <CardTitle className="flex items-center gap-2 text-lg">
-                                                <User className="h-5 w-5" />
-                                                {user.name}
-                                            </CardTitle>
-                                            <div className="flex gap-2">
-                                                <Badge variant="outline">{getRoleDisplay(user.role)}</Badge>
-                                                <Badge className={getStatusColor(user.status)}>
-                                                    {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
+                    {/* Statistics */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <Card>
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Pending Users</p>
+                                        <p className="text-2xl font-bold text-gray-900">{pendingUsers.length}</p>
+                                    </div>
+                                    <UsersIcon className="h-8 w-8 text-orange-600" />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                                    <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                                            <div className="flex items-center gap-2">
-                                                <Mail className="h-4 w-4 text-gray-500" />
-                                                <span>{user.email}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Phone className="h-4 w-4 text-gray-500" />
-                                                <span>{user.phone}</span>
-                                            </div>
-                                            {user.purok && (
-                                                <div className="flex items-center gap-2">
-                                                    <MapPin className="h-4 w-4 text-gray-500" />
-                                                    <span>{user.purok}</span>
+                        <Card>
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Residents</p>
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            {pendingUsers.filter((user) => user.role === 'resident').length}
+                                        </p>
+                                    </div>
+                                    <UserCheck className="h-8 w-8 text-blue-600" />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-600">Partner Agencies</p>
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            {pendingUsers.filter((user) => user.role === 'partner_agency').length}
+                                        </p>
+                                    </div>
+                                    <UserX className="h-8 w-8 text-green-600" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Pending Users List */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <UsersIcon className="h-5 w-5" />
+                                Pending User Registrations
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {pendingUsers.length === 0 ? (
+                                <div className="py-12 text-center">
+                                    <UsersIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                    <h3 className="mb-2 text-lg font-medium text-gray-900">No pending users</h3>
+                                    <p className="text-gray-600">All user registrations have been reviewed.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {pendingUsers.map((user) => {
+                                        const roleDisplay = getRoleDisplay(user.role);
+                                        const isProcessing = processingUsers.has(user.id);
+
+                                        return (
+                                            <div key={user.id} className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md">
+                                                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                    <div className="flex-1 space-y-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                                            <Badge className={roleDisplay.color}>{roleDisplay.label}</Badge>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <Mail className="h-4 w-4" />
+                                                                <span>{user.email}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <Phone className="h-4 w-4" />
+                                                                <span>{user.phone}</span>
+                                                            </div>
+                                                            {user.purok && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <MapPin className="h-4 w-4" />
+                                                                    <span>{user.purok.name}</span>
+                                                                </div>
+                                                            )}
+                                                            <div className="flex items-center gap-2">
+                                                                <Clock className="h-4 w-4" />
+                                                                <span>Registered: {formatDate(user.created_at)}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex gap-3">
+                                                        <Button
+                                                            onClick={() => handleApproveUser(user.id)}
+                                                            disabled={isProcessing}
+                                                            className="bg-green-600 text-white hover:bg-green-700"
+                                                            size="sm"
+                                                        >
+                                                            <UserCheck className="mr-2 h-4 w-4" />
+                                                            {isProcessing ? 'Processing...' : 'Approve'}
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => handleDeclineUser(user.id)}
+                                                            disabled={isProcessing}
+                                                            variant="destructive"
+                                                            size="sm"
+                                                        >
+                                                            <UserX className="mr-2 h-4 w-4" />
+                                                            {isProcessing ? 'Processing...' : 'Decline'}
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        <p className="text-sm text-gray-600">Registered: {user.registeredAt}</p>
-
-                                        {user.status === 'pending' && (
-                                            <div className="flex gap-2 pt-2">
-                                                <Button
-                                                    size="sm"
-                                                    onClick={() => handleUserAction(user.id, 'approved')}
-                                                    className="bg-green-600 hover:bg-green-700"
-                                                >
-                                                    Approve
-                                                </Button>
-                                                <Button size="sm" variant="destructive" onClick={() => handleUserAction(user.id, 'disapproved')}>
-                                                    Disapprove
-                                                </Button>
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </main>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </>

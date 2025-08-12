@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Middleware\GuestMiddleware;
+use App\Http\Controllers\Captain\CaptainController;
+use App\Http\Controllers\Secretary\SecretaryController;
+use App\Http\Controllers\Partner\PartnerController;
+use App\Http\Controllers\Resident\ResidentController;
+use App\Http\Controllers\Auth\RegisterController;
 
 
 /*
@@ -29,64 +34,78 @@ Route::get('logout', [LoginController::class, 'destroy'])->name('auth.logout');
 
 /*
 |--------------------------------------------------------------------------
-| This controller handles Google Auth Logic
-|--------------------------------------------------------------------------
-*/
-
-use App\Http\Controllers\Auth\SocialAuthController;
-
-Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
-
-/*
-|--------------------------------------------------------------------------
 | This controller handles Register Logic
 |--------------------------------------------------------------------------
 */
 
-use App\Http\Controllers\Auth\RegisterController;
-
-
 Route::get('register', [RegisterController::class, 'index'])->middleware(GuestMiddleware::class)->name('auth.register');
 
-/*
-|--------------------------------------------------------------------------
-| This controller handles All Admin Logic
-|--------------------------------------------------------------------------
-*/
-
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Middleware\AdminMiddleware;
-
-Route::middleware([AdminMiddleware::class])->group(function () {
-
-  // Dashboard
-  Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-  // Settings
-  Route::get('admin/settings', [SettingsController::class, 'index'])->name('admin.settings');
-  Route::put('admin/settings/profile', [SettingsController::class, 'updateProfile'])->name('admin.settings.updateProfile');
-  Route::put('admin/settings/password', [SettingsController::class, 'updatePassword'])->name('admin.settings.updatePassword');
-});
 
 /*
 |--------------------------------------------------------------------------
-| This controller handles All User Logic
+| This controller handles Captain Logic
 |--------------------------------------------------------------------------
 */
 
-use App\Http\Controllers\User\UserDashboardController;
-use App\Http\Controllers\User\UserSettingsController;
-use App\Http\Middleware\UserMiddleware;
+// Dashboard
+Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('captain.dashboard');
 
-Route::middleware([UserMiddleware::class])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| This controller handles Secretary Logic
+|--------------------------------------------------------------------------
+*/
 
-  // Dashboard
-  Route::get('dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+// Dashboard
+Route::get('secretary/dashboard', [SecretaryController::class, 'index'])->name('secretary.dashboard');
 
-  // Settings
-  Route::get('user/settings', [UserSettingsController::class, 'index'])->name('user.settings');
-  Route::put('user/settings/profile', [UserSettingsController::class, 'updateProfile'])->name('user.settings.updateProfile');
-  Route::put('user/settings/password', [UserSettingsController::class, 'updatePassword'])->name('user.settings.updatePassword');
-});
+// Users
+Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
+
+// Events
+Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');
+
+// Attendance
+Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
+
+// Content
+Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');
+
+/*
+|--------------------------------------------------------------------------
+| This controller handles Partner Logic
+|--------------------------------------------------------------------------
+*/
+
+// Dashboard
+Route::get('partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
+
+// Events
+Route::get('partner/events', [PartnerController::class, 'events'])->name('partner.events');
+
+// Profile
+Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');
+
+/*
+|--------------------------------------------------------------------------
+| This controller handles Resident Logic
+|--------------------------------------------------------------------------
+*/
+
+// Dashboard
+Route::get('resident/dashboard', [ResidentController::class, 'index'])->name('resident.dashboard');
+
+// Events
+Route::get('resident/events', [ResidentController::class, 'events'])->name('resident.events');
+
+// Attendance
+Route::get('resident/attendance', [ResidentController::class, 'attendance'])->name('resident.attendance');
+
+// Certificate
+Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
+
+// Feedback
+Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
+
+// Profile
+Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');

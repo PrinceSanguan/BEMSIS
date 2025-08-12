@@ -76,12 +76,15 @@ export default function Events({ events, puroks }: Props) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        const submitData = {
+        // Transform the data before submission
+        const transformedData = {
             ...data,
-            purok_id: data.purok_id === 'all' || data.purok_id === '' ? null : parseInt(data.purok_id),
+            purok_id: data.purok_id === 'all' || data.purok_id === '' ? null : parseInt(data.purok_id) || null,
         };
 
-        post('/secretary/events', submitData, {
+        // Update form data and then submit
+        post('/secretary/events', {
+            ...transformedData,
             onSuccess: () => {
                 reset();
                 setIsCreateDialogOpen(false);

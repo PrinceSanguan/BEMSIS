@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ userName = 'Resident User', onMobileMenuToggle }: HeaderProps) {
     const handleLogout = () => {
-        window.location.href = route('auth.login');
+        window.location.href = route('auth.logout');
     };
 
     return (

@@ -10,7 +10,7 @@ interface SidebarProps {
 export default function Sidebar({ className }: SidebarProps) {
     const handleLogout = () => {
         // Frontend only - replace with actual logout logic
-        window.location.href = route('auth.login');
+        window.location.href = route('auth.logout');
     };
 
     return (

@@ -18,7 +18,7 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
     ];
 
     const handleLogout = () => {
-        window.location.href = route('auth.login');
+        window.location.href = route('auth.logout');
     };
 
     return (

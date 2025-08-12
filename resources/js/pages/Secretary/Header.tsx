@@ -11,7 +11,7 @@ interface HeaderProps {
 export default function Header({ userName = 'Secretary', onMobileMenuToggle }: HeaderProps) {
     const handleLogout = () => {
         // Frontend only - replace with actual logout logic
-        window.location.href = route('auth.login');
+        window.location.href = route('auth.logout');
     };
 
     return (

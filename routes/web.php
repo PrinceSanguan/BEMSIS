@@ -1,13 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use App\Http\Middleware\GuestMiddleware;
+
+
 use App\Http\Controllers\Captain\CaptainController;
 use App\Http\Controllers\Secretary\SecretaryController;
 use App\Http\Controllers\Partner\PartnerController;
 use App\Http\Controllers\Resident\ResidentController;
 use App\Http\Controllers\Auth\RegisterController;
+
+// Middleware
+use App\Http\Middleware\CaptainMiddleware;
+use App\Http\Middleware\SecretaryMiddleware;
+use App\Http\Middleware\PartnerMiddleware;
+use App\Http\Middleware\ResidentMiddleware;
 
 
 /*
@@ -28,9 +34,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 use App\Http\Controllers\Auth\LoginController;
 
-Route::get('login', [LoginController::class, 'index'])->middleware(GuestMiddleware::class)->name('auth.login');
+Route::get('login', [LoginController::class, 'index'])->name('auth.login');
 Route::post('login', [LoginController::class, 'store'])->name('auth.login.store');
 Route::get('logout', [LoginController::class, 'destroy'])->name('auth.logout');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +45,7 @@ Route::get('logout', [LoginController::class, 'destroy'])->name('auth.logout');
 |--------------------------------------------------------------------------
 */
 
-Route::get('register', [RegisterController::class, 'index'])->middleware(GuestMiddleware::class)->name('auth.register');
+Route::get('register', [RegisterController::class, 'index'])->name('auth.register');
 
 
 /*
@@ -47,8 +54,10 @@ Route::get('register', [RegisterController::class, 'index'])->middleware(GuestMi
 |--------------------------------------------------------------------------
 */
 
-// Dashboard
-Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('captain.dashboard');
+Route::middleware(CaptainMiddleware::class)->group(function () {
+  // Dashboard
+  Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('captain.dashboard');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -56,35 +65,39 @@ Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('capt
 |--------------------------------------------------------------------------
 */
 
-// Dashboard
-Route::get('secretary/dashboard', [SecretaryController::class, 'index'])->name('secretary.dashboard');
+Route::middleware(SecretaryMiddleware::class)->group(function () {
 
-// Users
-Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
+  // Dashboard
+  Route::get('secretary/dashboard', [SecretaryController::class, 'index'])->name('secretary.dashboard');
 
-// Events
-Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');
+  // Users
+  Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
 
-// Attendance
-Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
+  // Events
+  Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');
 
-// Content
-Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');
+  // Attendance
+  Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
 
+  // Content
+  Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');
+});
 /*
 |--------------------------------------------------------------------------
 | This controller handles Partner Logic
 |--------------------------------------------------------------------------
 */
 
-// Dashboard
-Route::get('partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
+Route::middleware(PartnerMiddleware::class)->group(function () {
+  // Dashboard
+  Route::get('partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
 
-// Events
-Route::get('partner/events', [PartnerController::class, 'events'])->name('partner.events');
+  // Events
+  Route::get('partner/events', [PartnerController::class, 'events'])->name('partner.events');
 
-// Profile
-Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');
+  // Profile
+  Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -92,20 +105,22 @@ Route::get('partner/profile', [PartnerController::class, 'profile'])->name('part
 |--------------------------------------------------------------------------
 */
 
-// Dashboard
-Route::get('resident/dashboard', [ResidentController::class, 'index'])->name('resident.dashboard');
+Route::middleware(ResidentMiddleware::class)->group(function () {
+  // Dashboard
+  Route::get('resident/dashboard', [ResidentController::class, 'index'])->name('resident.dashboard');
 
-// Events
-Route::get('resident/events', [ResidentController::class, 'events'])->name('resident.events');
+  // Events
+  Route::get('resident/events', [ResidentController::class, 'events'])->name('resident.events');
 
-// Attendance
-Route::get('resident/attendance', [ResidentController::class, 'attendance'])->name('resident.attendance');
+  // Attendance
+  Route::get('resident/attendance', [ResidentController::class, 'attendance'])->name('resident.attendance');
 
-// Certificate
-Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
+  // Certificate
+  Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
 
-// Feedback
-Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
+  // Feedback
+  Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
 
-// Profile
-Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');
+  // Profile
+  Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');
+});

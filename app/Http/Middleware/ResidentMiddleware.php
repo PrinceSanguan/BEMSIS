@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class UserMiddleware
+class ResidentMiddleware
 {
     /**
      * Handle an incoming request.
@@ -27,18 +27,18 @@ class UserMiddleware
             return redirect()->route('auth.login')->with('error', 'Please login to access this page');
         }
 
-        // Check if authenticated user has user role or admin role
-        if (Auth::user()->user_role !== 'user' && Auth::user()->user_role !== 'admin') {
+        // Check if authenticated user has resident role
+        if (Auth::user()->role !== 'resident') {
             if ($request->wantsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'message' => 'Access denied. User privileges required',
+                    'message' => 'Access denied. Resident privileges required',
                 ], 403);
             }
 
-            return redirect()->route('home')->with('error', 'Access denied. User privileges required');
+            return redirect()->route('home')->with('error', 'Access denied. Resident privileges required');
         }
 
-        // User is authenticated and has user role, proceed
+        // User is authenticated and has resident role, proceed
         return $next($request);
     }
 }

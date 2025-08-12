@@ -54,6 +54,13 @@ export default function Login({ flash }: LoginProps) {
                 if (errors.auth) {
                     setAuthError(errors.auth);
                 }
+                // Handle validation errors
+                if (errors.email) {
+                    setAuthError(errors.email);
+                }
+                if (errors.password) {
+                    setAuthError(errors.password);
+                }
             },
         });
     };

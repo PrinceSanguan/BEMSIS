@@ -4,70 +4,74 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
-import { Head } from '@inertiajs/react';
-import { Calendar, CalendarDays, Clock, MapPin, Users } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { Award, Calendar, CalendarDays, Clock, MapPin } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const mockEvents = [
-    {
-        id: 1,
-        title: 'Community Clean-up Drive',
-        date: '2025-08-20',
-        time: '8:00 AM - 12:00 PM',
-        location: 'Purok 1',
-        description: 'Join us in keeping our community clean and green. Bring your own gloves and cleaning materials.',
-        organizer: 'Barangay Council',
-        maxAttendees: 50,
-        currentAttendees: 35,
-        status: 'open',
-        userRegistered: false,
-    },
-    {
-        id: 2,
-        title: 'Health Seminar',
-        date: '2025-08-25',
-        time: '2:00 PM - 5:00 PM',
-        location: 'Community Hall',
-        description: 'Learn about health and wellness practices for better living.',
-        organizer: 'Philippine Red Cross',
-        maxAttendees: 100,
-        currentAttendees: 67,
-        status: 'open',
-        userRegistered: true,
-    },
-    {
-        id: 3,
-        title: 'Basketball Tournament',
-        date: '2025-08-30',
-        time: '6:00 AM - 6:00 PM',
-        location: 'Basketball Court',
-        description: 'Inter-purok basketball competition. Register your team now!',
-        organizer: 'Sports Committee',
-        maxAttendees: 200,
-        currentAttendees: 180,
-        status: 'almost_full',
-        userRegistered: false,
-    },
-];
+interface Event {
+    id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    end_date?: string;
+    creator: { name: string };
+    purok?: { name: string };
+    user_registered: boolean;
+    registration_status?: string;
+    current_attendees: number;
+    has_certificate: boolean;
+}
 
-export default function Events() {
-    const [events, setEvents] = useState(mockEvents);
+interface Props {
+    events: Event[];
+}
+
+export default function Events({ events }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<any>(null);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [processing, setProcessing] = useState<number | null>(null);
 
     const handleRegister = (eventId: number) => {
-        setEvents(
-            events.map((event) => (event.id === eventId ? { ...event, userRegistered: true, currentAttendees: event.currentAttendees + 1 } : event)),
+        setProcessing(eventId);
+        router.post(
+            route('resident.events.register', eventId),
+            {},
+            {
+                onSuccess: () => {
+                    setProcessing(null);
+                },
+                onError: () => {
+                    setProcessing(null);
+                },
+            },
         );
-        alert('Successfully registered for the event!');
     };
 
     const handleUnregister = (eventId: number) => {
-        setEvents(
-            events.map((event) => (event.id === eventId ? { ...event, userRegistered: false, currentAttendees: event.currentAttendees - 1 } : event)),
-        );
-        alert('Successfully unregistered from the event!');
+        setProcessing(eventId);
+        router.delete(route('resident.events.unregister', eventId), {
+            onSuccess: () => {
+                setProcessing(null);
+            },
+            onError: () => {
+                setProcessing(null);
+            },
+        });
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    };
+
+    const formatTime = (dateString: string) => {
+        return new Date(dateString).toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     };
 
     const getStatusColor = (status: string) => {
@@ -171,24 +175,27 @@ export default function Events() {
                                     <CardContent className="space-y-4">
                                         <p className="text-gray-600">{event.description}</p>
 
-                                        <div className="grid grid-cols-1 gap-4 text-sm text-gray-500 sm:grid-cols-2 lg:grid-cols-4">
+                                        <div className="grid grid-cols-1 gap-4 text-sm text-gray-500 sm:grid-cols-2 lg:grid-cols-3">
                                             <div className="flex items-center gap-1">
                                                 <Calendar className="h-4 w-4" />
-                                                {event.date}
+                                                {formatDate(event.start_date)}
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <Clock className="h-4 w-4" />
-                                                {event.time}
+                                                {formatTime(event.start_date)}
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <MapPin className="h-4 w-4" />
-                                                {event.location}
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <Users className="h-4 w-4" />
-                                                {event.currentAttendees}/{event.maxAttendees}
+                                                {event.purok?.name || 'All Puroks'}
                                             </div>
                                         </div>
+
+                                        {event.has_certificate && (
+                                            <div className="flex items-center gap-1 text-sm text-green-600">
+                                                <Award className="h-4 w-4" />
+                                                Certificate Available
+                                            </div>
+                                        )}
 
                                         <div className="flex gap-2 pt-2">
                                             <Dialog>
@@ -228,17 +235,18 @@ export default function Events() {
                                                 </DialogContent>
                                             </Dialog>
 
-                                            {event.userRegistered ? (
-                                                <Button size="sm" variant="destructive" onClick={() => handleUnregister(event.id)}>
-                                                    Unregister
-                                                </Button>
-                                            ) : event.status !== 'full' ? (
-                                                <Button size="sm" onClick={() => handleRegister(event.id)}>
-                                                    Register
+                                            {event.user_registered ? (
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    onClick={() => handleUnregister(event.id)}
+                                                    disabled={processing === event.id}
+                                                >
+                                                    {processing === event.id ? 'Processing...' : 'Unregister'}
                                                 </Button>
                                             ) : (
-                                                <Button size="sm" disabled>
-                                                    Event Full
+                                                <Button size="sm" onClick={() => handleRegister(event.id)} disabled={processing === event.id}>
+                                                    {processing === event.id ? 'Registering...' : 'Register'}
                                                 </Button>
                                             )}
                                         </div>

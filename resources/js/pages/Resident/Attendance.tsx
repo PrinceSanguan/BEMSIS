@@ -8,61 +8,40 @@ import { Head } from '@inertiajs/react';
 import { Calendar, CheckCircle, Clock, MapPin, QrCode } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const confirmedEvents = [
-    {
-        id: 1,
-        title: 'Community Clean-up Drive',
-        date: '2025-08-20',
-        time: '8:00 AM - 12:00 PM',
-        location: 'Purok 1',
-        status: 'upcoming',
-        hasQR: true,
-    },
-    {
-        id: 2,
-        title: 'Health Seminar',
-        date: '2025-08-25',
-        time: '2:00 PM - 5:00 PM',
-        location: 'Community Hall',
-        status: 'upcoming',
-        hasQR: true,
-    },
-];
+interface ConfirmedEvent {
+    id: number;
+    event: {
+        id: number;
+        title: string;
+        start_date: string;
+        end_date?: string;
+        purok?: { name: string };
+    };
+    qr_code: string;
+    has_qr: boolean;
+}
 
-const attendanceHistory = [
-    {
-        id: 1,
-        title: 'Skills Workshop',
-        date: '2025-08-10',
-        location: 'Training Center',
-        status: 'attended',
-        checkIn: '2:00 PM',
-        checkOut: '5:30 PM',
-    },
-    {
-        id: 2,
-        title: 'Community Meeting',
-        date: '2025-08-05',
-        location: 'Barangay Hall',
-        status: 'attended',
-        checkIn: '7:00 PM',
-        checkOut: '9:15 PM',
-    },
-    {
-        id: 3,
-        title: 'Tree Planting Activity',
-        date: '2025-07-28',
-        location: 'Park Area',
-        status: 'missed',
-        checkIn: null,
-        checkOut: null,
-    },
-];
+interface AttendanceRecord {
+    id: number;
+    event: {
+        title: string;
+        start_date: string;
+        purok?: { name: string };
+    };
+    status: 'attended' | 'missed';
+    scanned_at?: string;
+}
 
-export default function Attendance() {
+interface Props {
+    confirmedEvents: ConfirmedEvent[];
+    attendanceHistory: AttendanceRecord[];
+}
+
+export default function Attendance({ confirmedEvents, attendanceHistory }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<any>(null);
+    const [selectedEvent, setSelectedEvent] = useState<ConfirmedEvent | null>(null);
+    const [qrCodeSvg, setQrCodeSvg] = useState<string | null>(null);
+    const [showQRModal, setShowQRModal] = useState(false);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -75,8 +54,18 @@ export default function Attendance() {
         }
     };
 
-    const showQRCode = (event: any) => {
-        setSelectedEvent(event);
+    const showQRCode = async (eventData: ConfirmedEvent) => {
+        setSelectedEvent(eventData);
+
+        try {
+            const response = await fetch(route('resident.attendance.qr', eventData.id));
+            const data = await response.json();
+            setQrCodeSvg(data.qr_svg);
+            setShowQRModal(true);
+        } catch (error) {
+            console.error('Error fetching QR code:', error);
+            alert('Error loading QR code. Please try again.');
+        }
     };
 
     return (
@@ -117,13 +106,13 @@ export default function Attendance() {
 
                             {/* Confirmed Events */}
                             <TabsContent value="confirmed" className="space-y-4">
-                                {confirmedEvents.map((event) => (
-                                    <Card key={event.id} className="shadow-sm">
+                                {confirmedEvents.map((eventData) => (
+                                    <Card key={eventData.id} className="shadow-sm">
                                         <CardHeader className="pb-3">
                                             <CardTitle className="flex items-center justify-between text-lg">
-                                                {event.title}
-                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(event.status)}`}>
-                                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                                {eventData.event.title}
+                                                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-600">
+                                                    Confirmed
                                                 </span>
                                             </CardTitle>
                                         </CardHeader>
@@ -132,20 +121,20 @@ export default function Attendance() {
                                             <div className="grid grid-cols-1 gap-4 text-sm text-gray-500 sm:grid-cols-3">
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-4 w-4" />
-                                                    {event.date}
+                                                    {new Date(eventData.event.start_date).toLocaleDateString()}
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <Clock className="h-4 w-4" />
-                                                    {event.time}
+                                                    {new Date(eventData.event.start_date).toLocaleTimeString()}
                                                 </div>
                                                 <div className="flex items-center gap-1">
                                                     <MapPin className="h-4 w-4" />
-                                                    {event.location}
+                                                    {eventData.event.purok?.name || 'All Puroks'}
                                                 </div>
                                             </div>
 
                                             <div className="flex gap-2 pt-2">
-                                                <Button size="sm" variant="outline" onClick={() => showQRCode(event)} className="gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => showQRCode(eventData)} className="gap-2">
                                                     <QrCode className="h-4 w-4" />
                                                     Show QR Code
                                                 </Button>
@@ -155,12 +144,36 @@ export default function Attendance() {
                                 ))}
                             </TabsContent>
 
-                            {/* My QR Codes */}
-                            <TabsContent value="qrcodes" className="space-y-4">
+                          {/* My QR Codes */}
+                          <TabsContent value="qrcodes" className="space-y-4">
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     {confirmedEvents
-                                        .filter((event) => event.hasQR)
-                                        .map((event) => (
+                                        .filter((eventData) => eventData.has_qr)
+                                        .map((eventData) => (
+                                            <Card key={eventData.id} className="shadow-sm">
+                                                <CardHeader className="pb-3">
+                                                    <CardTitle className="text-base">{eventData.event.title}</CardTitle>
+                                                </CardHeader>
+
+                                                <CardContent className="space-y-4">
+                                                    <div className="flex justify-center">
+                                                        <div className="flex h-32 w-32 items-center justify-center border-2 border-dashed border-gray-300 bg-gray-100">
+                                                            <QrCode className="h-12 w-12 text-gray-400" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="text-center text-sm text-gray-600">
+                                                        <p>{new Date(eventData.event.start_date).toLocaleDateString()}</p>
+                                                        <p>{eventData.event.purok?.name || 'All Puroks'}</p>
+                                                    </div>
+
+                                                    <Button size="sm" className="w-full" onClick={() => showQRCode(eventData)}>
+                                                        View Full QR Code
+                                                    </Button>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                </div>
                                             <Card key={event.id} className="shadow-sm">
                                                 <CardHeader className="pb-3">
                                                     <CardTitle className="text-base">{event.title}</CardTitle>
@@ -189,11 +202,44 @@ export default function Attendance() {
 
                             {/* Attendance History */}
                             <TabsContent value="history" className="space-y-4">
-                                {attendanceHistory.map((record) => (
+                            {attendanceHistory.map((record) => (
                                     <Card key={record.id} className="shadow-sm">
                                         <CardHeader className="pb-3">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="text-lg">{record.title}</CardTitle>
+                                                <CardTitle className="text-lg">{record.event.title}</CardTitle>
+                                                <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(record.status)}`}>
+                                                    {record.status === 'attended' ? (
+                                                        <div className="flex items-center gap-1">
+                                                            <CheckCircle className="h-3 w-3" />
+                                                            Attended
+                                                        </div>
+                                                    ) : (
+                                                        'Missed'
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent>
+                                            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                                                <div>
+                                                    <p className="font-medium text-gray-700">Date</p>
+                                                    <p className="text-gray-600">{new Date(record.event.start_date).toLocaleDateString()}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-gray-700">Location</p>
+                                                    <p className="text-gray-600">{record.event.purok?.name || 'All Puroks'}</p>
+                                                </div>
+                                                {record.scanned_at && (
+                                                    <div>
+                                                        <p className="font-medium text-gray-700">Scanned At</p>
+                                                        <p className="text-gray-600">{new Date(record.scanned_at).toLocaleTimeString()}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
                                                 <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(record.status)}`}>
                                                     {record.status === 'attended' ? (
                                                         <div className="flex items-center gap-1">
@@ -259,6 +305,30 @@ export default function Attendance() {
                         </Dialog>
                     </main>
                 </div>
+
+                {/* QR Code Modal */}
+                <Dialog open={showQRModal} onOpenChange={setShowQRModal}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Your QR Code</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col items-center space-y-4">
+                            {selectedEvent && (
+                                <>
+                                    <h3 className="text-lg font-medium">{selectedEvent.event.title}</h3>
+                                    <div
+                                        className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-white"
+                                        dangerouslySetInnerHTML={{ __html: qrCodeSvg || '' }}
+                                    />
+                                    <p className="text-center text-sm text-gray-600">Present this QR code at the event for attendance scanning</p>
+                                </>
+                            )}
+                            <Button onClick={() => setShowQRModal(false)} className="w-full">
+                                Close
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
     );

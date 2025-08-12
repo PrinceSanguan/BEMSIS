@@ -46,6 +46,7 @@ Route::get('logout', [LoginController::class, 'destroy'])->name('auth.logout');
 */
 
 Route::get('register', [RegisterController::class, 'index'])->name('auth.register');
+Route::post('register', [RegisterController::class, 'store'])->name('auth.register.store');
 
 
 /*
@@ -111,16 +112,21 @@ Route::middleware(ResidentMiddleware::class)->group(function () {
 
   // Events
   Route::get('resident/events', [ResidentController::class, 'events'])->name('resident.events');
+  Route::post('resident/events/{event}/register', [ResidentController::class, 'registerForEvent'])->name('resident.events.register');
+  Route::delete('resident/events/{event}/unregister', [ResidentController::class, 'unregisterFromEvent'])->name('resident.events.unregister');
 
   // Attendance
   Route::get('resident/attendance', [ResidentController::class, 'attendance'])->name('resident.attendance');
+  Route::get('resident/attendance/{attendance}/qr-code', [ResidentController::class, 'generateQRCode'])->name('resident.attendance.qr');
 
   // Certificate
   Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
 
   // Feedback
   Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
+  Route::post('resident/feedback', [ResidentController::class, 'submitFeedback'])->name('resident.feedback.submit');
 
   // Profile
   Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');
+  Route::put('resident/profile', [ResidentController::class, 'updateProfile'])->name('resident.profile.update');
 });

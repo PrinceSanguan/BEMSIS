@@ -9,53 +9,55 @@ import { Head } from '@inertiajs/react';
 import { Calendar, MessageSquare, Send, Star } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const pendingFeedback = [
-    {
-        id: 1,
-        eventName: 'Skills Development Workshop',
-        date: '2025-08-10',
-        organizer: 'Training Center',
-        attended: true,
-    },
-    {
-        id: 2,
-        eventName: 'Community Clean-up Drive',
-        date: '2025-08-05',
-        organizer: 'Barangay Council',
-        attended: true,
-    },
-];
+import { useForm } from '@inertiajs/react';
 
-const feedbackHistory = [
-    {
-        id: 1,
-        eventName: 'Community Leadership Training',
-        date: '2025-07-15',
-        rating: 5,
-        comment: 'Excellent training program! Very informative and well-organized.',
-        submittedDate: '2025-07-16',
-    },
-    {
-        id: 2,
-        eventName: 'Health Awareness Campaign',
-        date: '2025-06-20',
-        rating: 4,
-        comment: 'Good seminar but could use more interactive sessions.',
-        submittedDate: '2025-06-21',
-    },
-    {
-        id: 3,
-        eventName: 'Environmental Protection Seminar',
-        date: '2025-05-25',
-        rating: 5,
-        comment: 'Very educational and inspiring. Thank you for organizing this event.',
-        submittedDate: '2025-05-26',
-    },
-];
+interface EventNeedingFeedback {
+    id: number;
+    event_name: string;
+    date: string;
+    has_certificate: boolean;
+}
 
-export default function Feedback() {
+interface FeedbackHistory {
+    id: number;
+    event_name: string;
+    date: string;
+    comment: string;
+    submitted_date: string;
+    rating: number;
+}
+
+interface Props {
+    eventsNeedingFeedback: EventNeedingFeedback[];
+    feedbackHistory: FeedbackHistory[];
+}
+
+export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<EventNeedingFeedback | null>(null);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        event_id: 0,
+        comments: '',
+    });
+
+    const handleSubmitFeedback = (event: EventNeedingFeedback) => {
+        setSelectedEvent(event);
+        setData('event_id', event.id);
+        setShowFeedbackModal(true);
+    };
+
+    const submitFeedback = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('resident.feedback.submit'), {
+            onSuccess: () => {
+                setShowFeedbackModal(false);
+                reset();
+                setSelectedEvent(null);
+            },
+        });
+    };
     const [selectedEvent, setSelectedEvent] = useState<any>(null);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');

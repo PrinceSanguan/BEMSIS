@@ -5,23 +5,30 @@ import { Head } from '@inertiajs/react';
 import { Award, Calendar, MessageSquare, QrCode } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const dashboardStats = [
-    { title: 'Events Attended', value: '12', icon: Calendar, color: 'text-blue-600' },
-    { title: 'QR Codes Generated', value: '8', icon: QrCode, color: 'text-green-600' },
-    { title: 'Certificates Earned', value: '5', icon: Award, color: 'text-purple-600' },
-    { title: 'Feedback Submitted', value: '7', icon: MessageSquare, color: 'text-orange-600' },
-];
+interface Props {
+    stats: {
+        eventsAttended: number;
+        qrCodesGenerated: number;
+        certificatesEarned: number;
+        feedbackSubmitted: number;
+    };
+    upcomingEvents: Array<{
+        id: number;
+        title: string;
+        start_date: string;
+        registration_status: string;
+    }>;
+}
 
-const upcomingEvents = [
-    { name: 'Community Clean-up Drive', date: '2025-08-20', status: 'registered' },
-    { name: 'Health Seminar', date: '2025-08-25', status: 'pending' },
-    { name: 'Basketball Tournament', date: '2025-08-30', status: 'available' },
-    { name: 'Skills Workshop', date: '2025-09-05', status: 'available' },
-];
-
-export default function Dashboard() {
+export default function Dashboard({ stats, upcomingEvents }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const dashboardStats = [
+        { title: 'Events Attended', value: stats.eventsAttended.toString(), icon: Calendar, color: 'text-blue-600' },
+        { title: 'QR Codes Generated', value: stats.qrCodesGenerated.toString(), icon: QrCode, color: 'text-green-600' },
+        { title: 'Certificates Earned', value: stats.certificatesEarned.toString(), icon: Award, color: 'text-purple-600' },
+        { title: 'Feedback Submitted', value: stats.feedbackSubmitted.toString(), icon: MessageSquare, color: 'text-orange-600' },
+    ];
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -87,14 +94,17 @@ export default function Dashboard() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {upcomingEvents.map((event, index) => (
-                                        <div key={index} className="flex items-center justify-between border-b pb-3 last:border-b-0">
+                                    {upcomingEvents.map((event) => (
+                                        <div key={event.id} className="flex items-center justify-between rounded-lg border p-4">
                                             <div>
-                                                <p className="font-medium text-gray-900">{event.name}</p>
-                                                <p className="text-sm text-gray-600">{event.date}</p>
+                                                <h4 className="font-medium text-gray-900">{event.title}</h4>
+                                                <p className="text-sm text-gray-500">{new Date(event.start_date).toLocaleDateString()}</p>
                                             </div>
-                                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(event.status)}`}>
-                                                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                            <span
+                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(event.registration_status)}`}
+                                            >
+                                                {event.registration_status?.charAt(0).toUpperCase() + event.registration_status?.slice(1) ||
+                                                    'Available'}
                                             </span>
                                         </div>
                                     ))}

@@ -34,10 +34,26 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Check if user account is approved
+            if ($user->status !== 'approved') {
+                Auth::logout();
+
+                $statusMessage = match ($user->status) {
+                    'pending' => 'Your account is pending approval from the administrator. Please wait for confirmation.',
+                    'declined' => 'Your account has been declined. Please contact the administrator for more information.',
+                    default => 'Your account status is not valid. Please contact the administrator.'
+                };
+
+                throw ValidationException::withMessages([
+                    'auth' => $statusMessage,
+                ]);
+            }
+
             $request->session()->regenerate();
 
             // Check user role and redirect accordingly
-            $user = Auth::user();
             switch ($user->role) {
                 case 'captain':
                     return redirect()->route('captain.dashboard');
@@ -71,6 +87,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success', 'You have been logged out successfully.');
     }
 }

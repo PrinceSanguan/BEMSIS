@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
-import { Award, Calendar, Clock, Download, Eye } from 'lucide-react';
+import { Award, Download, Eye, FileCheck } from 'lucide-react';
 import { useState } from 'react';
 
 interface Certificate {
@@ -22,15 +22,24 @@ interface Props {
 
 export default function Certificates({ certificates }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
-    const handleDownload = (certificate: Certificate) => {
+    const handleDownload = async (certificate: Certificate) => {
         if (certificate.file_path) {
-            const link = document.createElement('a');
-            link.href = `/storage/${certificate.file_path}`;
-            link.download = `Certificate_${certificate.event_name}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            setDownloadingId(certificate.id);
+            try {
+                const link = document.createElement('a');
+                link.href = `/storage/${certificate.file_path}`;
+                link.download = `Certificate_${certificate.event_name.replace(/\s+/g, '_')}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Failed to download certificate. Please try again.');
+            } finally {
+                setDownloadingId(null);
+            }
         } else {
             alert('Certificate file not available');
         }
@@ -57,6 +66,9 @@ export default function Certificates({ certificates }: Props) {
         }
     };
 
+    const availableCertificates = certificates.filter((cert) => cert.status === 'available');
+    const processingCertificates = certificates.filter((cert) => cert.status === 'processing');
+
     return (
         <>
             <Head title="My Certificates" />
@@ -80,158 +92,211 @@ export default function Certificates({ certificates }: Props) {
                 <div className="flex flex-1 flex-col">
                     <Header userName="Juan Dela Cruz" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex-1 overflow-auto p-4 lg:p-6">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">My Certificates</h2>
-                            <p className="text-gray-600">View and download your earned certificates</p>
-                        </div>
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                        <div className="mx-auto max-w-4xl space-y-6">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">My Certificates</h1>
+                                <p className="text-gray-600">View and download your earned certificates from completed events.</p>
+                            </div>
 
-                        <Tabs defaultValue="mycerts" className="space-y-6">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="mycerts">My Certificates</TabsTrigger>
-                                <TabsTrigger value="download">Download Center</TabsTrigger>
-                            </TabsList>
+                            <Tabs defaultValue="available" className="space-y-6">
+                                <TabsList className="grid w-full grid-cols-3">
+                                    <TabsTrigger value="available">Available ({availableCertificates.length})</TabsTrigger>
+                                    <TabsTrigger value="processing">Processing ({processingCertificates.length})</TabsTrigger>
+                                    <TabsTrigger value="all">All Certificates ({certificates.length})</TabsTrigger>
+                                </TabsList>
 
-                            {/* My Certificates */}
-                            <TabsContent value="mycerts" className="space-y-4">
-                                <div className="grid gap-4 md:gap-6">
-                                    {certificates
-                                        .filter((cert) => cert.status === 'available')
-                                        .map((cert) => (
-                                            <Card key={cert.id} className="shadow-sm">
-                                                <CardHeader className="pb-3">
-                                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                        <CardTitle className="flex items-center gap-2 text-lg">
-                                                            <Award className="h-5 w-5 text-yellow-600" />
-                                                            {cert.event_name}
-                                                        </CardTitle>
-                                                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}>
-                                                            {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                        </span>
-                                                    </div>
-                                                </CardHeader>
-
-                                                <CardContent className="space-y-4">
-                                                    <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
-                                                        <div>
-                                                            <p className="font-medium text-gray-700">Certificate Type</p>
-                                                            <p className="text-gray-600">{cert.type}</p>
+                                {/* Available Certificates */}
+                                <TabsContent value="available" className="space-y-4">
+                                    {availableCertificates.length > 0 ? (
+                                        <div className="grid gap-4 md:gap-6">
+                                            {availableCertificates.map((cert) => (
+                                                <Card key={cert.id} className="shadow-sm">
+                                                    <CardHeader className="pb-3">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                            <CardTitle className="flex items-center gap-2 text-lg">
+                                                                <Award className="h-5 w-5 text-yellow-600" />
+                                                                {cert.event_name}
+                                                            </CardTitle>
+                                                            <span
+                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                            >
+                                                                {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                                                            </span>
                                                         </div>
-                                                        <div>
-                                                            <p className="font-medium text-gray-700">Date Earned</p>
-                                                            <div className="flex items-center gap-1 text-gray-600">
-                                                                <Calendar className="h-4 w-4" />
-                                                                {cert.dateEarned}
+                                                    </CardHeader>
+
+                                                    <CardContent className="space-y-4">
+                                                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Date Earned</p>
+                                                                <p>{new Date(cert.date_earned).toLocaleDateString()}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Type</p>
+                                                                <p>{cert.type}</p>
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <p className="font-medium text-gray-700">Training Hours</p>
-                                                            <div className="flex items-center gap-1 text-gray-600">
-                                                                <Clock className="h-4 w-4" />
-                                                                {cert.hours} hours
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
-                                                    {cert.status === 'available' && (
                                                         <div className="flex gap-2 pt-2">
-                                                            <Button size="sm" onClick={() => handleView(cert)} className="gap-2">
-                                                                <Eye className="h-4 w-4" />
-                                                                View
-                                                            </Button>
                                                             <Button
                                                                 size="sm"
-                                                                variant="outline"
                                                                 onClick={() => handleDownload(cert)}
+                                                                disabled={downloadingId === cert.id}
                                                                 className="gap-2"
                                                             >
                                                                 <Download className="h-4 w-4" />
-                                                                Download
+                                                                {downloadingId === cert.id ? 'Downloading...' : 'Download'}
+                                                            </Button>
+                                                            <Button size="sm" variant="outline" onClick={() => handleView(cert)} className="gap-2">
+                                                                <Eye className="h-4 w-4" />
+                                                                Preview
                                                             </Button>
                                                         </div>
-                                                    )}
-
-                                                    {cert.status === 'processing' && (
-                                                        <div className="pt-2">
-                                                            <p className="text-sm text-yellow-600">
-                                                                Certificate is being processed. You will be notified once ready.
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                </div>
-                            </TabsContent>
-
-                            {/* Download Center */}
-                            <TabsContent value="download" className="space-y-4">
-                                <div className="mb-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">Available Downloads</h3>
-                                    <p className="text-sm text-gray-600">Certificates ready for download</p>
-                                </div>
-
-                                <div className="grid gap-4 md:gap-6">
-                                    {availableCertificates.map((cert) => (
-                                        <Card key={cert.id} className="shadow-sm">
-                                            <CardHeader className="pb-3">
-                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                    <CardTitle className="flex items-center gap-2 text-lg">
-                                                        <Award className="h-5 w-5 text-blue-600" />
-                                                        {cert.eventName}
-                                                    </CardTitle>
-                                                    <span className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}>
-                                                        {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                    </span>
-                                                </div>
-                                            </CardHeader>
-
-                                            <CardContent className="space-y-4">
-                                                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
-                                                    <div>
-                                                        <p className="font-medium text-gray-700">Certificate Type</p>
-                                                        <p className="text-gray-600">{cert.type}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-gray-700">Date Earned</p>
-                                                        <div className="flex items-center gap-1 text-gray-600">
-                                                            <Calendar className="h-4 w-4" />
-                                                            {cert.dateEarned}
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-gray-700">Training Hours</p>
-                                                        <div className="flex items-center gap-1 text-gray-600">
-                                                            <Clock className="h-4 w-4" />
-                                                            {cert.hours} hours
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {cert.status === 'ready' && (
-                                                    <div className="flex gap-2 pt-2">
-                                                        <Button size="sm" onClick={() => handleDownload(cert)} className="gap-2">
-                                                            <Download className="h-4 w-4" />
-                                                            Download Certificate
-                                                        </Button>
-                                                        <Button size="sm" variant="outline" onClick={() => handleView(cert)} className="gap-2">
-                                                            <Eye className="h-4 w-4" />
-                                                            Preview
-                                                        </Button>
-                                                    </div>
-                                                )}
-
-                                                {cert.status === 'pending' && (
-                                                    <div className="pt-2">
-                                                        <p className="text-sm text-gray-600">Certificate is being prepared. Check back later.</p>
-                                                    </div>
-                                                )}
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Card className="p-8 text-center">
+                                            <CardContent>
+                                                <Award className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-medium text-gray-900">No Certificates Available</h3>
+                                                <p className="text-gray-600">Complete events to earn certificates!</p>
                                             </CardContent>
                                         </Card>
-                                    ))}
-                                </div>
-                            </TabsContent>
-                        </Tabs>
+                                    )}
+                                </TabsContent>
+
+                                {/* Processing Certificates */}
+                                <TabsContent value="processing" className="space-y-4">
+                                    {processingCertificates.length > 0 ? (
+                                        <div className="grid gap-4 md:gap-6">
+                                            {processingCertificates.map((cert) => (
+                                                <Card key={cert.id} className="shadow-sm">
+                                                    <CardHeader className="pb-3">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                            <CardTitle className="flex items-center gap-2 text-lg">
+                                                                <FileCheck className="h-5 w-5 text-yellow-600" />
+                                                                {cert.event_name}
+                                                            </CardTitle>
+                                                            <span
+                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                            >
+                                                                Processing
+                                                            </span>
+                                                        </div>
+                                                    </CardHeader>
+
+                                                    <CardContent>
+                                                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Date Earned</p>
+                                                                <p>{new Date(cert.date_earned).toLocaleDateString()}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Type</p>
+                                                                <p>{cert.type}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4">
+                                                            <p className="text-sm text-gray-600">
+                                                                Your certificate is being prepared. You will be notified once it's ready for download.
+                                                            </p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Card className="p-8 text-center">
+                                            <CardContent>
+                                                <FileCheck className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-medium text-gray-900">No Certificates Processing</h3>
+                                                <p className="text-gray-600">All your certificates are ready for download!</p>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                </TabsContent>
+
+                                {/* All Certificates */}
+                                <TabsContent value="all" className="space-y-4">
+                                    {certificates.length > 0 ? (
+                                        <div className="grid gap-4 md:gap-6">
+                                            {certificates.map((cert) => (
+                                                <Card key={cert.id} className="shadow-sm">
+                                                    <CardHeader className="pb-3">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                            <CardTitle className="flex items-center gap-2 text-lg">
+                                                                <Award className="h-5 w-5 text-yellow-600" />
+                                                                {cert.event_name}
+                                                            </CardTitle>
+                                                            <span
+                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                            >
+                                                                {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                                                            </span>
+                                                        </div>
+                                                    </CardHeader>
+
+                                                    <CardContent className="space-y-4">
+                                                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Date Earned</p>
+                                                                <p>{new Date(cert.date_earned).toLocaleDateString()}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-gray-700">Type</p>
+                                                                <p>{cert.type}</p>
+                                                            </div>
+                                                        </div>
+
+                                                        {cert.status === 'available' && (
+                                                            <div className="flex gap-2 pt-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => handleDownload(cert)}
+                                                                    disabled={downloadingId === cert.id}
+                                                                    className="gap-2"
+                                                                >
+                                                                    <Download className="h-4 w-4" />
+                                                                    {downloadingId === cert.id ? 'Downloading...' : 'Download'}
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => handleView(cert)}
+                                                                    className="gap-2"
+                                                                >
+                                                                    <Eye className="h-4 w-4" />
+                                                                    Preview
+                                                                </Button>
+                                                            </div>
+                                                        )}
+
+                                                        {cert.status === 'processing' && (
+                                                            <div className="pt-2">
+                                                                <p className="text-sm text-gray-600">
+                                                                    Certificate is being prepared. Check back later.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Card className="p-8 text-center">
+                                            <CardContent>
+                                                <Award className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-medium text-gray-900">No Certificates Yet</h3>
+                                                <p className="text-gray-600">Attend events and complete them to earn certificates!</p>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                </TabsContent>
+                            </Tabs>
+                        </div>
                     </main>
                 </div>
             </div>

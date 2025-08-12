@@ -1,15 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
-import { Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { Calendar, MessageSquare, Send, Star } from 'lucide-react';
 import { useState } from 'react';
-
-import { useForm } from '@inertiajs/react';
 
 interface EventNeedingFeedback {
     id: number;
@@ -58,32 +56,16 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
             },
         });
     };
-    const [selectedEvent, setSelectedEvent] = useState<any>(null);
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
-    const [pendingEvents, setPendingEvents] = useState(pendingFeedback);
 
-    const handleSubmitFeedback = () => {
-        if (rating === 0) {
-            alert('Please select a rating');
-            return;
-        }
-
-        // Remove from pending and add to history (mock)
-        setPendingEvents(pendingEvents.filter((e) => e.id !== selectedEvent.id));
-        alert('Feedback submitted successfully!');
+    const closeFeedbackModal = () => {
+        setShowFeedbackModal(false);
         setSelectedEvent(null);
-        setRating(0);
-        setComment('');
+        reset();
     };
 
-    const renderStars = (currentRating: number, isInteractive = false) => {
+    const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, i) => (
-            <Star
-                key={i}
-                className={`h-5 w-5 cursor-pointer ${i < currentRating ? 'fill-current text-yellow-400' : 'text-gray-300 hover:text-yellow-300'}`}
-                onClick={isInteractive ? () => setRating(i + 1) : undefined}
-            />
+            <Star key={i} className={`h-4 w-4 ${i < rating ? 'fill-current text-yellow-400' : 'text-gray-300'}`} />
         ));
     };
 
@@ -110,138 +92,164 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
                 <div className="flex flex-1 flex-col">
                     <Header userName="Juan Dela Cruz" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex-1 overflow-auto p-4 lg:p-6">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">Event Feedback</h2>
-                            <p className="text-gray-600">Share your thoughts about community events</p>
-                        </div>
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                        <div className="mx-auto max-w-4xl space-y-6">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Event Feedback</h1>
+                                <p className="text-gray-600">Share your thoughts about events you've attended.</p>
+                            </div>
 
-                        <Tabs defaultValue="pending" className="space-y-6">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="pending">Pending Feedback</TabsTrigger>
-                                <TabsTrigger value="history">Feedback History</TabsTrigger>
-                            </TabsList>
+                            <Tabs defaultValue="pending" className="space-y-6">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="pending">Pending Feedback ({eventsNeedingFeedback.length})</TabsTrigger>
+                                    <TabsTrigger value="history">Feedback History ({feedbackHistory.length})</TabsTrigger>
+                                </TabsList>
 
-                            {/* Pending Feedback */}
-                            <TabsContent value="pending" className="space-y-4">
-                                {pendingEvents.length > 0 ? (
-                                    pendingEvents.map((event) => (
-                                        <Card key={event.id} className="shadow-sm">
-                                            <CardHeader className="pb-3">
-                                                <CardTitle className="flex items-center gap-2 text-lg">
-                                                    <MessageSquare className="h-5 w-5 text-blue-600" />
-                                                    {event.eventName}
-                                                </CardTitle>
-                                            </CardHeader>
+                                {/* Pending Feedback */}
+                                <TabsContent value="pending" className="space-y-4">
+                                    {eventsNeedingFeedback.length > 0 ? (
+                                        <div className="grid gap-4 md:gap-6">
+                                            {eventsNeedingFeedback.map((event) => (
+                                                <Card key={event.id} className="shadow-sm">
+                                                    <CardHeader className="pb-3">
+                                                        <CardTitle className="flex items-center justify-between text-lg">
+                                                            {event.event_name}
+                                                            <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-600">
+                                                                Feedback Pending
+                                                            </span>
+                                                        </CardTitle>
+                                                    </CardHeader>
 
-                                            <CardContent className="space-y-4">
-                                                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                                                    <div>
-                                                        <p className="font-medium text-gray-700">Event Date</p>
-                                                        <div className="flex items-center gap-1 text-gray-600">
-                                                            <Calendar className="h-4 w-4" />
-                                                            {event.date}
+                                                    <CardContent className="space-y-4">
+                                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                            <div className="flex items-center gap-1">
+                                                                <Calendar className="h-4 w-4" />
+                                                                {new Date(event.date).toLocaleDateString()}
+                                                            </div>
+                                                            {event.has_certificate && (
+                                                                <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-600">
+                                                                    Certificate Available
+                                                                </span>
+                                                            )}
                                                         </div>
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-gray-700">Organizer</p>
-                                                        <p className="text-gray-600">{event.organizer}</p>
-                                                    </div>
-                                                </div>
 
-                                                <div className="flex gap-2 pt-2">
-                                                    <Dialog>
-                                                        <DialogTrigger asChild>
-                                                            <Button size="sm" onClick={() => setSelectedEvent(event)} className="gap-2">
-                                                                <Send className="h-4 w-4" />
+                                                        <div className="flex gap-2 pt-2">
+                                                            <Button size="sm" onClick={() => handleSubmitFeedback(event)} className="gap-2">
+                                                                <MessageSquare className="h-4 w-4" />
                                                                 Submit Feedback
                                                             </Button>
-                                                        </DialogTrigger>
-                                                        <DialogContent className="sm:max-w-md">
-                                                            <DialogHeader>
-                                                                <DialogTitle>Event Feedback</DialogTitle>
-                                                            </DialogHeader>
-                                                            <div className="space-y-4">
-                                                                <div>
-                                                                    <p className="font-medium text-gray-900">{selectedEvent?.eventName}</p>
-                                                                    <p className="text-sm text-gray-600">{selectedEvent?.date}</p>
-                                                                </div>
-
-                                                                <div>
-                                                                    <p className="mb-2 font-medium">Rating</p>
-                                                                    <div className="flex gap-1">{renderStars(rating, true)}</div>
-                                                                </div>
-
-                                                                <div>
-                                                                    <p className="mb-2 font-medium">Comments</p>
-                                                                    <Textarea
-                                                                        placeholder="Share your thoughts about this event..."
-                                                                        value={comment}
-                                                                        onChange={(e) => setComment(e.target.value)}
-                                                                        className="min-h-[100px]"
-                                                                    />
-                                                                </div>
-
-                                                                <Button onClick={handleSubmitFeedback} className="w-full">
-                                                                    Submit Feedback
-                                                                </Button>
-                                                            </div>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Card className="p-8 text-center">
+                                            <CardContent>
+                                                <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-medium text-gray-900">No Pending Feedback</h3>
+                                                <p className="text-gray-600">You're all caught up! No events are waiting for your feedback.</p>
                                             </CardContent>
                                         </Card>
-                                    ))
-                                ) : (
-                                    <Card className="p-8 text-center">
-                                        <CardContent>
-                                            <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                                            <h3 className="mb-2 text-lg font-medium text-gray-900">No Pending Feedback</h3>
-                                            <p className="text-gray-600">You're all caught up! No events need your feedback right now.</p>
-                                        </CardContent>
-                                    </Card>
-                                )}
-                            </TabsContent>
+                                    )}
+                                </TabsContent>
 
-                            {/* Feedback History */}
-                            <TabsContent value="history" className="space-y-4">
-                                {feedbackHistory.map((feedback) => (
-                                    <Card key={feedback.id} className="shadow-sm">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                <CardTitle className="text-lg">{feedback.eventName}</CardTitle>
-                                                <div className="flex items-center gap-1">{renderStars(feedback.rating)}</div>
-                                            </div>
-                                        </CardHeader>
+                                {/* Feedback History */}
+                                <TabsContent value="history" className="space-y-4">
+                                    {feedbackHistory.length > 0 ? (
+                                        <div className="grid gap-4 md:gap-6">
+                                            {feedbackHistory.map((feedback) => (
+                                                <Card key={feedback.id} className="shadow-sm">
+                                                    <CardHeader className="pb-3">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                            <CardTitle className="text-lg">{feedback.event_name}</CardTitle>
+                                                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-600">
+                                                                Submitted
+                                                            </span>
+                                                        </div>
+                                                    </CardHeader>
 
-                                        <CardContent className="space-y-4">
-                                            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                                                <div>
-                                                    <p className="font-medium text-gray-700">Event Date</p>
-                                                    <div className="flex items-center gap-1 text-gray-600">
-                                                        <Calendar className="h-4 w-4" />
-                                                        {feedback.date}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-gray-700">Feedback Submitted</p>
-                                                    <p className="text-gray-600">{feedback.submittedDate}</p>
-                                                </div>
-                                            </div>
+                                                    <CardContent className="space-y-4">
+                                                        <div className="grid grid-cols-1 gap-4 text-sm text-gray-500 sm:grid-cols-2">
+                                                            <div className="flex items-center gap-1">
+                                                                <Calendar className="h-4 w-4" />
+                                                                Event Date: {new Date(feedback.date).toLocaleDateString()}
+                                                            </div>
+                                                            <div>Submitted: {new Date(feedback.submitted_date).toLocaleDateString()}</div>
+                                                        </div>
 
-                                            <div>
-                                                <p className="mb-2 font-medium text-gray-700">Your Comments</p>
-                                                <div className="rounded-lg bg-gray-50 p-3">
-                                                    <p className="text-sm text-gray-700">{feedback.comment}</p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </TabsContent>
-                        </Tabs>
+                                                        {/* Display rating if available */}
+                                                        {feedback.rating && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-medium">Rating:</span>
+                                                                <div className="flex gap-1">{renderStars(feedback.rating)}</div>
+                                                            </div>
+                                                        )}
+
+                                                        <div>
+                                                            <p className="mb-2 text-sm font-medium text-gray-700">Your Feedback:</p>
+                                                            <p className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">{feedback.comment}</p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <Card className="p-8 text-center">
+                                            <CardContent>
+                                                <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                                <h3 className="mb-2 text-lg font-medium text-gray-900">No Feedback History</h3>
+                                                <p className="text-gray-600">Your submitted feedback will appear here.</p>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                </TabsContent>
+                            </Tabs>
+                        </div>
                     </main>
                 </div>
+
+                {/* Feedback Submission Modal */}
+                <Dialog open={showFeedbackModal} onOpenChange={setShowFeedbackModal}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Submit Feedback</DialogTitle>
+                        </DialogHeader>
+
+                        {selectedEvent && (
+                            <form onSubmit={submitFeedback} className="space-y-4">
+                                <div>
+                                    <h3 className="mb-2 font-medium text-gray-900">{selectedEvent.event_name}</h3>
+                                    <p className="text-sm text-gray-600">Event Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Your Comments <span className="text-red-500">*</span>
+                                    </label>
+                                    <Textarea
+                                        placeholder="Share your thoughts about this event..."
+                                        value={data.comments}
+                                        onChange={(e) => setData('comments', e.target.value)}
+                                        className="min-h-[100px]"
+                                        required
+                                    />
+                                    {errors.comments && <p className="text-sm text-red-500">{errors.comments}</p>}
+                                </div>
+
+                                <div className="flex gap-2 pt-4">
+                                    <Button type="submit" disabled={processing} className="flex-1 gap-2">
+                                        <Send className="h-4 w-4" />
+                                        {processing ? 'Submitting...' : 'Submit Feedback'}
+                                    </Button>
+                                    <Button type="button" variant="outline" onClick={closeFeedbackModal} disabled={processing}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </form>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </div>
         </>
     );

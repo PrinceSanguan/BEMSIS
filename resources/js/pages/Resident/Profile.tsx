@@ -1,47 +1,119 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
-import { Head } from '@inertiajs/react';
-import { Lock, MapPin, Save, User } from 'lucide-react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { AlertCircle, CheckCircle, Eye, EyeOff, Lock, Mail, Phone, Save, User } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10'];
+interface UserData {
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    status: string;
+}
 
-const mockProfile = {
-    name: 'Juan Dela Cruz',
-    email: 'juan.delacruz@email.com',
-    phone: '09171234567',
-    purok: 'Purok 1',
-    address: '123 Main Street, Barangay Sample',
-    emergencyContact: 'Maria Dela Cruz',
-    emergencyPhone: '09187654321',
-};
+interface Props {
+    user: UserData;
+}
 
-export default function Profile() {
+interface PageProps extends Props {
+    [key: string]: any;
+    flash?: {
+        success?: string;
+        error?: string;
+    };
+}
+
+export default function Profile({ user }: Props) {
+    const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [profile, setProfile] = useState(mockProfile);
-    const [passwords, setPasswords] = useState({
-        current: '',
-        new: '',
-        confirm: '',
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Profile update form
+    const {
+        data: profileData,
+        setData: setProfileData,
+        put: updateProfile,
+        processing: profileProcessing,
+        errors: profileErrors,
+        reset: resetProfile,
+    } = useForm({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
     });
 
-    const handleProfileUpdate = () => {
-        alert('Profile updated successfully!');
+    // Password change form
+    const {
+        data: passwordData,
+        setData: setPasswordData,
+        post: changePassword,
+        processing: passwordProcessing,
+        errors: passwordErrors,
+        reset: resetPassword,
+    } = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const handleProfileUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        updateProfile(route('resident.profile.update'), {
+            onSuccess: () => {
+                // Profile updated successfully
+            },
+        });
     };
 
-    const handlePasswordChange = () => {
-        if (passwords.new !== passwords.confirm) {
-            alert('New passwords do not match!');
-            return;
+    const handlePasswordChange = (e: React.FormEvent) => {
+        e.preventDefault();
+        changePassword(route('resident.profile.password'), {
+            onSuccess: () => {
+                resetPassword();
+                setShowCurrentPassword(false);
+                setShowNewPassword(false);
+                setShowConfirmPassword(false);
+            },
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'approved':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'declined':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
         }
-        alert('Password changed successfully!');
-        setPasswords({ current: '', new: '', confirm: '' });
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'approved':
+                return <CheckCircle className="h-4 w-4" />;
+            case 'pending':
+            case 'declined':
+                return <AlertCircle className="h-4 w-4" />;
+            default:
+                return null;
+        }
+    };
+
+    const validatePhone = (phone: string) => {
+        const phoneRegex = /^09\d{9}$/;
+        return phoneRegex.test(phone);
     };
 
     return (
@@ -65,165 +137,248 @@ export default function Profile() {
 
                 {/* Main Content */}
                 <div className="flex flex-1 flex-col">
-                    <Header userName="Juan Dela Cruz" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                    <Header userName={user.name} onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex-1 overflow-auto p-4 lg:p-6">
-                        <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">My Profile</h2>
-                            <p className="text-gray-600">Manage your account information</p>
-                        </div>
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                        <div className="mx-auto max-w-4xl space-y-6">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+                                <p className="text-gray-600">Manage your account information and security settings.</p>
+                            </div>
 
-                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                            {/* Personal Information */}
-                            <div className="space-y-6">
+                            {/* Flash Messages */}
+                            {flash?.success && (
+                                <Alert className="border-green-200 bg-green-50">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <AlertDescription className="text-green-800">{flash.success}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            {flash?.error && (
+                                <Alert className="border-red-200 bg-red-50">
+                                    <AlertCircle className="h-4 w-4 text-red-600" />
+                                    <AlertDescription className="text-red-800">{flash.error}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            <div className="grid gap-6 lg:grid-cols-2">
+                                {/* Profile Information */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <User className="h-5 w-5" />
-                                            Personal Information
+                                            Profile Information
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="name">Full Name</Label>
-                                            <Input
-                                                id="name"
-                                                value={profile.name}
-                                                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="email">Email Address</Label>
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                value={profile.email}
-                                                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="phone">Phone Number</Label>
-                                            <Input
-                                                id="phone"
-                                                value={profile.phone}
-                                                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="purok">Purok</Label>
-                                            <Select
-                                                value={profile.purok.toLowerCase().replace(' ', '_')}
-                                                onValueChange={(value) => {
-                                                    const purokName =
-                                                        PUROKS.find((p) => p.toLowerCase().replace(' ', '_') === value) || profile.purok;
-                                                    setProfile({ ...profile, purok: purokName });
-                                                }}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select your purok" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {PUROKS.map((purok) => (
-                                                        <SelectItem key={purok} value={purok.toLowerCase().replace(' ', '_')}>
-                                                            {purok}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="address">Address</Label>
-                                            <Input
-                                                id="address"
-                                                value={profile.address}
-                                                onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                                            />
-                                        </div>
-                                        <Button onClick={handleProfileUpdate} className="w-full gap-2">
-                                            <Save className="h-4 w-4" />
-                                            Update Profile
-                                        </Button>
+                                    <CardContent>
+                                        <form onSubmit={handleProfileUpdate} className="space-y-4">
+                                            {/* Full Name */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="name">
+                                                    Full Name <span className="text-red-500">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="name"
+                                                    type="text"
+                                                    value={profileData.name}
+                                                    onChange={(e) => setProfileData('name', e.target.value)}
+                                                    className={profileErrors.name ? 'border-red-300' : ''}
+                                                    required
+                                                />
+                                                {profileErrors.name && <p className="text-sm text-red-500">{profileErrors.name}</p>}
+                                            </div>
+
+                                            {/* Email Address */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="email">
+                                                    Email Address <span className="text-red-500">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="email"
+                                                    type="email"
+                                                    value={profileData.email}
+                                                    onChange={(e) => setProfileData('email', e.target.value)}
+                                                    className={profileErrors.email ? 'border-red-300' : ''}
+                                                    required
+                                                />
+                                                {profileErrors.email && <p className="text-sm text-red-500">{profileErrors.email}</p>}
+                                            </div>
+
+                                            {/* Phone Number */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="phone">
+                                                    Phone Number <span className="text-red-500">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="phone"
+                                                    type="tel"
+                                                    placeholder="09XXXXXXXXX"
+                                                    value={profileData.phone}
+                                                    onChange={(e) => setProfileData('phone', e.target.value)}
+                                                    className={profileErrors.phone ? 'border-red-300' : ''}
+                                                    required
+                                                />
+                                                {!validatePhone(profileData.phone) && profileData.phone.length > 0 && (
+                                                    <p className="text-sm text-amber-600">Phone number should start with 09 and be 11 digits long</p>
+                                                )}
+                                                {profileErrors.phone && <p className="text-sm text-red-500">{profileErrors.phone}</p>}
+                                            </div>
+
+                                            {/* Account Status */}
+                                            <div className="space-y-2">
+                                                <Label>Account Status</Label>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge className={getStatusColor(user.status)}>
+                                                        {getStatusIcon(user.status)}
+                                                        <span className="ml-1">{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                                                    </Badge>
+                                                </div>
+                                            </div>
+
+                                            <Button type="submit" disabled={profileProcessing} className="w-full gap-2">
+                                                <Save className="h-4 w-4" />
+                                                {profileProcessing ? 'Updating...' : 'Update Profile'}
+                                            </Button>
+                                        </form>
                                     </CardContent>
                                 </Card>
-                            </div>
 
-                            {/* Security & Emergency Contact */}
-                            <div className="space-y-6">
-                                {/* Change Password */}
+                                {/* Security Settings */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">
                                             <Lock className="h-5 w-5" />
-                                            Change Password
+                                            Security Settings
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="current">Current Password</Label>
-                                            <Input
-                                                id="current"
-                                                type="password"
-                                                value={passwords.current}
-                                                onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="new">New Password</Label>
-                                            <Input
-                                                id="new"
-                                                type="password"
-                                                value={passwords.new}
-                                                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="confirm">Confirm New Password</Label>
-                                            <Input
-                                                id="confirm"
-                                                type="password"
-                                                value={passwords.confirm}
-                                                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                                            />
-                                        </div>
-                                        <Button onClick={handlePasswordChange} variant="outline" className="w-full gap-2">
-                                            <Lock className="h-4 w-4" />
-                                            Change Password
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                                    <CardContent>
+                                        <form onSubmit={handlePasswordChange} className="space-y-4">
+                                            {/* Current Password */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="current_password">
+                                                    Current Password <span className="text-red-500">*</span>
+                                                </Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        id="current_password"
+                                                        type={showCurrentPassword ? 'text' : 'password'}
+                                                        value={passwordData.current_password}
+                                                        onChange={(e) => setPasswordData('current_password', e.target.value)}
+                                                        className={passwordErrors.current_password ? 'border-red-300 pr-10' : 'pr-10'}
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                                                    >
+                                                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    </button>
+                                                </div>
+                                                {passwordErrors.current_password && (
+                                                    <p className="text-sm text-red-500">{passwordErrors.current_password}</p>
+                                                )}
+                                            </div>
 
-                                {/* Emergency Contact */}
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <MapPin className="h-5 w-5" />
-                                            Emergency Contact
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="emergencyContact">Emergency Contact Name</Label>
-                                            <Input
-                                                id="emergencyContact"
-                                                value={profile.emergencyContact}
-                                                onChange={(e) => setProfile({ ...profile, emergencyContact: e.target.value })}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="emergencyPhone">Emergency Contact Phone</Label>
-                                            <Input
-                                                id="emergencyPhone"
-                                                value={profile.emergencyPhone}
-                                                onChange={(e) => setProfile({ ...profile, emergencyPhone: e.target.value })}
-                                            />
-                                        </div>
-                                        <Button onClick={handleProfileUpdate} variant="outline" className="w-full gap-2">
-                                            <Save className="h-4 w-4" />
-                                            Update Emergency Contact
-                                        </Button>
+                                            {/* New Password */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="new_password">
+                                                    New Password <span className="text-red-500">*</span>
+                                                </Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        id="new_password"
+                                                        type={showNewPassword ? 'text' : 'password'}
+                                                        value={passwordData.password}
+                                                        onChange={(e) => setPasswordData('password', e.target.value)}
+                                                        className={passwordErrors.password ? 'border-red-300 pr-10' : 'pr-10'}
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                                                    >
+                                                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    </button>
+                                                </div>
+                                                {passwordData.password.length > 0 && passwordData.password.length < 6 && (
+                                                    <p className="text-sm text-amber-600">Password must be at least 6 characters long</p>
+                                                )}
+                                                {passwordErrors.password && <p className="text-sm text-red-500">{passwordErrors.password}</p>}
+                                            </div>
+
+                                            {/* Confirm New Password */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="confirm_password">
+                                                    Confirm New Password <span className="text-red-500">*</span>
+                                                </Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        id="confirm_password"
+                                                        type={showConfirmPassword ? 'text' : 'password'}
+                                                        value={passwordData.password_confirmation}
+                                                        onChange={(e) => setPasswordData('password_confirmation', e.target.value)}
+                                                        className={passwordErrors.password_confirmation ? 'border-red-300 pr-10' : 'pr-10'}
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                                                    >
+                                                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    </button>
+                                                </div>
+                                                {passwordData.password !== passwordData.password_confirmation &&
+                                                    passwordData.password_confirmation.length > 0 && (
+                                                        <p className="text-sm text-red-500">Passwords do not match</p>
+                                                    )}
+                                                {passwordErrors.password_confirmation && (
+                                                    <p className="text-sm text-red-500">{passwordErrors.password_confirmation}</p>
+                                                )}
+                                            </div>
+
+                                            <Button type="submit" disabled={passwordProcessing} className="w-full gap-2">
+                                                <Lock className="h-4 w-4" />
+                                                {passwordProcessing ? 'Changing Password...' : 'Change Password'}
+                                            </Button>
+                                        </form>
                                     </CardContent>
                                 </Card>
                             </div>
+
+                            {/* Account Information Card */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Account Information</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid gap-4 md:grid-cols-3">
+                                        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                                            <Mail className="h-5 w-5 text-blue-600" />
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-700">Email</p>
+                                                <p className="text-sm text-gray-600">{user.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                                            <Phone className="h-5 w-5 text-green-600" />
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-700">Phone</p>
+                                                <p className="text-sm text-gray-600">{user.phone}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                                            <User className="h-5 w-5 text-purple-600" />
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-700">Role</p>
+                                                <p className="text-sm text-gray-600 capitalize">{user.role.replace('_', ' ')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </main>
                 </div>

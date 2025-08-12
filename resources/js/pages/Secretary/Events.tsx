@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -78,10 +78,10 @@ export default function Events({ events, puroks }: Props) {
 
         const submitData = {
             ...data,
-            purok_id: data.purok_id || null,
+            purok_id: data.purok_id === 'all' || data.purok_id === '' ? null : parseInt(data.purok_id),
         };
 
-        post('/secretary/events', {
+        post('/secretary/events', submitData, {
             onSuccess: () => {
                 reset();
                 setIsCreateDialogOpen(false);
@@ -176,6 +176,9 @@ export default function Events({ events, puroks }: Props) {
                             <DialogContent className="max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle>Create New Event</DialogTitle>
+                                    <DialogDescription>
+                                        Fill in the details below to create a new community event that will be submitted for captain approval.
+                                    </DialogDescription>
                                 </DialogHeader>
 
                                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -238,7 +241,7 @@ export default function Events({ events, puroks }: Props) {
                                                 <SelectValue placeholder="Select purok (leave empty for all residents)" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">All Residents</SelectItem>
+                                                <SelectItem value="all">All Residents</SelectItem>
                                                 {puroks.map((purok) => (
                                                     <SelectItem key={purok.id} value={purok.id.toString()}>
                                                         {purok.name}

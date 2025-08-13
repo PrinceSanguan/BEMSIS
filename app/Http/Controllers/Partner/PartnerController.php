@@ -69,6 +69,7 @@ class PartnerController extends Controller
             'end_date' => 'nullable|date|after:start_date',
             'purok_id' => 'nullable|exists:puroks,id',
             'has_certificate' => 'boolean',
+            'target_all_residents' => 'boolean',
         ]);
 
         Event::create([
@@ -79,7 +80,8 @@ class PartnerController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,
-            'status' => 'pending', // Requires captain approval
+            'status' => $request->input('draft', false) ? 'pending' : 'pending', // Still requires approval but partner can create directly
+            'target_all_residents' => $request->input('target_all_residents', false),
         ]);
 
         return back()->with('success', 'Event created successfully! Awaiting captain approval.');

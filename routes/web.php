@@ -139,6 +139,7 @@ Route::middleware(ResidentMiddleware::class)->group(function () {
 
   // Certificate
   Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
+  Route::get('resident/certificates/{certificate}/download', [ResidentController::class, 'downloadCertificate'])->name('resident.certificates.download');
 
   // Feedback
   Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');

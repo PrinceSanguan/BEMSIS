@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('created_by')->constrained('users'); // who created/requested
             $table->foreignId('purok_id')->nullable()->constrained('puroks'); // target audience
+            $table->boolean('target_all_residents')->default(false);
             $table->string('title');
             $table->text('description');
             $table->dateTime('start_date');

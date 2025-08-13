@@ -11,7 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
 
 class ResidentController extends Controller
 {
@@ -161,6 +162,34 @@ class ResidentController extends Controller
             'confirmedEvents' => $confirmedEvents,
             'attendanceHistory' => $attendanceHistory
         ]);
+    }
+
+    public function downloadCertificate($certificateId)
+    {
+        $certificate = Certificate::where('id', $certificateId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $filePath = storage_path('app/public/' . $certificate->file_path);
+
+        if (!file_exists($filePath)) {
+            // Generate certificate PDF on the fly if not exists
+            $this->generateCertificatePdf($certificate);
+        }
+
+        return response()->download($filePath);
+    }
+
+    private function generateCertificatePdf($certificate)
+    {
+        // TODO: Implement PDF generation using DomPDF or similar
+        // For now, create a placeholder
+        $content = "Certificate of Completion\n";
+        $content .= "Event: " . $certificate->event->title . "\n";
+        $content .= "Recipient: " . $certificate->user->name . "\n";
+        $content .= "Date: " . $certificate->created_at->format('F d, Y');
+
+        Storage::put('public/' . $certificate->file_path, $content);
     }
 
     public function certificates()

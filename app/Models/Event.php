@@ -18,6 +18,7 @@ class Event extends Model
         'end_date',
         'has_certificate',
         'status',
+        'target_all_residents',
     ];
 
     public function creator()

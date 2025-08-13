@@ -88,6 +88,7 @@ class SecretaryController extends Controller
             'end_date' => 'nullable|date|after:start_date',
             'purok_id' => 'nullable|exists:puroks,id',
             'has_certificate' => 'boolean',
+            'target_all_residents' => 'boolean',
         ]);
 
         Event::create([
@@ -99,6 +100,7 @@ class SecretaryController extends Controller
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,
             'status' => 'pending', // Requires captain approval
+            'target_all_residents' => $request->input('target_all_residents', false),
         ]);
 
         return back()->with('success', 'Event created successfully! Awaiting captain approval.');

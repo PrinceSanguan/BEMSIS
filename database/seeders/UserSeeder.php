@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 
@@ -14,7 +13,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Create Secretary Account
-        User::factory()->create([
+        User::create([
             'name' => 'Secretary',
             'email' => 'secretary@gmail.com',
             'password' => bcrypt('password123'),
@@ -24,7 +23,7 @@ class UserSeeder extends Seeder
         ]);
 
         // Create Captain Account  
-        User::factory()->create([
+        User::create([
             'name' => 'Captain',
             'email' => 'captain@gmail.com',
             'password' => bcrypt('password123'),

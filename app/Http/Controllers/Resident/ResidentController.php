@@ -349,16 +349,20 @@ class ResidentController extends Controller
         }
 
         try {
-            // Generate QR code SVG
-            $qrCodeSvg = QrCode::format('svg')
-                ->size(200)
-                ->errorCorrection('M')
-                ->generate($attendance->qr_code);
+            // Generate QR code URL using GoQR.me API
+            $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
+                'size' => '200x200',
+                'data' => $attendance->qr_code,
+                'color' => '000000',
+                'bgcolor' => 'FFFFFF',
+                'ecc' => 'M',
+                'margin' => '10'
+            ]);
 
             return response()->json([
                 'success' => true,
                 'qr_code' => $attendance->qr_code,
-                'qr_svg' => $qrCodeSvg
+                'qr_image_url' => $qrCodeUrl
             ]);
         } catch (\Exception $e) {
             return response()->json([

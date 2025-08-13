@@ -40,7 +40,7 @@ interface Props {
 export default function Attendance({ confirmedEvents, attendanceHistory }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<ConfirmedEvent | null>(null);
-    const [qrCodeSvg, setQrCodeSvg] = useState<string | null>(null);
+    const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
     const [showQRModal, setShowQRModal] = useState(false);
 
     const getStatusColor = (status: string) => {
@@ -70,8 +70,8 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
                 throw new Error(data.error);
             }
 
-            if (data.qr_svg) {
-                setQrCodeSvg(data.qr_svg);
+            if (data.qr_image_url) {
+                setQrCodeImageUrl(data.qr_image_url);
                 setShowQRModal(true);
             } else {
                 throw new Error('No QR code data received');
@@ -206,31 +206,25 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
 
                 {/* QR Code Modal */}
                 <Dialog open={showQRModal} onOpenChange={setShowQRModal}>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="max-w-md">
                         <DialogHeader>
-                            <DialogTitle>Your QR Code</DialogTitle>
+                            <DialogTitle>QR Code for {selectedEvent?.event.title}</DialogTitle>
                         </DialogHeader>
                         <div className="flex flex-col items-center space-y-4">
-                            {selectedEvent && (
-                                <>
-                                    <h3 className="text-lg font-medium">{selectedEvent.event.title}</h3>
-                                    {qrCodeSvg ? (
-                                        <div
-                                            className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-white p-4"
-                                            dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
-                                        />
-                                    ) : (
-                                        <div className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-gray-50">
-                                            <p className="text-gray-500">Loading QR Code...</p>
-                                        </div>
-                                    )}
-                                    <p className="text-center text-sm text-gray-600">Present this QR code at the event for attendance scanning</p>
-                                    <p className="text-center text-xs text-gray-500">QR Code: {selectedEvent.qr_code}</p>
-                                </>
+                            {qrCodeImageUrl && (
+                                <div className="rounded-lg border bg-white p-4">
+                                    <img
+                                        src={qrCodeImageUrl}
+                                        alt="QR Code"
+                                        className="h-48 w-48"
+                                        onError={(e) => {
+                                            console.error('Failed to load QR code image');
+                                            e.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
                             )}
-                            <Button onClick={() => setShowQRModal(false)} className="w-full">
-                                Close
-                            </Button>
+                            <p className="text-center text-sm text-gray-600">Show this QR code to the event organizer for attendance verification.</p>
                         </div>
                     </DialogContent>
                 </Dialog>

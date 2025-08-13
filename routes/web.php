@@ -110,8 +110,9 @@ Route::middleware(PartnerMiddleware::class)->group(function () {
   // Dashboard
   Route::get('partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
 
-  // Events
+  // Events Management
   Route::get('partner/events', [PartnerController::class, 'events'])->name('partner.events');
+  Route::post('partner/events', [PartnerController::class, 'createEvent'])->name('partner.events.create');
 
   // Profile
   Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');

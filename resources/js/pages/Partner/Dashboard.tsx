@@ -2,25 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Partner/Header';
 import Sidebar from '@/pages/Partner/Sidebar';
 import { Head } from '@inertiajs/react';
-import { Calendar, CheckCircle, Clock, Users } from 'lucide-react';
+import { Calendar, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock data
-const dashboardStats = [
-    { title: 'Events Created', value: '12', icon: Calendar, color: 'text-blue-600' },
-    { title: 'Pending Approval', value: '3', icon: Clock, color: 'text-yellow-600' },
-    { title: 'Approved Events', value: '8', icon: CheckCircle, color: 'text-green-600' },
-    { title: 'Total Participants', value: '245', icon: Users, color: 'text-purple-600' },
-];
+interface DashboardProps {
+    stats: {
+        myEvents: number;
+        pendingEvents: number;
+        approvedEvents: number;
+        declinedEvents: number;
+    };
+}
 
-const recentActivity = [
-    { action: 'Event submitted for approval', event: 'Health Workshop', time: '2 hours ago', status: 'pending' },
-    { action: 'Event approved', event: 'Community Training', time: '1 day ago', status: 'approved' },
-    { action: 'Event completed', event: 'Skills Development', time: '3 days ago', status: 'completed' },
-    { action: 'Event created', event: 'Youth Program', time: '5 days ago', status: 'draft' },
-];
-
-export default function Dashboard() {
+export default function Dashboard({ stats }: DashboardProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const getStatusColor = (status: string) => {
@@ -67,42 +61,126 @@ export default function Dashboard() {
 
                         {/* Stats Grid */}
                         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            {dashboardStats.map((stat) => (
-                                <Card key={stat.title}>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                                                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                                            </div>
-                                            <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Total Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.myEvents}</p>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                        <Calendar className="h-8 w-8 text-blue-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Pending Approval</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.pendingEvents}</p>
+                                        </div>
+                                        <Clock className="h-8 w-8 text-yellow-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Approved Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.approvedEvents}</p>
+                                        </div>
+                                        <CheckCircle className="h-8 w-8 text-green-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Declined Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.declinedEvents}</p>
+                                        </div>
+                                        <XCircle className="h-8 w-8 text-red-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        {/* Stats Grid */}
+                        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Total Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.myEvents}</p>
+                                        </div>
+                                        <Calendar className="h-8 w-8 text-blue-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Pending Approval</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.pendingEvents}</p>
+                                        </div>
+                                        <Clock className="h-8 w-8 text-yellow-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Approved Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.approvedEvents}</p>
+                                        </div>
+                                        <CheckCircle className="h-8 w-8 text-green-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-600">Declined Events</p>
+                                            <p className="text-3xl font-bold text-gray-900">{stats.declinedEvents}</p>
+                                        </div>
+                                        <XCircle className="h-8 w-8 text-red-600" />
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
 
-                        {/* Recent Activity */}
+                        {/* Stats Summary */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Recent Activity</CardTitle>
+                                <CardTitle>Event Overview</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {recentActivity.map((activity, index) => (
-                                        <div key={index} className="flex items-center justify-between border-b pb-2 last:border-b-0">
-                                            <div>
-                                                <p className="font-medium text-gray-900">{activity.action}</p>
-                                                <p className="text-sm text-gray-600">{activity.event}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className={`text-sm font-medium ${getStatusColor(activity.status)}`}>
-                                                    {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
-                                                </span>
-                                                <p className="text-sm text-gray-500">{activity.time}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600">Total Events Created</span>
+                                        <span className="font-semibold">{stats.myEvents}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600">Success Rate</span>
+                                        <span className="font-semibold">
+                                            {stats.myEvents > 0 ? Math.round((stats.approvedEvents / stats.myEvents) * 100) : 0}%
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-600">Awaiting Review</span>
+                                        <span className="font-semibold text-yellow-600">{stats.pendingEvents}</span>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

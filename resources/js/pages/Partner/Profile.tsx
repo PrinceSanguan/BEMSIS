@@ -26,9 +26,22 @@ const mockProfile = {
     registrationNumber: 'NGO-2020-001',
 };
 
-export default function Profile() {
+interface ProfileProps {
+    user: {
+        name: string;
+        email: string;
+        phone: string;
+    };
+}
+
+export default function Profile({ user }: ProfileProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [profile, setProfile] = useState(mockProfile);
+    const [profile, setProfile] = useState({
+        ...mockProfile,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+    });
     const [passwords, setPasswords] = useState({
         current: '',
         new: '',

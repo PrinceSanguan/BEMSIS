@@ -13,7 +13,10 @@ class RegisterController extends Controller
     // Show the registration form
     public function index()
     {
-        return Inertia::render('Auth/Register');
+        $puroks = \App\Models\Purok::all();
+        return Inertia::render('Auth/Register', [
+            'puroks' => $puroks
+        ]);
     }
 
     // Store registration data
@@ -26,7 +29,7 @@ class RegisterController extends Controller
             'phone' => 'required|string|unique:users,phone|regex:/^09\d{9}$/',
             'password' => 'required|min:6|confirmed',
             'role' => 'required|in:resident,partner_agency,secretary,captain',
-            'purok' => 'required_if:role,resident|nullable|string',
+            'purok_id' => 'required_if:role,resident|nullable|exists:puroks,id',
         ]);
 
         // Create a new user
@@ -37,6 +40,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'status' => 'pending', // Requires approval
+            'purok_id' => $request->role === 'resident' ? $request->purok_id : null,
         ]);
 
         // Redirect to login or dashboard

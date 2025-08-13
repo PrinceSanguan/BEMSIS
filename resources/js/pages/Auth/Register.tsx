@@ -10,17 +10,22 @@ import { Eye, EyeOff, UserPlus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { route } from 'ziggy-js';
 
-const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6', 'Purok 7', 'Purok 8', 'Purok 9', 'Purok 10'];
+interface Purok {
+    id: number;
+    name: string;
+}
 
 interface PageProps {
-    [key: string]: any; // This allows any additional properties
+    [key: string]: any;
+    puroks: Purok[];
     flash?: {
         success?: string;
         error?: string;
     };
 }
+
 export default function Register() {
-    const { flash } = usePage<PageProps>().props;
+    const { flash, puroks } = usePage<PageProps>().props;
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [showPurok, setShowPurok] = useState(false);
@@ -32,7 +37,7 @@ export default function Register() {
         password: '',
         password_confirmation: '',
         role: '',
-        purok: '',
+        purok_id: '',
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -57,7 +62,7 @@ export default function Register() {
         setData('role', value);
         setShowPurok(value === 'resident');
         if (value !== 'resident') {
-            setData('purok', '');
+            setData('purok_id', '');
         }
     };
 
@@ -78,7 +83,7 @@ export default function Register() {
             validatePassword(data.password) &&
             data.password === data.password_confirmation &&
             data.role !== '' &&
-            (data.role !== 'resident' || data.purok !== '')
+            (data.role !== 'resident' || data.purok_id !== '')
         );
     };
 
@@ -256,19 +261,19 @@ export default function Register() {
                                     <Label htmlFor="purok" className="text-sm font-medium text-gray-700">
                                         Select Your Purok <span className="text-red-500">*</span>
                                     </Label>
-                                    <Select value={data.purok} onValueChange={(value) => setData('purok', value)}>
-                                        <SelectTrigger className={errors.purok ? 'border-red-300 focus:border-red-500' : ''}>
+                                    <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
+                                        <SelectTrigger className={errors.purok_id ? 'border-red-300 focus:border-red-500' : ''}>
                                             <SelectValue placeholder="Choose your purok" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {PUROKS.map((purok) => (
-                                                <SelectItem key={purok} value={purok.toLowerCase().replace(' ', '_')}>
-                                                    {purok}
+                                            {puroks.map((purok) => (
+                                                <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                    {purok.name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.purok && <p className="text-sm text-red-500">{errors.purok}</p>}
+                                    {errors.purok_id && <p className="text-sm text-red-500">{errors.purok_id}</p>}
                                 </div>
                             )}
 

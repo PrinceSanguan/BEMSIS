@@ -245,7 +245,7 @@ export default function Attendance({ events, className }: Props) {
                                                                     {event.purok && (
                                                                         <div className="flex items-center gap-2">
                                                                             <MapPin className="h-4 w-4" />
-                                                                            <span>{event.purok.name}</span>
+                                                                            <span>{event.purok?.name || 'All Residents'}</span>
                                                                         </div>
                                                                     )}
                                                                     <div className="flex items-center gap-2">

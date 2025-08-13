@@ -470,7 +470,7 @@ export default function Events({ events, puroks }: Props) {
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
-                                                                        onClick={() => router.get(`/secretary/events/${event.id}/attendees`)}
+                                                                        onClick={() => router.get(route('secretary.events.attendees', event.id))}
                                                                     >
                                                                         <Eye className="mr-2 h-4 w-4" />
                                                                         View Attendees

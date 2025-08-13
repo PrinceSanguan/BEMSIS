@@ -175,9 +175,13 @@ class SecretaryController extends Controller
     public function attendance()
     {
         $events = Event::where('status', 'approved')
-            ->with(['attendances' => function ($query) {
-                $query->where('status', 'confirmed');
-            }])
+            ->with([
+                'attendances' => function ($query) {
+                    $query->where('status', 'confirmed');
+                },
+                'purok',
+                'creator'
+            ])
             ->latest()
             ->get()
             ->map(function ($event) {

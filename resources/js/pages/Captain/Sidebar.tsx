@@ -20,7 +20,11 @@ export default function Sidebar({ className }: SidebarProps) {
             </div>
 
             <nav className="flex-1 space-y-2 p-4">
-                <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => (window.location.href = route('dashboard'))}>
+                <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-3 text-left"
+                    onClick={() => (window.location.href = route('captain.dashboard'))}
+                >
                     <Home className="h-4 w-4" />
                     Dashboard
                 </Button>

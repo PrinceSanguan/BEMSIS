@@ -58,6 +58,11 @@ Route::post('register', [RegisterController::class, 'store'])->name('auth.regist
 Route::middleware(CaptainMiddleware::class)->group(function () {
   // Dashboard
   Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('captain.dashboard');
+
+  // Events Management
+  Route::get('captain/events', [CaptainController::class, 'events'])->name('captain.events');
+  Route::patch('captain/events/{event}/approve', [CaptainController::class, 'approveEvent'])->name('captain.events.approve');
+  Route::patch('captain/events/{event}/decline', [CaptainController::class, 'declineEvent'])->name('captain.events.decline');
 });
 
 /*

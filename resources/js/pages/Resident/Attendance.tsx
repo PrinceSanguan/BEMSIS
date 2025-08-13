@@ -59,12 +59,26 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
 
         try {
             const response = await fetch(route('resident.attendance.qr', eventData.id));
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
-            setQrCodeSvg(data.qr_svg);
-            setShowQRModal(true);
-        } catch (error) {
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (data.qr_svg) {
+                setQrCodeSvg(data.qr_svg);
+                setShowQRModal(true);
+            } else {
+                throw new Error('No QR code data received');
+            }
+        } catch (error: unknown) {
             console.error('Error fetching QR code:', error);
-            alert('Error loading QR code. Please try again.');
+            alert(`Error loading QR code: ${(error as Error).message}. Please try again.`);
         }
     };
 
@@ -200,11 +214,18 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
                             {selectedEvent && (
                                 <>
                                     <h3 className="text-lg font-medium">{selectedEvent.event.title}</h3>
-                                    <div
-                                        className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-white"
-                                        dangerouslySetInnerHTML={{ __html: qrCodeSvg || '' }}
-                                    />
+                                    {qrCodeSvg ? (
+                                        <div
+                                            className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-white p-4"
+                                            dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+                                        />
+                                    ) : (
+                                        <div className="flex h-64 w-64 items-center justify-center rounded-lg border-2 border-gray-200 bg-gray-50">
+                                            <p className="text-gray-500">Loading QR Code...</p>
+                                        </div>
+                                    )}
                                     <p className="text-center text-sm text-gray-600">Present this QR code at the event for attendance scanning</p>
+                                    <p className="text-center text-xs text-gray-500">QR Code: {selectedEvent.qr_code}</p>
                                 </>
                             )}
                             <Button onClick={() => setShowQRModal(false)} className="w-full">

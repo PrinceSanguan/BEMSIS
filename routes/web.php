@@ -150,4 +150,5 @@ Route::middleware(ResidentMiddleware::class)->group(function () {
   // Profile
   Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');
   Route::put('resident/profile', [ResidentController::class, 'updateProfile'])->name('resident.profile.update');
+  Route::post('resident/profile/password', [ResidentController::class, 'changePassword'])->name('resident.profile.password');
 });

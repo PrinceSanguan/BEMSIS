@@ -9,6 +9,7 @@ use App\Models\Certificate;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
@@ -309,6 +310,26 @@ class ResidentController extends Controller
         return back()->with('success', 'Profile updated successfully!');
     }
 
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password changed successfully!');
+    }
+
     public function generateQRCode($attendanceId)
     {
         $attendance = Attendance::where('id', $attendanceId)
@@ -327,14 +348,22 @@ class ResidentController extends Controller
             $attendance->save();
         }
 
-        // Generate QR code SVG
-        $qrCodeSvg = QrCode::format('svg')
-            ->size(200)
-            ->generate($attendance->qr_code);
+        try {
+            // Generate QR code SVG
+            $qrCodeSvg = QrCode::format('svg')
+                ->size(200)
+                ->errorCorrection('M')
+                ->generate($attendance->qr_code);
 
-        return response()->json([
-            'qr_code' => $attendance->qr_code,
-            'qr_svg' => $qrCodeSvg
-        ]);
+            return response()->json([
+                'success' => true,
+                'qr_code' => $attendance->qr_code,
+                'qr_svg' => $qrCodeSvg
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to generate QR code: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

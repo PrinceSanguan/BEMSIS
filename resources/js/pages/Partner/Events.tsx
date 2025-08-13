@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Partner/Header';
 import Sidebar from '@/pages/Partner/Sidebar';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Calendar, MapPin, Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 
@@ -47,14 +47,27 @@ export default function Events({ events, puroks }: EventsProps) {
         end_date: '',
         purok_id: '',
         has_certificate: false,
+        target_all_residents: false,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('partner.events.create'), {
+
+        // Transform the data before submission
+        const transformedData = {
+            ...data,
+            purok_id: data.purok_id === '' ? null : data.purok_id,
+            target_all_residents: data.purok_id === '' || !data.purok_id,
+        };
+
+        // Use router.post with transformed data
+        router.post(route('partner.events.create'), transformedData, {
             onSuccess: () => {
                 reset();
                 setIsCreateDialogOpen(false);
+            },
+            onError: (errors) => {
+                console.log('Event creation errors:', errors);
             },
         });
     };
@@ -63,10 +76,12 @@ export default function Events({ events, puroks }: EventsProps) {
         switch (status) {
             case 'approved':
                 return 'bg-green-100 text-green-800';
-            case 'rejected':
+            case 'declined':
                 return 'bg-red-100 text-red-800';
-            default:
+            case 'pending':
                 return 'bg-yellow-100 text-yellow-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
         }
     };
 
@@ -152,10 +167,9 @@ export default function Events({ events, puroks }: EventsProps) {
                                             <Label htmlFor="purok_id">Target Purok</Label>
                                             <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
                                                 <SelectTrigger className={errors.purok_id ? 'border-red-500' : ''}>
-                                                    <SelectValue placeholder="Select target purok (leave empty for all residents)" />
+                                                    <SelectValue placeholder="Select a specific purok or leave blank for all residents" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="">All Residents</SelectItem>
                                                     {puroks.map((purok) => (
                                                         <SelectItem key={purok.id} value={purok.id.toString()}>
                                                             {purok.name}

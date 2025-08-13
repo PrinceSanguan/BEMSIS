@@ -116,6 +116,8 @@ Route::middleware(PartnerMiddleware::class)->group(function () {
 
   // Profile
   Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');
+  Route::put('partner/profile', [PartnerController::class, 'updateProfile'])->name('partner.profile.update');
+  Route::post('partner/profile/password', [PartnerController::class, 'changePassword'])->name('partner.profile.password');
 });
 
 /*

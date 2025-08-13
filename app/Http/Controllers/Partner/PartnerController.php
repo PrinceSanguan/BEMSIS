@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Purok;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class PartnerController extends Controller
@@ -72,16 +73,19 @@ class PartnerController extends Controller
             'target_all_residents' => 'boolean',
         ]);
 
+        // Determine if targeting all residents
+        $targetAllResidents = $request->input('target_all_residents', false) || is_null($request->purok_id);
+
         Event::create([
             'created_by' => Auth::id(),
-            'purok_id' => $request->purok_id,
+            'purok_id' => $targetAllResidents ? null : $request->purok_id,
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,
-            'status' => $request->input('draft', false) ? 'pending' : 'pending', // Still requires approval but partner can create directly
-            'target_all_residents' => $request->input('target_all_residents', false),
+            'status' => 'pending', // Always requires captain approval
+            'target_all_residents' => $targetAllResidents,
         ]);
 
         return back()->with('success', 'Event created successfully! Awaiting captain approval.');
@@ -94,8 +98,67 @@ class PartnerController extends Controller
      */
     public function profile()
     {
+        $user = Auth::user();
+
         return Inertia::render('Partner/Profile', [
-            'user' => Auth::user()
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
+                'status' => $user->status
+            ]
         ]);
+    }
+
+    /**
+     * Update partner profile.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'required|string|unique:users,phone,' . $user->id,
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        return back()->with('success', 'Profile updated successfully!');
+    }
+
+    /**
+     * Change partner password.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password changed successfully!');
     }
 }

@@ -64,7 +64,6 @@ class SecretaryController extends Controller
     {
         $puroks = Purok::all();
         $events = Event::with(['creator', 'purok', 'attendances'])
-            ->where('status', 'approved')
             ->latest()
             ->get()
             ->map(function ($event) {
@@ -91,16 +90,19 @@ class SecretaryController extends Controller
             'target_all_residents' => 'boolean',
         ]);
 
+        // Determine if targeting all residents
+        $targetAllResidents = $request->input('target_all_residents', false) || is_null($request->purok_id);
+
         Event::create([
             'created_by' => Auth::id(),
-            'purok_id' => $request->purok_id,
+            'purok_id' => $targetAllResidents ? null : $request->purok_id,
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,
             'status' => 'pending', // Requires captain approval
-            'target_all_residents' => $request->input('target_all_residents', false),
+            'target_all_residents' => $targetAllResidents,
         ]);
 
         return back()->with('success', 'Event created successfully! Awaiting captain approval.');

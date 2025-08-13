@@ -72,6 +72,7 @@ export default function Events({ events, puroks }: Props) {
         end_date: '',
         purok_id: '',
         has_certificate: false as boolean,
+        target_all_residents: false as boolean,
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -80,15 +81,17 @@ export default function Events({ events, puroks }: Props) {
         // Transform the data before submission
         const transformedData = {
             ...data,
-            purok_id: data.purok_id === 'all' || data.purok_id === '' ? null : parseInt(data.purok_id) || null,
+            purok_id: data.purok_id === '' ? null : data.purok_id,
+            target_all_residents: data.purok_id === '' || !data.purok_id,
         };
 
-        // Update form data and then submit
-        post('/secretary/events', {
-            ...transformedData,
+        router.post(route('secretary.events.create'), transformedData, {
             onSuccess: () => {
                 reset();
                 setIsCreateDialogOpen(false);
+            },
+            onError: (errors) => {
+                console.log('Event creation errors:', errors);
             },
         });
     };
@@ -267,12 +270,11 @@ export default function Events({ events, puroks }: Props) {
                                                             placeholder={
                                                                 puroks.length === 0
                                                                     ? 'No puroks available - All residents will be targeted'
-                                                                    : 'Select purok (leave empty for all residents)'
+                                                                    : 'Select a specific purok or leave blank for all residents'
                                                             }
                                                         />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="all">All Residents</SelectItem>
                                                         {puroks.map((purok) => (
                                                             <SelectItem key={purok.id} value={purok.id.toString()}>
                                                                 {purok.name}

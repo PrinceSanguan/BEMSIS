@@ -54,7 +54,7 @@ class LoginController extends Controller
             /** @var \App\Models\User $user */
             $user->resetFailedAttempts();
 
-            // Check if user account is approved
+            // Check if user account is approved.
             if ($user->status !== 'approved') {
                 Auth::logout();
 

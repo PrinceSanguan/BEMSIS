@@ -18,11 +18,41 @@ class User extends Authenticatable
         'role',
         'status',
         'purok_id',
+
+        // Resident fields
+        'first_name',
+        'middle_name',
+        'last_name',
+        'extension',
+        'place_of_birth',
+        'date_of_birth',
+        'age',
+        'sex',
+        'civil_status',
+        'citizenship',
+        'occupation',
+        'special_notes',
+        'contact_number',
+        'valid_id_path',
+
+        // Partner Agency fields
+        'agency_name',
+        'representative_first_name',
+        'representative_last_name',
+        'agency_address',
+        'agency_contact_number',
+        'agency_valid_id_path',
+        'agency_endorsement_path',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'age' => 'integer',
     ];
 
     // Relationships

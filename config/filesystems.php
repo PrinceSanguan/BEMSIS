@@ -30,6 +30,20 @@ return [
 
     'disks' => [
 
+        'resident_ids' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/resident_ids'),
+            'url' => env('APP_URL') . '/storage/resident_ids',
+            'visibility' => 'private',
+        ],
+
+        'agency_ids' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/agency_ids'),
+            'url' => env('APP_URL') . '/storage/agency_ids',
+            'visibility' => 'private',
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
@@ -41,7 +55,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

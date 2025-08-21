@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function HeroLanding() {
     return (
-        <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
+        <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center bg-white text-black dark:bg-black dark:text-white">
             {/* Sparkles Background */}
             <div className="absolute inset-0 h-full w-full">
                 <SparklesCore
@@ -15,20 +15,20 @@ export default function HeroLanding() {
                     maxSize={1.4}
                     particleDensity={100}
                     className="h-full w-full"
-                    particleColor="#3B82F6"
+                    particleColor="#16A34A"
                 />
             </div>
-            <div className="absolute inset-y-0 left-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
-                <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
+            <div className="absolute inset-y-0 left-0 h-full w-px bg-white/80 dark:bg-black/80">
+                <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-green-600 to-transparent" />
             </div>
-            <div className="absolute inset-y-0 right-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
-                <div className="absolute h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
+            <div className="absolute inset-y-0 right-0 h-full w-px bg-white/80 dark:bg-black/80">
+                <div className="absolute h-40 w-px bg-gradient-to-b from-transparent via-green-600 to-transparent" />
             </div>
-            <div className="absolute inset-x-0 bottom-0 h-px w-full bg-neutral-200/80 dark:bg-neutral-800/80">
-                <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-px w-full bg-white/80 dark:bg-black/80">
+                <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-green-600 to-transparent" />
             </div>
             <div className="px-4 py-10 md:py-20">
-                <h1 className="relative z-20 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
+                <h1 className="relative z-20 mx-auto max-w-4xl text-center text-2xl font-bold text-black md:text-4xl lg:text-7xl dark:text-white">
                     {'Barangay Event Management System with Integrated SMS and QR Code Technology'.split(' ').map((word, index) => (
                         <motion.span
                             key={index}
@@ -56,7 +56,7 @@ export default function HeroLanding() {
                         duration: 0.3,
                         delay: 0.8,
                     }}
-                    className="relative z-20 mt-8 flex flex-wrap items-center justify-center gap-4"
+                    className="relative z-20 mt-8 flex flex-wrap items-center justify-center gap-4 text-green-800 dark:text-green-200"
                 >
                     Streamline your barangay events with our comprehensive management system. Send SMS notifications and generate QR codes for
                     seamless event coordination.
@@ -75,17 +75,15 @@ export default function HeroLanding() {
                     className="relative z-20 mt-8 flex flex-wrap items-center justify-center gap-4"
                 >
                     <Button
-                        variant="default"
                         size="lg"
-                        className="w-48 transform rounded-lg px-6 py-3 font-medium transition-all duration-300 hover:-translate-y-0.5"
+                        className="w-48 transform rounded-lg bg-green-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-700"
                         asChild
                     >
                         <Link href={route('auth.login')}>Login</Link>
                     </Button>
                     <Button
-                        variant="outline"
                         size="lg"
-                        className="w-48 transform rounded-lg px-6 py-3 font-medium transition-all duration-300 hover:-translate-y-0.5"
+                        className="w-48 transform rounded-lg border border-green-600 px-6 py-3 font-medium text-green-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-600 hover:text-white"
                         asChild
                     >
                         <Link href={route('auth.register')}>Register</Link>
@@ -104,14 +102,18 @@ export default function HeroLanding() {
                         duration: 0.3,
                         delay: 1.2,
                     }}
-                    className="relative z-20 mt-20 rounded-3xl border border-neutral-200 bg-neutral-100 p-4 shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+                    className="relative z-20 mt-20 rounded-3xl border border-green-600 bg-white p-4 shadow-md dark:border-green-600 dark:bg-black"
                 >
-                    <div className="w-full overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700">
-                        <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+                    <div className="w-full overflow-hidden rounded-xl border border-green-600">
+                        <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-green-50 to-green-100 dark:from-black dark:to-green-900">
                             <div className="p-8 text-center">
-                                <div className="mb-4 text-6xl">📱</div>
-                                <h3 className="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Event Management Dashboard</h3>
-                                <p className="text-gray-600 dark:text-gray-400">SMS • QR Codes • Real-time Updates</p>
+                                <img
+                                    src="/assets/images/landing.png"
+                                    alt="Event Management Dashboard"
+                                    className="mx-auto mb-4 h-32 w-auto object-contain"
+                                />
+                                <h3 className="mb-2 text-2xl font-bold text-black dark:text-white">Event Management Dashboard</h3>
+                                <p className="text-green-800 dark:text-green-200">SMS • QR Codes • Real-time Updates</p>
                             </div>
                         </div>
                     </div>

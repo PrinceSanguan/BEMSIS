@@ -68,15 +68,22 @@ export default function Login({ flash }: LoginProps) {
     return (
         <>
             <Head title="Login" />
-            <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
-                <Card className="w-full max-w-sm rounded-2xl shadow-xl">
+            <div className="flex min-h-screen items-center justify-center bg-white p-6 text-black dark:bg-black dark:text-white">
+                <Card className="w-full max-w-sm rounded-2xl border border-green-600 bg-white shadow-xl dark:bg-black">
                     <CardContent className="p-8">
-                        <h1 className="mb-6 text-center text-3xl font-bold text-gray-800">Welcome Back!</h1>
+                        <div className="mb-6 text-center">
+                            <img src="/assets/images/Bemsis.jpg" alt="Bemsis Logo" className="mx-auto mb-4 h-16 w-auto" />
+                            <h1 className="text-3xl font-bold text-gray-800">Welcome Back!</h1>
+                        </div>
 
                         {/* Show flash messages */}
                         {flashMessage.message && (
-                            <Alert variant={flashMessage.type === 'error' ? 'destructive' : 'default'} className="mb-4">
-                                <AlertDescription>{flashMessage.message}</AlertDescription>
+                            <Alert
+                                className={`mb-4 ${flashMessage.type === 'error' ? 'border-red-600 bg-red-100' : 'border-green-600 bg-green-100'}`}
+                            >
+                                <AlertDescription className={flashMessage.type === 'error' ? 'text-red-800' : 'text-green-800'}>
+                                    {flashMessage.message}
+                                </AlertDescription>
                             </Alert>
                         )}
 
@@ -117,7 +124,7 @@ export default function Login({ flash }: LoginProps) {
                             </div>
 
                             {/* Submit Button */}
-                            <Button type="submit" className="mt-4 w-full" disabled={processing}>
+                            <Button type="submit" className="mt-4 w-full bg-green-600 text-white hover:bg-green-700" disabled={processing}>
                                 {processing ? 'Logging in...' : 'Login'}
                             </Button>
                         </form>

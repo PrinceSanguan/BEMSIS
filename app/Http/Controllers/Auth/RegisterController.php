@@ -22,26 +22,115 @@ class RegisterController extends Controller
     // Store registration data
     public function store(Request $request)
     {
-        // Comprehensive validation
-        $request->validate([
-            'name' => 'required|string|max:255',
+        // Password policy validation rules
+        $passwordRules = [
+            'required',
+            'string',
+            'min:8',
+            'max:12',
+            'confirmed',
+            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]).*$/',
+        ];
+
+        // Base validation rules
+        $baseRules = [
             'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|unique:users,phone|regex:/^09\d{9}$/',
-            'password' => 'required|min:6|confirmed',
-            'role' => 'required|in:resident,partner_agency,secretary,captain',
-            'purok_id' => 'required_if:role,resident|nullable|exists:puroks,id',
+            'password' => $passwordRules,
+            'role' => 'required|in:resident,partner_agency',
+        ];
+
+        // Role-specific validation
+        if ($request->role === 'resident') {
+            $rules = array_merge($baseRules, [
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'extension' => 'nullable|string|max:10',
+                'place_of_birth' => 'required|string|max:255',
+                'date_of_birth' => 'required|date|before:' . now()->subYears(13)->format('Y-m-d'),
+                'age' => 'required|integer|min:13|max:120',
+                'sex' => 'required|in:Male,Female',
+                'civil_status' => 'required|string|max:255',
+                'citizenship' => 'required|string|max:255',
+                'occupation' => 'required|string|max:255',
+                'special_notes' => 'nullable|string',
+                'purok_id' => 'required|exists:puroks,id',
+                'contact_number' => 'required|string|regex:/^09\d{9}$/|unique:users,phone',
+                'valid_id' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB max
+            ]);
+        } else { // partner_agency
+            $rules = array_merge($baseRules, [
+                'agency_name' => 'required|string|max:255',
+                'representative_first_name' => 'required|string|max:255',
+                'representative_last_name' => 'required|string|max:255',
+                'agency_address' => 'nullable|string|max:500',
+                'agency_contact_number' => 'required|string|regex:/^09\d{9}$/|unique:users,phone',
+                'agency_valid_id' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB max
+            ]);
+        }
+
+        $validated = $request->validate($rules, [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'date_of_birth.before' => 'You must be at least 13 years old to register.',
+            'age.min' => 'You must be at least 13 years old to register.',
+            'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX.',
+            'contact_number.unique' => 'This contact number is already registered in the system.',
+            'agency_contact_number.regex' => 'Agency contact number must be in the format 09XXXXXXXXX.',
+            'agency_contact_number.unique' => 'This contact number is already registered in the system.',
         ]);
 
-        // Create a new user
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'status' => 'pending', // Requires approval
-            'purok_id' => $request->role === 'resident' ? $request->purok_id : null,
-        ]);
+        // Handle file uploads
+        $validIdPath = null;
+        $agencyValidIdPath = null;
+
+        if ($request->role === 'resident' && $request->hasFile('valid_id')) {
+            $validIdPath = $request->file('valid_id')->store('resident_ids', 'public');
+        } elseif ($request->role === 'partner_agency' && $request->hasFile('agency_valid_id')) {
+            $agencyValidIdPath = $request->file('agency_valid_id')->store('agency_ids', 'public');
+        }
+
+        // Prepare user data based on role
+        $userData = [
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+            'status' => 'pending',
+        ];
+
+        if ($validated['role'] === 'resident') {
+            $userData = array_merge($userData, [
+                'name' => trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name'] . ' ' . ($validated['extension'] ?? '')),
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'extension' => $validated['extension'] === 'none' ? null : $validated['extension'],
+                'place_of_birth' => $validated['place_of_birth'],
+                'date_of_birth' => $validated['date_of_birth'],
+                'age' => $validated['age'],
+                'sex' => $validated['sex'],
+                'civil_status' => $validated['civil_status'],
+                'citizenship' => $validated['citizenship'],
+                'occupation' => $validated['occupation'],
+                'special_notes' => $validated['special_notes'],
+                'purok_id' => $validated['purok_id'],
+                'contact_number' => $validated['contact_number'],
+                'phone' => $validated['contact_number'], // Keep for compatibility
+                'valid_id_path' => $validIdPath,
+            ]);
+        } else { // partner_agency
+            $userData = array_merge($userData, [
+                'name' => $validated['agency_name'],
+                'agency_name' => $validated['agency_name'],
+                'representative_first_name' => $validated['representative_first_name'],
+                'representative_last_name' => $validated['representative_last_name'],
+                'agency_address' => $validated['agency_address'],
+                'agency_contact_number' => $validated['agency_contact_number'],
+                'phone' => $validated['agency_contact_number'], // Keep for compatibility
+                'agency_valid_id_path' => $agencyValidIdPath,
+            ]);
+        }
+
+        User::create($userData);
 
         // Redirect to login or dashboard
         return redirect()->route('auth.login')->with('success', 'Account created successfully! Please wait for approval from the administrator.');

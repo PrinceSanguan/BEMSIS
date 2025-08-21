@@ -20,9 +20,6 @@ class PurokSeeder extends Seeder
             'Purok 5',
             'Purok 6',
             'Purok 7',
-            'Purok 8',
-            'Purok 9',
-            'Purok 10'
         ];
 
         foreach ($puroks as $purok) {

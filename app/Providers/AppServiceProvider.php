@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register session activity middleware globally for web routes
+        $this->app['router']->aliasMiddleware('session.activity', \App\Http\Middleware\SessionActivityMiddleware::class);
     }
 }

@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'auth' => [
                 'user' => $request->user(),
+                'lastActivity' => $request->session()->get('last_activity'),
+                'sessionLifetime' => 900, // 15 minutes in seconds
             ],
             'ziggy' => fn(): array => [
                 ...(new Ziggy)->toArray(),

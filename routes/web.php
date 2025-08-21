@@ -70,7 +70,7 @@ Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword']
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(CaptainMiddleware::class)->group(function () {
+Route::middleware(['session.activity', CaptainMiddleware::class])->group(function () {
   // Dashboard
   Route::get('captain/dashboard', [CaptainController::class, 'index'])->name('captain.dashboard');
 
@@ -86,7 +86,7 @@ Route::middleware(CaptainMiddleware::class)->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(SecretaryMiddleware::class)->group(function () {
+Route::middleware(['session.activity', SecretaryMiddleware::class])->group(function () {
 
   // Dashboard
   Route::get('secretary/dashboard', [SecretaryController::class, 'index'])->name('secretary.dashboard');
@@ -121,7 +121,7 @@ Route::middleware(SecretaryMiddleware::class)->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(PartnerMiddleware::class)->group(function () {
+Route::middleware(['session.activity', PartnerMiddleware::class])->group(function () {
   // Dashboard
   Route::get('partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
 
@@ -141,7 +141,7 @@ Route::middleware(PartnerMiddleware::class)->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(ResidentMiddleware::class)->group(function () {
+Route::middleware(['session.activity', ResidentMiddleware::class])->group(function () {
   // Dashboard
   Route::get('resident/dashboard', [ResidentController::class, 'index'])->name('resident.dashboard');
 

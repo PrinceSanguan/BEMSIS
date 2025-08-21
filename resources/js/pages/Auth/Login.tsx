@@ -136,6 +136,17 @@ export default function Login({ flash }: LoginProps) {
                             </Button>
                         </form>
 
+                        {/* Forgot Password Link */}
+                        <div className="mt-4 text-center">
+                            <button
+                                type="button"
+                                onClick={() => (window.location.href = route('auth.forgot-password'))}
+                                className="text-sm text-blue-600 underline hover:text-blue-500"
+                            >
+                                Forgot your password?
+                            </button>
+                        </div>
+
                         {/* Signup Link */}
                         <p className="mt-4 text-center text-sm text-gray-500">
                             Don't have an account?{' '}

@@ -48,6 +48,21 @@ Route::get('logout', [LoginController::class, 'destroy'])->name('auth.logout');
 Route::get('register', [RegisterController::class, 'index'])->name('auth.register');
 Route::post('register', [RegisterController::class, 'store'])->name('auth.register.store');
 
+/*
+|--------------------------------------------------------------------------
+| Forgot Password Routes
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
+Route::get('forgot-password', [ForgotPasswordController::class, 'index'])->name('auth.forgot-password');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('auth.forgot-password.send');
+Route::get('verify-otp', [ForgotPasswordController::class, 'showVerifyOtp'])->name('auth.verify-otp');
+Route::post('verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('auth.verify-otp.check');
+Route::get('reset-password', [ForgotPasswordController::class, 'showResetPassword'])->name('auth.reset-password');
+Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('auth.reset-password.update');
+
 
 /*
 |--------------------------------------------------------------------------

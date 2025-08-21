@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use App\Models\UserDevice;
+use App\Mail\LoginNotificationEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -53,6 +57,10 @@ class LoginController extends Controller
             // Reset failed attempts on successful login
             /** @var \App\Models\User $user */
             $user->resetFailedAttempts();
+
+            // Handle device tracking and notifications
+            $this->handleDeviceTracking($request, $user);
+
 
             // Check if user account is approved.
             if ($user->status !== 'approved') {
@@ -123,5 +131,97 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home')->with('success', 'You have been logged out successfully.');
+    }
+
+    /**
+     * Handle device tracking and login notifications
+     */
+    private function handleDeviceTracking(Request $request, $user)
+    {
+        $userAgent = $request->userAgent();
+        $ipAddress = $request->ip();
+        $deviceHash = UserDevice::generateDeviceHash($userAgent, $ipAddress);
+
+        // Check if this device exists
+        $device = UserDevice::where('user_id', $user->id)
+            ->where('device_hash', $deviceHash)
+            ->first();
+
+        if ($device) {
+            // Device exists - update last used time
+            $device->update(['last_used_at' => now()]);
+
+            // If device is not trusted, send notification again
+            if (!$device->is_trusted) {
+                $this->sendLoginNotification($user, $device);
+            }
+        } else {
+            // New device detected
+            $parsedAgent = UserDevice::parseUserAgent($userAgent);
+            $deviceName = $this->generateDeviceName($parsedAgent['platform'], $parsedAgent['browser'], $ipAddress);
+
+            $device = UserDevice::create([
+                'user_id' => $user->id,
+                'device_hash' => $deviceHash,
+                'device_name' => $deviceName,
+                'user_agent' => $userAgent,
+                'ip_address' => $ipAddress,
+                'platform' => $parsedAgent['platform'],
+                'browser' => $parsedAgent['browser'],
+                'is_trusted' => false,
+                'first_used_at' => now(),
+                'last_used_at' => now(),
+            ]);
+
+            // Check if user has any trusted devices
+            $hasTrustedDevices = $user->trustedDevices()->exists();
+
+            if ($hasTrustedDevices) {
+                // User has trusted devices, so this is a new device - send notification
+                $this->sendLoginNotification($user, $device);
+            } else {
+                // First device - automatically trust it
+                $device->markAsTrusted();
+                Log::info('First device automatically trusted', [
+                    'user_id' => $user->id,
+                    'device_id' => $device->id
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Send login notification email
+     */
+    private function sendLoginNotification($user, $device)
+    {
+        try {
+            $verificationToken = $device->generateVerificationToken();
+
+            Mail::to($user->email)->send(new LoginNotificationEmail($user, $device, $verificationToken));
+
+            Log::info('Login notification sent', [
+                'user_id' => $user->id,
+                'device_id' => $device->id,
+                'email' => $user->email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send login notification', [
+                'user_id' => $user->id,
+                'device_id' => $device->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Generate a human-readable device name
+     */
+    private function generateDeviceName($platform, $browser, $ipAddress)
+    {
+        $platformName = $platform !== 'Unknown' ? $platform : 'Unknown Device';
+        $browserName = $browser !== 'Unknown' ? " ($browser)" : '';
+
+        return $platformName . $browserName;
     }
 }

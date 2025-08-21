@@ -63,6 +63,19 @@ Route::post('verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name(
 Route::get('reset-password', [ForgotPasswordController::class, 'showResetPassword'])->name('auth.reset-password');
 Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('auth.reset-password.update');
 
+/*
+|--------------------------------------------------------------------------
+| Device Verification Routes
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Auth\DeviceVerificationController;
+
+Route::get('device/verify/{token}/{device}', [DeviceVerificationController::class, 'verify'])->name('auth.device.verify');
+Route::middleware('auth')->group(function () {
+  Route::get('devices', [DeviceVerificationController::class, 'index'])->name('auth.devices');
+  Route::delete('devices/{device}/revoke', [DeviceVerificationController::class, 'revoke'])->name('auth.devices.revoke');
+});
 
 /*
 |--------------------------------------------------------------------------

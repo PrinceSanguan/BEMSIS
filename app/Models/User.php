@@ -86,6 +86,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's devices
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Get user's trusted devices
+     */
+    public function trustedDevices()
+    {
+        return $this->hasMany(UserDevice::class)->where('is_trusted', true);
+    }
+
+    /**
      * Check if account is locked
      */
     public function isLocked(): bool

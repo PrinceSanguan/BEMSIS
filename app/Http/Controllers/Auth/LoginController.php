@@ -140,7 +140,7 @@ class LoginController extends Controller
     {
         $userAgent = $request->userAgent();
         $ipAddress = $request->ip();
-        $deviceHash = UserDevice::generateDeviceHash($userAgent, $ipAddress);
+        $deviceHash = UserDevice::generateDeviceHash($userAgent, $ipAddress, $user->id);
 
         // Check if this device exists
         $device = UserDevice::where('user_id', $user->id)

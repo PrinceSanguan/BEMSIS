@@ -41,10 +41,10 @@ class UserDevice extends Model
     /**
      * Generate a unique device hash based on user agent and other factors
      */
-    public static function generateDeviceHash(string $userAgent, string $ipAddress): string
+    public static function generateDeviceHash(string $userAgent, string $ipAddress, int $userId): string
     {
-        // Create a more sophisticated fingerprint
-        $fingerprint = $userAgent . '|' . self::extractBrowserFingerprint($userAgent);
+        // Create a more sophisticated fingerprint that includes user context
+        $fingerprint = $userAgent . '|' . self::extractBrowserFingerprint($userAgent) . '|' . $userId;
         return hash('sha256', $fingerprint);
     }
 

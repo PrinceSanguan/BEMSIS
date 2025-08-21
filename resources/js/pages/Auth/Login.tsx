@@ -89,8 +89,11 @@ export default function Login({ flash }: LoginProps) {
 
                         {/* Show authentication error if any */}
                         {authError && (
-                            <Alert variant="destructive" className="mb-4">
-                                <AlertDescription>{authError}</AlertDescription>
+                            <Alert
+                                variant={authError.includes('locked') ? 'destructive' : 'destructive'}
+                                className={`mb-4 ${authError.includes('locked') ? 'border-orange-500 bg-orange-50' : ''}`}
+                            >
+                                <AlertDescription className={authError.includes('locked') ? 'text-orange-800' : ''}>{authError}</AlertDescription>
                             </Alert>
                         )}
 
@@ -124,8 +127,12 @@ export default function Login({ flash }: LoginProps) {
                             </div>
 
                             {/* Submit Button */}
-                            <Button type="submit" className="mt-4 w-full bg-green-600 text-white hover:bg-green-700" disabled={processing}>
-                                {processing ? 'Logging in...' : 'Login'}
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full bg-green-600 text-white hover:bg-green-700"
+                                disabled={processing || Boolean(authError?.includes('locked'))}
+                            >
+                                {processing ? 'Logging in...' : authError?.includes('locked') ? 'Account Locked' : 'Login'}
                             </Button>
                         </form>
 

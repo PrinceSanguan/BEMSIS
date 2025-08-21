@@ -18,6 +18,8 @@ class User extends Authenticatable
         'role',
         'status',
         'purok_id',
+        'failed_login_attempts',
+        'locked_until',
 
         // Resident fields
         'first_name',
@@ -53,6 +55,8 @@ class User extends Authenticatable
     protected $casts = [
         'date_of_birth' => 'date',
         'age' => 'integer',
+        'failed_login_attempts' => 'integer',
+        'locked_until' => 'datetime',
     ];
 
     // Relationships
@@ -79,5 +83,50 @@ class User extends Authenticatable
     public function purok()
     {
         return $this->belongsTo(Purok::class);
+    }
+
+    /**
+     * Check if account is locked
+     */
+    public function isLocked(): bool
+    {
+        return $this->locked_until && $this->locked_until->isFuture();
+    }
+
+    /**
+     * Increment failed login attempts and lock if necessary
+     */
+    public function incrementFailedAttempts(): void
+    {
+        $this->increment('failed_login_attempts');
+
+        if ($this->failed_login_attempts >= 5) {
+            $this->update([
+                'locked_until' => now()->addMinutes(15)
+            ]);
+        }
+    }
+
+    /**
+     * Reset failed login attempts
+     */
+    public function resetFailedAttempts(): void
+    {
+        $this->update([
+            'failed_login_attempts' => 0,
+            'locked_until' => null
+        ]);
+    }
+
+    /**
+     * Get remaining lockout time in minutes
+     */
+    public function getRemainingLockoutTime(): int
+    {
+        if (!$this->isLocked()) {
+            return 0;
+        }
+
+        return $this->locked_until->diffInMinutes(now());
     }
 }

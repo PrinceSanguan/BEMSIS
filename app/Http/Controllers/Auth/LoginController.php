@@ -33,8 +33,26 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
+        // Find user by email to check lockout status
+        /** @var \App\Models\User|null $user */
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
+
+        if ($user) {
+            // Check if account is locked
+            if ($user->isLocked()) {
+                $remainingTime = $user->getRemainingLockoutTime();
+                throw ValidationException::withMessages([
+                    'auth' => "Account is locked due to too many failed login attempts. Please try again in {$remainingTime} minutes.",
+                ]);
+            }
+        }
+
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+
+            // Reset failed attempts on successful login
+            /** @var \App\Models\User $user */
+            $user->resetFailedAttempts();
 
             // Check if user account is approved
             if ($user->status !== 'approved') {
@@ -68,7 +86,24 @@ class LoginController extends Controller
             }
         }
 
-        // Authentication failed
+        // Authentication failed - increment failed attempts if user exists
+        if ($user) {
+            $user->incrementFailedAttempts();
+
+            // Check if account is now locked
+            if ($user->isLocked()) {
+                throw ValidationException::withMessages([
+                    'auth' => 'Too many failed login attempts. Your account has been locked for 15 minutes.',
+                ]);
+            }
+
+            $attemptsLeft = 5 - $user->failed_login_attempts;
+            throw ValidationException::withMessages([
+                'auth' => "Invalid credentials. {$attemptsLeft} attempts remaining before account lockout.",
+            ]);
+        }
+
+        // User not found
         throw ValidationException::withMessages([
             'auth' => 'The provided credentials do not match our records.',
         ]);

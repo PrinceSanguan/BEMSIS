@@ -133,6 +133,6 @@ class RegisterController extends Controller
         User::create($userData);
 
         // Redirect to login or dashboard
-        return redirect()->route('auth.login')->with('success', 'Account created successfully! Please wait for approval from the administrator.');
+        return redirect()->route('auth.login')->with('success', 'Account created successfully! Please wait for approval from the Secretary.');
     }
 }

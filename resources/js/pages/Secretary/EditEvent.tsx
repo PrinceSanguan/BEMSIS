@@ -49,7 +49,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(event.image_path ? `/storage/${event.image_path}` : null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, processing, errors, reset } = useForm({
         title: event.title,
         description: event.description,
         start_date: event.start_date ? new Date(event.start_date).toISOString().slice(0, 16) : '',
@@ -58,11 +58,16 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
         has_certificate: event.has_certificate,
         target_all_residents: event.target_all_residents,
         image: null as File | null,
-        _method: 'PUT',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        console.log('Form submission started', {
+            eventId: event.id,
+            formData: data,
+            route: route('secretary.events.update', event.id),
+        });
 
         const formData = new FormData();
         formData.append('title', data.title);
@@ -75,10 +80,21 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
         if (data.image) formData.append('image', data.image);
         formData.append('_method', 'PUT');
 
+        console.log('FormData prepared, sending request...');
+
         router.post(route('secretary.events.update', event.id), formData, {
             forceFormData: true,
-            onSuccess: () => {
-                reset();
+            onStart: () => {
+                console.log('Request started');
+            },
+            onSuccess: (page) => {
+                console.log('Request successful', page);
+            },
+            onError: (errors) => {
+                console.error('Request failed', errors);
+            },
+            onFinish: () => {
+                console.log('Request finished');
             },
         });
     };

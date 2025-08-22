@@ -49,7 +49,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(event.image_path ? `/storage/${event.image_path}` : null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, processing, errors, reset } = useForm({
         title: event.title,
         description: event.description,
         start_date: event.start_date ? new Date(event.start_date).toISOString().slice(0, 16) : '',
@@ -58,7 +58,6 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
         has_certificate: event.has_certificate,
         target_all_residents: event.target_all_residents,
         image: null as File | null,
-        _method: 'PUT',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -77,9 +76,6 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
 
         router.post(route('partner.events.update', event.id), formData, {
             forceFormData: true,
-            onSuccess: () => {
-                reset();
-            },
         });
     };
 

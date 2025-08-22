@@ -135,7 +135,7 @@ class PartnerController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'start_date' => 'required|date|after:now',
+            'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
             'purok_id' => 'nullable|exists:puroks,id',
             'has_certificate' => 'boolean',

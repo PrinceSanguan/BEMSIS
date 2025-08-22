@@ -117,7 +117,7 @@ export default function Events({ events }: Props) {
 
                 {/* Main Content */}
                 <div className="flex flex-1 flex-col">
-                    <Header userName="Juan Dela Cruz" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                    <Header onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
                         <div className="mx-auto max-w-4xl space-y-6">

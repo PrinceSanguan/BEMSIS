@@ -62,7 +62,7 @@ export default function Dashboard({ stats, upcomingEvents }: Props) {
 
                 {/* Main Content */}
                 <div className="flex flex-1 flex-col">
-                    <Header userName="Juan Dela Cruz" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                    <Header onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
                     <main className="flex-1 overflow-auto p-4 lg:p-6">
                         <div className="mb-6">

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Models\Announcement;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -369,5 +369,37 @@ class ResidentController extends Controller
                 'error' => 'Failed to generate QR code: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function announcements()
+    {
+        $user = Auth::user();
+        $userPurokId = $user->purok_id;
+
+        // Get announcements that target all puroks OR target the user's specific purok
+        $announcements = Announcement::with('creator')
+            ->where(function ($query) use ($userPurokId) {
+                $query->where('target_all_puroks', true)
+                    ->orWhere(function ($q) use ($userPurokId) {
+                        $q->where('target_all_puroks', false)
+                            ->whereJsonContains('target_puroks', $userPurokId);
+                    });
+            })
+            ->latest()
+            ->get()
+            ->map(function ($announcement) {
+                return [
+                    'id' => $announcement->id,
+                    'title' => $announcement->title,
+                    'content' => $announcement->content,
+                    'created_by' => $announcement->creator->name,
+                    'created_at' => $announcement->created_at->format('M d, Y H:i'),
+                    'target_scope' => $announcement->target_all_puroks ? 'All Puroks' : 'Specific Puroks',
+                ];
+            });
+
+        return Inertia::render('Resident/Announcements', [
+            'announcements' => $announcements
+        ]);
     }
 }

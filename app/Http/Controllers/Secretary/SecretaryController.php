@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use App\Models\Certificate;
 use App\Models\Feedback;
 use App\Models\Purok;
+use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -391,5 +392,102 @@ class SecretaryController extends Controller
     public function content()
     {
         return Inertia::render('Secretary/Content');
+    }
+
+    public function announcements()
+    {
+        $announcements = Announcement::with('creator')
+            ->latest()
+            ->get()
+            ->map(function ($announcement) {
+                return [
+                    'id' => $announcement->id,
+                    'title' => $announcement->title,
+                    'content' => $announcement->content,
+                    'target_puroks' => $announcement->target_puroks,
+                    'target_all_puroks' => $announcement->target_all_puroks,
+                    'created_by' => $announcement->creator->name,
+                    'created_at' => $announcement->created_at->format('M d, Y H:i'),
+                ];
+            });
+
+        $puroks = Purok::all();
+
+        return Inertia::render('Secretary/Announcements', [
+            'announcements' => $announcements,
+            'puroks' => $puroks
+        ]);
+    }
+
+    public function createAnnouncement(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'target_puroks' => 'nullable|array|max:3',
+            'target_puroks.*' => 'exists:puroks,id',
+            'target_all_puroks' => 'boolean',
+        ]);
+
+        // Ensure only up to 3 puroks can be selected
+        if (!$request->target_all_puroks && count($request->target_puroks ?? []) > 3) {
+            return back()->withErrors(['target_puroks' => 'You can select up to 3 puroks only.']);
+        }
+
+        Announcement::create([
+            'created_by' => Auth::id(),
+            'title' => $request->title,
+            'content' => $request->content,
+            'target_puroks' => $request->target_all_puroks ? null : ($request->target_puroks ?? []),
+            'target_all_puroks' => $request->target_all_puroks ?? false,
+        ]);
+
+        return back()->with('success', 'Announcement created successfully!');
+    }
+
+    public function editAnnouncement($announcementId)
+    {
+        $announcement = Announcement::findOrFail($announcementId);
+        $puroks = Purok::all();
+
+        return Inertia::render('Secretary/EditAnnouncement', [
+            'announcement' => $announcement,
+            'puroks' => $puroks
+        ]);
+    }
+
+    public function updateAnnouncement(Request $request, $announcementId)
+    {
+        $announcement = Announcement::findOrFail($announcementId);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'target_puroks' => 'nullable|array|max:3',
+            'target_puroks.*' => 'exists:puroks,id',
+            'target_all_puroks' => 'boolean',
+        ]);
+
+        // Ensure only up to 3 puroks can be selected
+        if (!$request->target_all_puroks && count($request->target_puroks ?? []) > 3) {
+            return back()->withErrors(['target_puroks' => 'You can select up to 3 puroks only.']);
+        }
+
+        $announcement->update([
+            'title' => $request->title,
+            'content' => $request->content,
+            'target_puroks' => $request->target_all_puroks ? null : ($request->target_puroks ?? []),
+            'target_all_puroks' => $request->target_all_puroks ?? false,
+        ]);
+
+        return redirect()->route('secretary.announcements')->with('success', 'Announcement updated successfully!');
+    }
+
+    public function deleteAnnouncement($announcementId)
+    {
+        $announcement = Announcement::findOrFail($announcementId);
+        $announcement->delete();
+
+        return back()->with('success', 'Announcement deleted successfully!');
     }
 }

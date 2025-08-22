@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Award, BarChart3, Calendar, LogOut, MessageSquare, QrCode, Settings } from 'lucide-react';
+import { Award, BarChart3, Bell, Calendar, LogOut, MessageSquare, QrCode, Settings } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 interface SidebarProps {
@@ -15,6 +15,7 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
         { icon: QrCode, label: 'Attendance', route: 'resident.attendance' },
         { icon: Award, label: 'Certificates', route: 'resident.certificates' },
         { icon: MessageSquare, label: 'Feedback', route: 'resident.feedback' },
+        { icon: Bell, label: 'Announcements', route: 'resident.announcements' },
         { icon: Settings, label: 'Profile', route: 'resident.profile' },
     ];
 

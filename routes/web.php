@@ -134,6 +134,13 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
 
   // Content
   Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');
+
+  // Announcements Management
+  Route::get('secretary/announcements', [SecretaryController::class, 'announcements'])->name('secretary.announcements');
+  Route::post('secretary/announcements', [SecretaryController::class, 'createAnnouncement'])->name('secretary.announcements.create');
+  Route::get('secretary/announcements/{announcement}/edit', [SecretaryController::class, 'editAnnouncement'])->name('secretary.announcements.edit');
+  Route::put('secretary/announcements/{announcement}', [SecretaryController::class, 'updateAnnouncement'])->name('secretary.announcements.update');
+  Route::delete('secretary/announcements/{announcement}', [SecretaryController::class, 'deleteAnnouncement'])->name('secretary.announcements.delete');
 });
 /*
 |--------------------------------------------------------------------------
@@ -184,6 +191,9 @@ Route::middleware(['session.activity', ResidentMiddleware::class])->group(functi
   // Feedback
   Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
   Route::post('resident/feedback', [ResidentController::class, 'submitFeedback'])->name('resident.feedback.submit');
+
+  // Announcements
+  Route::get('resident/announcements', [ResidentController::class, 'announcements'])->name('resident.announcements');
 
   // Profile
   Route::get('resident/profile', [ResidentController::class, 'profile'])->name('resident.profile');

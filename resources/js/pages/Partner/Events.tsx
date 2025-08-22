@@ -400,7 +400,7 @@ export default function Events({ events, puroks }: EventsProps) {
                         <div className="grid gap-4 md:gap-6">
                             {events.length > 0 ? (
                                 events.map((event) => {
-                                    const canEdit = event.status !== 'approved';
+                                    const canEdit = event.status === 'pending';
                                     const isProcessingEvent = processing.has(event.id);
 
                                     return (

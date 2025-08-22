@@ -526,7 +526,7 @@ export default function Events({ events, puroks }: Props) {
                                             {events.map((event) => {
                                                 const isProcessingEvent = processing.has(event.id);
                                                 const isPast = isEventPast(event.start_date);
-                                                const canEdit = event.status !== 'approved';
+                                                const canEdit = event.status === 'pending';
 
                                                 return (
                                                     <div

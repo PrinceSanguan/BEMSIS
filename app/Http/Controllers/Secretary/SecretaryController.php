@@ -143,9 +143,9 @@ class SecretaryController extends Controller
             ->with(['purok'])
             ->firstOrFail();
 
-        // Prevent editing approved events
-        if ($event->status === 'approved') {
-            return back()->with('error', 'Cannot edit approved events.');
+        // Prevent editing approved or declined events  
+        if ($event->status === 'approved' || $event->status === 'declined') {
+            return back()->with('error', 'Cannot edit approved or declined events.');
         }
 
         $puroks = Purok::all();
@@ -162,9 +162,9 @@ class SecretaryController extends Controller
             ->where('created_by', Auth::id())
             ->firstOrFail();
 
-        // Prevent editing approved events
-        if ($event->status === 'approved') {
-            return back()->with('error', 'Cannot edit approved events.');
+        // Prevent editing approved or declined events  
+        if ($event->status === 'approved' || $event->status === 'declined') {
+            return back()->with('error', 'Cannot edit approved or declined events.');
         }
 
         $request->validate([

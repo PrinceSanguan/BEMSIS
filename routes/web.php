@@ -108,6 +108,7 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
   Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
   Route::patch('secretary/users/{user}/approve', [SecretaryController::class, 'approveUser'])->name('secretary.users.approve');
   Route::patch('secretary/users/{user}/decline', [SecretaryController::class, 'declineUser'])->name('secretary.users.decline');
+  Route::get('secretary/users/{user}/details', [SecretaryController::class, 'userDetail'])->name('secretary.users.detail');
 
   // Events Management
   Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');

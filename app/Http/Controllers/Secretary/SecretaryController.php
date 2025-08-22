@@ -39,8 +39,20 @@ class SecretaryController extends Controller
             ->latest()
             ->get();
 
+        $approvedUsers = User::where('status', 'approved')
+            ->where('role', 'resident')
+            ->with('purok')
+            ->paginate(10, ['*'], 'users_page');
+
+        $approvedPartners = User::where('status', 'approved')
+            ->where('role', 'partner_agency')
+            ->with('purok')
+            ->paginate(10, ['*'], 'partners_page');
+
         return Inertia::render('Secretary/Users', [
-            'pendingUsers' => $pendingUsers
+            'pendingUsers' => $pendingUsers,
+            'approvedUsers' => $approvedUsers,
+            'approvedPartners' => $approvedPartners
         ]);
     }
 
@@ -58,6 +70,15 @@ class SecretaryController extends Controller
         $user->update(['status' => 'declined']);
 
         return back()->with('success', 'User declined successfully!');
+    }
+
+    public function userDetail($userId)
+    {
+        $user = User::with('purok')->findOrFail($userId);
+
+        return Inertia::render('Secretary/UserDetail', [
+            'user' => $user
+        ]);
     }
 
     public function events()

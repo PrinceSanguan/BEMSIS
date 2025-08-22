@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { CheckCircle, Clock, Mail, MapPin, Phone, UserCheck, Users as UsersIcon, UserX, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, Eye, Mail, MapPin, Phone, UserCheck, Users as UsersIcon, UserX, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Purok {
@@ -22,10 +22,21 @@ interface User {
     status: 'pending' | 'approved' | 'declined';
     purok?: Purok;
     created_at: string;
+    updated_at: string;
+}
+
+interface PaginatedData {
+    data: User[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
 }
 
 interface Props {
     pendingUsers: User[];
+    approvedUsers: User[];
+    approvedPartners: User[];
     className?: string;
 }
 
@@ -37,46 +48,9 @@ interface PageProps {
     };
 }
 
-export default function Users({ pendingUsers, className }: Props) {
+export default function Users({ pendingUsers, approvedUsers, approvedPartners, className }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [processingUsers, setProcessingUsers] = useState<Set<number>>(new Set());
-
-    const handleApproveUser = (userId: number) => {
-        setProcessingUsers((prev) => new Set([...prev, userId]));
-
-        router.patch(
-            `/secretary/users/${userId}/approve`,
-            {},
-            {
-                onFinish: () => {
-                    setProcessingUsers((prev) => {
-                        const newSet = new Set(prev);
-                        newSet.delete(userId);
-                        return newSet;
-                    });
-                },
-            },
-        );
-    };
-
-    const handleDeclineUser = (userId: number) => {
-        setProcessingUsers((prev) => new Set([...prev, userId]));
-
-        router.patch(
-            `/secretary/users/${userId}/decline`,
-            {},
-            {
-                onFinish: () => {
-                    setProcessingUsers((prev) => {
-                        const newSet = new Set(prev);
-                        newSet.delete(userId);
-                        return newSet;
-                    });
-                },
-            },
-        );
-    };
 
     const getRoleDisplay = (role: 'resident' | 'partner_agency' | 'secretary' | 'captain') => {
         const roleMap: Record<string, { label: string; color: string }> = {
@@ -205,7 +179,6 @@ export default function Users({ pendingUsers, className }: Props) {
                                         <div className="space-y-4">
                                             {pendingUsers.map((user) => {
                                                 const roleDisplay = getRoleDisplay(user.role);
-                                                const isProcessing = processingUsers.has(user.id);
 
                                                 return (
                                                     <div
@@ -243,22 +216,156 @@ export default function Users({ pendingUsers, className }: Props) {
 
                                                             <div className="flex gap-3">
                                                                 <Button
-                                                                    onClick={() => handleApproveUser(user.id)}
-                                                                    disabled={isProcessing}
-                                                                    className="bg-green-600 text-white hover:bg-green-700"
+                                                                    onClick={() => router.get(`/secretary/users/${user.id}/details`)}
+                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
                                                                     size="sm"
                                                                 >
-                                                                    <UserCheck className="mr-2 h-4 w-4" />
-                                                                    {isProcessing ? 'Processing...' : 'Approve'}
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
                                                                 </Button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Approved Users List */}
+                            <Card className="mt-8">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <UsersIcon className="h-5 w-5" />
+                                        Approved Users
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {approvedUsers.length === 0 ? (
+                                        <div className="py-8 text-center">
+                                            <UsersIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                            <h3 className="mb-2 text-lg font-medium text-gray-900">No approved users</h3>
+                                            <p className="text-gray-600">No users have been approved yet.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {approvedUsers.map((user) => {
+                                                const roleDisplay = getRoleDisplay(user.role);
+                                                return (
+                                                    <div
+                                                        key={user.id}
+                                                        className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
+                                                    >
+                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                            <div className="flex-1 space-y-3">
+                                                                <div className="flex items-center gap-3">
+                                                                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                                                    <Badge className={`px-2 py-1 text-xs font-medium ${roleDisplay.color}`}>
+                                                                        {roleDisplay.label}
+                                                                    </Badge>
+                                                                    <Badge className="bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                                                                        Approved
+                                                                    </Badge>
+                                                                </div>
+                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Mail className="h-4 w-4" />
+                                                                        <span>{user.email}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Phone className="h-4 w-4" />
+                                                                        <span>{user.phone}</span>
+                                                                    </div>
+                                                                    {user.purok && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <MapPin className="h-4 w-4" />
+                                                                            <span>{user.purok.name}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock className="h-4 w-4" />
+                                                                        <span>Approved: {formatDate(user.updated_at)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-3">
                                                                 <Button
-                                                                    onClick={() => handleDeclineUser(user.id)}
-                                                                    disabled={isProcessing}
-                                                                    variant="destructive"
+                                                                    onClick={() => router.get(`/secretary/users/${user.id}/details`)}
+                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
                                                                     size="sm"
                                                                 >
-                                                                    <UserX className="mr-2 h-4 w-4" />
-                                                                    {isProcessing ? 'Processing...' : 'Decline'}
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Approved Partners List */}
+                            <Card className="mt-8">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <UsersIcon className="h-5 w-5" />
+                                        Approved Partners
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {approvedPartners.length === 0 ? (
+                                        <div className="py-8 text-center">
+                                            <UsersIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                            <h3 className="mb-2 text-lg font-medium text-gray-900">No approved partners</h3>
+                                            <p className="text-gray-600">No partner agencies have been approved yet.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {approvedPartners.map((user) => {
+                                                const roleDisplay = getRoleDisplay(user.role);
+                                                return (
+                                                    <div
+                                                        key={user.id}
+                                                        className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
+                                                    >
+                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                            <div className="flex-1 space-y-3">
+                                                                <div className="flex items-center gap-3">
+                                                                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                                                    <Badge className={`px-2 py-1 text-xs font-medium ${roleDisplay.color}`}>
+                                                                        {roleDisplay.label}
+                                                                    </Badge>
+                                                                    <Badge className="bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                                                                        Approved
+                                                                    </Badge>
+                                                                </div>
+                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Mail className="h-4 w-4" />
+                                                                        <span>{user.email}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Phone className="h-4 w-4" />
+                                                                        <span>{user.phone}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock className="h-4 w-4" />
+                                                                        <span>Approved: {formatDate(user.updated_at)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-3">
+                                                                <Button
+                                                                    onClick={() => router.get(`/secretary/users/${user.id}/details`)}
+                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
+                                                                    size="sm"
+                                                                >
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
                                                                 </Button>
                                                             </div>
                                                         </div>

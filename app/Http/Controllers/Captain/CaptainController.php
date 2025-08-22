@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Purok;
 
 class CaptainController extends Controller
 {
@@ -106,22 +107,49 @@ class CaptainController extends Controller
      *
      * @return \Inertia\Response
      */
-    public function users()
+    public function users(Request $request)
     {
-        $residents = User::where('role', 'resident')
+        // Build query for residents with search and filter
+        $residentsQuery = User::where('role', 'resident')
             ->where('status', 'approved')
-            ->with('purok')
-            ->latest()
-            ->paginate(10, ['*'], 'residents_page');
+            ->with('purok');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $residentsQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply purok filter
+        if ($request->filled('purok_id') && $request->get('purok_id') !== 'all') {
+            $residentsQuery->where('purok_id', $request->get('purok_id'));
+        }
+
+        $residents = $residentsQuery->latest()
+            ->paginate(10, ['*'], 'residents_page')
+            ->appends($request->only(['search', 'purok_id']));
 
         $partners = User::where('role', 'partner_agency')
             ->where('status', 'approved')
             ->latest()
             ->paginate(10, ['*'], 'partners_page');
 
+        // Get all puroks for filter dropdown
+        $puroks = Purok::orderBy('name')->get();
+
         return Inertia::render('Captain/Users', [
             'residents' => $residents,
-            'partners' => $partners
+            'partners' => $partners,
+            'puroks' => $puroks,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'purok_id' => $request->get('purok_id', 'all')
+            ]
         ]);
     }
 }

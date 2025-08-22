@@ -2,6 +2,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/pages/Captain/Header';
 import Sidebar from '@/pages/Captain/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -42,9 +44,16 @@ interface PaginatedData {
     to: number;
 }
 
+interface Filters {
+    search: string;
+    purok_id: string;
+}
+
 interface Props {
     residents: PaginatedData;
     partners: PaginatedData;
+    puroks: Purok[];
+    filters: Filters;
 }
 
 interface PageProps {
@@ -55,11 +64,42 @@ interface PageProps {
     };
 }
 
-export default function Users({ residents, partners }: Props) {
+export default function Users({ residents, partners, puroks, filters }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(filters.search);
+    const [selectedPurok, setSelectedPurok] = useState(filters.purok_id);
     const [activeTab, setActiveTab] = useState<'residents' | 'partners'>('residents');
+
+    const handleSearch = (search: string, purokId: string) => {
+        router.get(
+            route('captain.users'),
+            {
+                search: search || undefined,
+                purok_id: purokId !== 'all' ? purokId : undefined,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSearch(searchTerm, selectedPurok);
+    };
+
+    const handlePurokChange = (purokId: string) => {
+        setSelectedPurok(purokId);
+        handleSearch(searchTerm, purokId);
+    };
+
+    const clearFilters = () => {
+        setSearchTerm('');
+        setSelectedPurok('all');
+        handleSearch('', 'all');
+    };
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -233,6 +273,44 @@ export default function Users({ residents, partners }: Props) {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
+                                    {/* Search and Filter Controls */}
+                                    <div className="mb-6 space-y-4">
+                                        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4 md:flex-row">
+                                            <div className="flex-1">
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Search by name, email..."
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="w-full"
+                                                />
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Select value={selectedPurok} onValueChange={handlePurokChange}>
+                                                    <SelectTrigger className="w-40">
+                                                        <SelectValue placeholder="Filter by Purok" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">All Puroks</SelectItem>
+                                                        {puroks.map((purok) => (
+                                                            <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                                {purok.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button type="submit" variant="outline">
+                                                    Search
+                                                </Button>
+                                                {(filters.search || filters.purok_id !== 'all') && (
+                                                    <Button type="button" variant="outline" onClick={clearFilters}>
+                                                        Clear
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    </div>
+
                                     {residents.data.length === 0 ? (
                                         <div className="py-12 text-center">
                                             <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />

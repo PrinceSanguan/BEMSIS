@@ -30,27 +30,54 @@ class SecretaryController extends Controller
         ]);
     }
 
-    public function users()
+    public function users(Request $request)
     {
         $pendingUsers = User::where('status', 'pending')
             ->with('purok')
             ->latest()
             ->get();
 
-        $approvedUsers = User::where('status', 'approved')
+        // Build query for approved users (residents) with search and filter
+        $approvedUsersQuery = User::where('status', 'approved')
             ->where('role', 'resident')
-            ->with('purok')
-            ->paginate(10, ['*'], 'users_page');
+            ->with('purok');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $approvedUsersQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply purok filter
+        if ($request->filled('purok_id') && $request->get('purok_id') !== 'all') {
+            $approvedUsersQuery->where('purok_id', $request->get('purok_id'));
+        }
+
+        $approvedUsers = $approvedUsersQuery->paginate(10, ['*'], 'users_page')
+            ->appends($request->only(['search', 'purok_id']));
 
         $approvedPartners = User::where('status', 'approved')
             ->where('role', 'partner_agency')
             ->with('purok')
             ->paginate(10, ['*'], 'partners_page');
 
+        // Get all puroks for filter dropdown
+        $puroks = Purok::orderBy('name')->get();
+
         return Inertia::render('Secretary/Users', [
             'pendingUsers' => $pendingUsers,
             'approvedUsers' => $approvedUsers,
-            'approvedPartners' => $approvedPartners
+            'approvedPartners' => $approvedPartners,
+            'puroks' => $puroks,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'purok_id' => $request->get('purok_id', 'all')
+            ]
         ]);
     }
 

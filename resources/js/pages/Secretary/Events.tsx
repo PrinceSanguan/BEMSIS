@@ -11,8 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertCircle, Award, Calendar, CheckCircle, Clock, Eye, MapPin, Plus, QrCode, Users, XCircle } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import { AlertCircle, Award, Calendar, CheckCircle, Clock, Edit, Eye, MapPin, Plus, QrCode, Trash2, Upload, Users, X, XCircle } from 'lucide-react';
+import { FormEvent, useRef, useState } from 'react';
 
 interface Purok {
     id: number;
@@ -37,6 +37,7 @@ interface Event {
     purok?: Purok;
     confirmed_attendees_count: number;
     created_at: string;
+    image_path?: string;
 }
 
 interface Props {
@@ -57,6 +58,9 @@ export default function Events({ events, puroks }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [processing, setProcessing] = useState<Set<number>>(new Set());
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<number | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const {
         data,
@@ -73,34 +77,79 @@ export default function Events({ events, puroks }: Props) {
         purok_id: '',
         has_certificate: false as boolean,
         target_all_residents: false as boolean,
+        image: null as File | null,
     });
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        // Transform the data before submission
-        const transformedData = {
-            ...data,
-            purok_id: data.purok_id === '' ? null : data.purok_id,
-            target_all_residents: data.purok_id === '' || !data.purok_id,
-        };
+        const formData = new FormData();
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('start_date', data.start_date);
+        if (data.end_date) formData.append('end_date', data.end_date);
+        if (data.purok_id) formData.append('purok_id', data.purok_id);
+        formData.append('has_certificate', data.has_certificate ? '1' : '0');
+        formData.append('target_all_residents', data.target_all_residents ? '1' : '0');
+        if (data.image) formData.append('image', data.image);
 
-        router.post(route('secretary.events.create'), transformedData, {
+        router.post(route('secretary.events.create'), formData, {
+            forceFormData: true,
             onSuccess: () => {
                 reset();
                 setIsCreateDialogOpen(false);
-            },
-            onError: (errors) => {
-                console.log('Event creation errors:', errors);
+                setImagePreview(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
             },
         });
     };
 
-    const handleAssignQRCodes = (eventId: number) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('image', file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImagePreview(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setData('image', null);
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleEdit = (eventId: number) => {
+        router.get(route('secretary.events.edit', eventId));
+    };
+
+    const handleDelete = (eventId: number) => {
+        setProcessing((prev) => new Set([...prev, eventId]));
+
+        router.delete(route('secretary.events.delete', eventId), {
+            onFinish: () => {
+                setProcessing((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(eventId);
+                    return newSet;
+                });
+                setDeleteConfirmOpen(null);
+            },
+        });
+    };
+
+    const assignQrCodes = (eventId: number) => {
         setProcessing((prev) => new Set([...prev, eventId]));
 
         router.post(
-            `/secretary/events/${eventId}/assign-qr`,
+            route('secretary.events.assign-qr', eventId),
             {},
             {
                 onFinish: () => {
@@ -114,11 +163,11 @@ export default function Events({ events, puroks }: Props) {
         );
     };
 
-    const handleAssignCertificates = (eventId: number) => {
+    const assignCertificates = (eventId: number) => {
         setProcessing((prev) => new Set([...prev, eventId]));
 
         router.post(
-            `/secretary/events/${eventId}/assign-certificates`,
+            route('secretary.events.assign-certificates', eventId),
             {},
             {
                 onFinish: () => {
@@ -130,23 +179,27 @@ export default function Events({ events, puroks }: Props) {
                 },
             },
         );
+    };
+
+    const viewAttendees = (eventId: number) => {
+        router.get(route('secretary.events.attendees', eventId));
     };
 
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'approved':
                 return 'bg-green-100 text-green-800';
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-800';
             case 'declined':
                 return 'bg-red-100 text-red-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -155,13 +208,13 @@ export default function Events({ events, puroks }: Props) {
         });
     };
 
-    const isEventPast = (startDate: string) => {
-        return new Date(startDate) < new Date();
+    const isEventPast = (dateString: string) => {
+        return new Date(dateString) < new Date();
     };
 
     return (
         <>
-            <Head title="Event Management - Secretary" />
+            <Head title="Event Management" />
             <div className="flex h-screen bg-gray-50">
                 {/* Sidebar - Desktop */}
                 <div className="hidden lg:block">
@@ -197,7 +250,7 @@ export default function Events({ events, puroks }: Props) {
                                             Create Event
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
+                                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
                                         <DialogHeader>
                                             <DialogTitle>Create New Event</DialogTitle>
                                             <DialogDescription>
@@ -206,105 +259,169 @@ export default function Events({ events, puroks }: Props) {
                                         </DialogHeader>
 
                                         <form onSubmit={handleSubmit} className="space-y-4">
+                                            {/* Event Title */}
                                             <div className="space-y-2">
-                                                <Label htmlFor="title">Event Title</Label>
+                                                <Label htmlFor="title">Event Title *</Label>
                                                 <Input
                                                     id="title"
                                                     value={data.title}
                                                     onChange={(e) => setData('title', e.target.value)}
                                                     placeholder="Enter event title"
-                                                    required
+                                                    className={errors.title ? 'border-red-500' : ''}
                                                 />
                                                 {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
                                             </div>
 
+                                            {/* Event Description */}
                                             <div className="space-y-2">
-                                                <Label htmlFor="description">Description</Label>
+                                                <Label htmlFor="description">Description *</Label>
                                                 <Textarea
                                                     id="description"
                                                     value={data.description}
                                                     onChange={(e) => setData('description', e.target.value)}
                                                     placeholder="Enter event description"
-                                                    rows={3}
-                                                    required
+                                                    rows={4}
+                                                    className={errors.description ? 'border-red-500' : ''}
                                                 />
                                                 {errors.description && <p className="text-sm text-red-600">{errors.description}</p>}
                                             </div>
 
+                                            {/* Event Image */}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="image">Event Image</Label>
+                                                <div className="space-y-4">
+                                                    {imagePreview && (
+                                                        <div className="relative inline-block">
+                                                            <img
+                                                                src={imagePreview}
+                                                                alt="Event preview"
+                                                                className="h-32 w-48 rounded-lg border object-cover"
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                                                                onClick={removeImage}
+                                                            >
+                                                                <X className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center gap-4">
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            className="gap-2"
+                                                            onClick={() => fileInputRef.current?.click()}
+                                                        >
+                                                            <Upload className="h-4 w-4" />
+                                                            {imagePreview ? 'Change Image' : 'Upload Image'}
+                                                        </Button>
+                                                        <Input
+                                                            ref={fileInputRef}
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleImageChange}
+                                                            className="hidden"
+                                                        />
+                                                        <span className="text-sm text-gray-500">JPG, PNG, GIF up to 2MB</span>
+                                                    </div>
+                                                </div>
+                                                {errors.image && <p className="text-sm text-red-600">{errors.image}</p>}
+                                            </div>
+
+                                            {/* Date Range */}
                                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="start_date">Start Date & Time</Label>
+                                                    <Label htmlFor="start_date">Start Date *</Label>
                                                     <Input
                                                         id="start_date"
                                                         type="datetime-local"
                                                         value={data.start_date}
                                                         onChange={(e) => setData('start_date', e.target.value)}
-                                                        min={new Date().toISOString().slice(0, 16)}
-                                                        required
+                                                        className={errors.start_date ? 'border-red-500' : ''}
                                                     />
                                                     {errors.start_date && <p className="text-sm text-red-600">{errors.start_date}</p>}
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="end_date">End Date & Time (Optional)</Label>
+                                                    <Label htmlFor="end_date">End Date (Optional)</Label>
                                                     <Input
                                                         id="end_date"
                                                         type="datetime-local"
                                                         value={data.end_date}
                                                         onChange={(e) => setData('end_date', e.target.value)}
-                                                        min={data.start_date}
+                                                        className={errors.end_date ? 'border-red-500' : ''}
                                                     />
                                                     {errors.end_date && <p className="text-sm text-red-600">{errors.end_date}</p>}
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="purok_id">Target Purok</Label>
-                                                <Select
-                                                    value={data.purok_id}
-                                                    onValueChange={(value) => setData('purok_id', value)}
-                                                    disabled={puroks.length === 0}
-                                                >
-                                                    <SelectTrigger className={puroks.length === 0 ? 'cursor-not-allowed opacity-50' : ''}>
-                                                        <SelectValue
-                                                            placeholder={
-                                                                puroks.length === 0
-                                                                    ? 'No puroks available - All residents will be targeted'
-                                                                    : 'Select a specific purok or leave blank for all residents'
+                                            {/* Target Audience */}
+                                            <div className="space-y-3">
+                                                <Label>Target Audience</Label>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id="target_all_residents"
+                                                        checked={data.target_all_residents}
+                                                        onCheckedChange={(checked) => {
+                                                            setData('target_all_residents', checked as boolean);
+                                                            if (checked) {
+                                                                setData('purok_id', '');
                                                             }
-                                                        />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {puroks.map((purok) => (
-                                                            <SelectItem key={purok.id} value={purok.id.toString()}>
-                                                                {purok.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.purok_id && <p className="text-sm text-red-600">{errors.purok_id}</p>}
+                                                        }}
+                                                    />
+                                                    <Label htmlFor="target_all_residents" className="text-sm">
+                                                        Target all residents
+                                                    </Label>
+                                                </div>
+
+                                                {!data.target_all_residents && (
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="purok_id">Select Purok</Label>
+                                                        <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
+                                                            <SelectTrigger className={errors.purok_id ? 'border-red-500' : ''}>
+                                                                <SelectValue placeholder="Select a purok" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {puroks.map((purok) => (
+                                                                    <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                                        {purok.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {errors.purok_id && <p className="text-sm text-red-600">{errors.purok_id}</p>}
+                                                    </div>
+                                                )}
                                             </div>
 
+                                            {/* Certificate Option */}
                                             <div className="flex items-center space-x-2">
                                                 <Checkbox
                                                     id="has_certificate"
                                                     checked={data.has_certificate}
                                                     onCheckedChange={(checked) => setData('has_certificate', checked as boolean)}
                                                 />
-                                                <Label htmlFor="has_certificate" className="text-sm font-medium">
+                                                <Label htmlFor="has_certificate" className="text-sm">
                                                     This event will have certificates
                                                 </Label>
                                             </div>
 
-                                            <Alert className="border-blue-200 bg-blue-50">
-                                                <AlertCircle className="h-4 w-4 text-blue-600" />
-                                                <AlertDescription className="text-blue-800">
-                                                    This event will be submitted for captain approval before being published.
-                                                </AlertDescription>
-                                            </Alert>
-
                                             <div className="flex justify-end gap-3 pt-4">
-                                                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setIsCreateDialogOpen(false);
+                                                        reset();
+                                                        setImagePreview(null);
+                                                        if (fileInputRef.current) {
+                                                            fileInputRef.current.value = '';
+                                                        }
+                                                    }}
+                                                >
                                                     Cancel
                                                 </Button>
                                                 <Button type="submit" disabled={formProcessing}>
@@ -349,12 +466,12 @@ export default function Events({ events, puroks }: Props) {
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-600">Approved</p>
+                                                <p className="text-sm font-medium text-gray-600">Pending Approval</p>
                                                 <p className="text-2xl font-bold text-gray-900">
-                                                    {events.filter((e) => e.status === 'approved').length}
+                                                    {events.filter((e) => e.status === 'pending').length}
                                                 </p>
                                             </div>
-                                            <CheckCircle className="h-8 w-8 text-green-600" />
+                                            <AlertCircle className="h-8 w-8 text-yellow-600" />
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -363,12 +480,12 @@ export default function Events({ events, puroks }: Props) {
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-600">Pending</p>
+                                                <p className="text-sm font-medium text-gray-600">Approved Events</p>
                                                 <p className="text-2xl font-bold text-gray-900">
-                                                    {events.filter((e) => e.status === 'pending').length}
+                                                    {events.filter((e) => e.status === 'approved').length}
                                                 </p>
                                             </div>
-                                            <Clock className="h-8 w-8 text-yellow-600" />
+                                            <CheckCircle className="h-8 w-8 text-green-600" />
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -391,10 +508,7 @@ export default function Events({ events, puroks }: Props) {
                             {/* Events List */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Calendar className="h-5 w-5" />
-                                        Events
-                                    </CardTitle>
+                                    <CardTitle>All Events</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     {events.length === 0 ? (
@@ -412,6 +526,7 @@ export default function Events({ events, puroks }: Props) {
                                             {events.map((event) => {
                                                 const isProcessingEvent = processing.has(event.id);
                                                 const isPast = isEventPast(event.start_date);
+                                                const canEdit = event.status !== 'approved';
 
                                                 return (
                                                     <div
@@ -426,22 +541,25 @@ export default function Events({ events, puroks }: Props) {
                                                                         {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                                                                     </Badge>
                                                                     {event.has_certificate && (
-                                                                        <Badge
-                                                                            variant="outline"
-                                                                            className="border-purple-200 bg-purple-50 text-purple-700"
-                                                                        >
+                                                                        <Badge variant="outline" className="border-purple-200 text-purple-800">
                                                                             <Award className="mr-1 h-3 w-3" />
                                                                             Certificate
                                                                         </Badge>
                                                                     )}
-                                                                    {isPast && (
-                                                                        <Badge variant="outline" className="bg-gray-50 text-gray-600">
-                                                                            Past Event
-                                                                        </Badge>
-                                                                    )}
                                                                 </div>
 
-                                                                <p className="text-sm text-gray-600">{event.description}</p>
+                                                                {/* Event Image */}
+                                                                {event.image_path && (
+                                                                    <div className="mb-3">
+                                                                        <img
+                                                                            src={`/storage/${event.image_path}`}
+                                                                            alt={event.title}
+                                                                            className="h-32 w-48 rounded-lg border object-cover"
+                                                                        />
+                                                                    </div>
+                                                                )}
+
+                                                                <p className="text-gray-600">{event.description}</p>
 
                                                                 <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-3">
                                                                     <div className="flex items-center gap-2">
@@ -465,42 +583,69 @@ export default function Events({ events, puroks }: Props) {
                                                                 </div>
                                                             </div>
 
-                                                            {event.status === 'approved' && (
-                                                                <div className="flex flex-col gap-2">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        onClick={() => router.get(route('secretary.events.attendees', event.id))}
-                                                                    >
-                                                                        <Eye className="mr-2 h-4 w-4" />
-                                                                        View Attendees
-                                                                    </Button>
-
-                                                                    {!isPast && (
+                                                            {/* Action Buttons */}
+                                                            <div className="flex flex-col gap-2 lg:flex-row lg:items-start">
+                                                                {/* Edit/Delete Buttons (only for non-approved events) */}
+                                                                {canEdit && (
+                                                                    <div className="flex gap-2">
                                                                         <Button
-                                                                            variant="outline"
                                                                             size="sm"
-                                                                            onClick={() => handleAssignQRCodes(event.id)}
-                                                                            disabled={isProcessingEvent}
+                                                                            variant="outline"
+                                                                            onClick={() => handleEdit(event.id)}
+                                                                            className="gap-2"
                                                                         >
-                                                                            <QrCode className="mr-2 h-4 w-4" />
+                                                                            <Edit className="h-4 w-4" />
+                                                                            Edit
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            onClick={() => setDeleteConfirmOpen(event.id)}
+                                                                            className="gap-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                                        >
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                            Delete
+                                                                        </Button>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Event Management Buttons (only for approved events) */}
+                                                                {event.status === 'approved' && (
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            onClick={() => viewAttendees(event.id)}
+                                                                            className="gap-2"
+                                                                        >
+                                                                            <Eye className="h-4 w-4" />
+                                                                            View Attendees
+                                                                        </Button>
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            onClick={() => assignQrCodes(event.id)}
+                                                                            disabled={isProcessingEvent}
+                                                                            className="gap-2"
+                                                                        >
+                                                                            <QrCode className="h-4 w-4" />
                                                                             {isProcessingEvent ? 'Processing...' : 'Assign QR Codes'}
                                                                         </Button>
-                                                                    )}
-
-                                                                    {event.has_certificate && isPast && (
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            onClick={() => handleAssignCertificates(event.id)}
-                                                                            disabled={isProcessingEvent}
-                                                                        >
-                                                                            <Award className="mr-2 h-4 w-4" />
-                                                                            {isProcessingEvent ? 'Processing...' : 'Assign Certificates'}
-                                                                        </Button>
-                                                                    )}
-                                                                </div>
-                                                            )}
+                                                                        {event.has_certificate && (
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="outline"
+                                                                                onClick={() => assignCertificates(event.id)}
+                                                                                disabled={isProcessingEvent}
+                                                                                className="gap-2"
+                                                                            >
+                                                                                <Award className="h-4 w-4" />
+                                                                                {isProcessingEvent ? 'Processing...' : 'Assign Certificates'}
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 );
@@ -513,6 +658,28 @@ export default function Events({ events, puroks }: Props) {
                     </main>
                 </div>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteConfirmOpen !== null} onOpenChange={() => setDeleteConfirmOpen(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogDescription>Are you sure you want to delete this event? This action cannot be undone.</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-3">
+                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(null)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => deleteConfirmOpen && handleDelete(deleteConfirmOpen)}
+                            disabled={deleteConfirmOpen ? processing.has(deleteConfirmOpen) : false}
+                        >
+                            {deleteConfirmOpen && processing.has(deleteConfirmOpen) ? 'Deleting...' : 'Delete'}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

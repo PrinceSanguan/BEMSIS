@@ -113,6 +113,9 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
   // Events Management
   Route::get('secretary/events', [SecretaryController::class, 'events'])->name('secretary.events');
   Route::post('secretary/events', [SecretaryController::class, 'createEvent'])->name('secretary.events.create');
+  Route::get('secretary/events/{event}/edit', [SecretaryController::class, 'editEvent'])->name('secretary.events.edit');
+  Route::put('secretary/events/{event}', [SecretaryController::class, 'updateEvent'])->name('secretary.events.update');
+  Route::delete('secretary/events/{event}', [SecretaryController::class, 'deleteEvent'])->name('secretary.events.delete');
   Route::get('secretary/events/{event}/attendees', [SecretaryController::class, 'eventAttendees'])->name('secretary.events.attendees');
   Route::post('secretary/events/{event}/assign-qr', [SecretaryController::class, 'assignQrCodes'])->name('secretary.events.assign-qr');
   Route::post('secretary/events/{event}/assign-certificates', [SecretaryController::class, 'assignCertificates'])->name('secretary.events.assign-certificates');
@@ -142,6 +145,9 @@ Route::middleware(['session.activity', PartnerMiddleware::class])->group(functio
   // Events Management
   Route::get('partner/events', [PartnerController::class, 'events'])->name('partner.events');
   Route::post('partner/events', [PartnerController::class, 'createEvent'])->name('partner.events.create');
+  Route::get('partner/events/{event}/edit', [PartnerController::class, 'editEvent'])->name('partner.events.edit');
+  Route::put('partner/events/{event}', [PartnerController::class, 'updateEvent'])->name('partner.events.update');
+  Route::delete('partner/events/{event}', [PartnerController::class, 'deleteEvent'])->name('partner.events.delete');
 
   // Profile
   Route::get('partner/profile', [PartnerController::class, 'profile'])->name('partner.profile');

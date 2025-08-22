@@ -193,8 +193,8 @@ class SecretaryController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($event->image_path && \Storage::disk('public')->exists($event->image_path)) {
-                \Storage::disk('public')->delete($event->image_path);
+            if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
+                Storage::disk('public')->delete($event->image_path);
             }
 
             $imagePath = $request->file('image')->store('events', 'public');
@@ -218,8 +218,8 @@ class SecretaryController extends Controller
         }
 
         // Delete associated image if exists
-        if ($event->image_path && \Storage::disk('public')->exists($event->image_path)) {
-            \Storage::disk('public')->delete($event->image_path);
+        if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
+            Storage::disk('public')->delete($event->image_path);
         }
 
         $event->delete();

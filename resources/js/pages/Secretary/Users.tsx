@@ -35,8 +35,8 @@ interface PaginatedData {
 
 interface Props {
     pendingUsers: User[];
-    approvedUsers: User[];
-    approvedPartners: User[];
+    approvedUsers: PaginatedData;
+    approvedPartners: PaginatedData;
     className?: string;
 }
 
@@ -242,7 +242,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, c
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {approvedUsers.length === 0 ? (
+                                    {approvedUsers.data.length === 0 ? (
                                         <div className="py-8 text-center">
                                             <UsersIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                             <h3 className="mb-2 text-lg font-medium text-gray-900">No approved users</h3>
@@ -250,7 +250,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, c
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
-                                            {approvedUsers.map((user) => {
+                                            {approvedUsers.data.map((user) => {
                                                 const roleDisplay = getRoleDisplay(user.role);
                                                 return (
                                                     <div
@@ -317,7 +317,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, c
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {approvedPartners.length === 0 ? (
+                                    {approvedPartners.data.length === 0 ? (
                                         <div className="py-8 text-center">
                                             <UsersIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                             <h3 className="mb-2 text-lg font-medium text-gray-900">No approved partners</h3>
@@ -325,7 +325,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, c
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
-                                            {approvedPartners.map((user) => {
+                                            {approvedPartners.data.map((user) => {
                                                 const roleDisplay = getRoleDisplay(user.role);
                                                 return (
                                                     <div

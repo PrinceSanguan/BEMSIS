@@ -166,45 +166,6 @@ export default function Dashboard({ stats }: Props) {
                                     </CardContent>
                                 </Card>
                             </div>
-
-                            {/* Recent Activity Summary */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Quick Links</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                                        <a
-                                            href="/secretary/users"
-                                            className="flex flex-col items-center rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
-                                        >
-                                            <Users className="mb-2 h-8 w-8 text-gray-600" />
-                                            <span className="text-sm font-medium text-gray-900">Manage Users</span>
-                                        </a>
-                                        <a
-                                            href="/secretary/events"
-                                            className="flex flex-col items-center rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
-                                        >
-                                            <Calendar className="mb-2 h-8 w-8 text-gray-600" />
-                                            <span className="text-sm font-medium text-gray-900">Manage Events</span>
-                                        </a>
-                                        <a
-                                            href="/secretary/attendance"
-                                            className="flex flex-col items-center rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
-                                        >
-                                            <UserCheck className="mb-2 h-8 w-8 text-gray-600" />
-                                            <span className="text-sm font-medium text-gray-900">Attendance</span>
-                                        </a>
-                                        <a
-                                            href="/secretary/feedback"
-                                            className="flex flex-col items-center rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
-                                        >
-                                            <Award className="mb-2 h-8 w-8 text-gray-600" />
-                                            <span className="text-sm font-medium text-gray-900">Feedback</span>
-                                        </a>
-                                    </div>
-                                </CardContent>
-                            </Card>
                         </div>
                     </main>
                 </div>

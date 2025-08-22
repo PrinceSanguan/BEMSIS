@@ -69,7 +69,7 @@ export default function Dashboard({ stats }: Props) {
             <div className="flex h-screen bg-gray-50">
                 {/* Sidebar - Desktop */}
                 <div className="hidden lg:block">
-                    <Sidebar />
+                    <Sidebar currentPage="captain.dashboard" />
                 </div>
 
                 {/* Mobile Sidebar Overlay */}
@@ -77,7 +77,7 @@ export default function Dashboard({ stats }: Props) {
                     <div className="fixed inset-0 z-50 lg:hidden">
                         <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
                         <div className="absolute top-0 left-0 h-full">
-                            <Sidebar />
+                            <Sidebar currentPage="captain.dashboard" />
                         </div>
                     </div>
                 )}

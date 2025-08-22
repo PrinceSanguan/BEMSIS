@@ -91,6 +91,9 @@ Route::middleware(['session.activity', CaptainMiddleware::class])->group(functio
   Route::get('captain/events', [CaptainController::class, 'events'])->name('captain.events');
   Route::patch('captain/events/{event}/approve', [CaptainController::class, 'approveEvent'])->name('captain.events.approve');
   Route::patch('captain/events/{event}/decline', [CaptainController::class, 'declineEvent'])->name('captain.events.decline');
+
+  // Users Management
+  Route::get('captain/users', [CaptainController::class, 'users'])->name('captain.users');
 });
 
 /*

@@ -31,6 +31,7 @@ interface Event {
     creator_role: string;
     purok?: Purok;
     created_at: string;
+    image_path?: string;
 }
 
 interface Props {
@@ -106,7 +107,7 @@ export default function Events({ pendingEvents }: Props) {
             <div className="flex h-screen bg-gray-50">
                 {/* Sidebar - Desktop */}
                 <div className="hidden lg:block">
-                    <Sidebar />
+                    <Sidebar currentPage="captain.events" />
                 </div>
 
                 {/* Mobile Sidebar Overlay */}
@@ -114,7 +115,7 @@ export default function Events({ pendingEvents }: Props) {
                     <div className="fixed inset-0 z-50 lg:hidden">
                         <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
                         <div className="absolute top-0 left-0 h-full">
-                            <Sidebar />
+                            <Sidebar currentPage="captain.events" />
                         </div>
                     </div>
                 )}
@@ -162,32 +163,50 @@ export default function Events({ pendingEvents }: Props) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {pendingEvents.map((event) => (
                                     <Card key={event.id} className="shadow-sm">
-                                        <CardHeader className="pb-4">
-                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                                <div className="space-y-2">
+                                        <CardHeader>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
                                                     <CardTitle className="text-xl">{event.title}</CardTitle>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        <Badge className={getRoleColor(event.creator_role)}>{getRoleLabel(event.creator_role)}</Badge>
+                                                    <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                                                        <div className="flex items-center gap-1">
+                                                            <User className="h-4 w-4" />
+                                                            <span>{getRoleLabel(event.creator_role)}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <Calendar className="h-4 w-4" />
+                                                            <span>{formatDate(event.start_date)}</span>
+                                                        </div>
+                                                        {event.purok && (
+                                                            <div className="flex items-center gap-1">
+                                                                <MapPin className="h-4 w-4" />
+                                                                <span>{event.purok.name}</span>
+                                                            </div>
+                                                        )}
                                                         {event.has_certificate && (
-                                                            <Badge className="bg-amber-100 text-amber-800">
-                                                                <Award className="mr-1 h-3 w-3" />
-                                                                Has Certificate
-                                                            </Badge>
+                                                            <div className="flex items-center gap-1">
+                                                                <Award className="h-4 w-4" />
+                                                                <span>Has Certificate</span>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <Badge className="bg-yellow-100 text-yellow-800">
-                                                    <Clock className="mr-1 h-3 w-3" />
-                                                    Pending Review
-                                                </Badge>
+                                                <Badge className={getRoleColor(event.creator_role)}>{getRoleLabel(event.creator_role)}</Badge>
                                             </div>
                                         </CardHeader>
-
-                                        <CardContent className="space-y-4">
-                                            <p className="text-gray-600">{event.description}</p>
+                                        <CardContent>
+                                            {event.image_path && (
+                                                <div className="mb-4">
+                                                    <img
+                                                        src={`/storage/${event.image_path}`}
+                                                        alt={event.title}
+                                                        className="h-48 w-full rounded-lg border object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                            <p className="mb-4 text-gray-700">{event.description}</p>
 
                                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">

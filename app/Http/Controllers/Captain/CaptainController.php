@@ -24,8 +24,19 @@ class CaptainController extends Controller
             'totalEvents' => Event::count(),
         ];
 
+        $approvedEvents = Event::where('status', 'approved')
+            ->with(['creator', 'purok'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($event) {
+                $event->creator_role = $event->creator->role;
+                return $event;
+            });
+
         return Inertia::render('Captain/Dashboard', [
-            'stats' => $stats
+            'stats' => $stats,
+            'approvedEvents' => $approvedEvents
         ]);
     }
 
@@ -88,5 +99,29 @@ class CaptainController extends Controller
         $event->update(['status' => 'declined']);
 
         return back()->with('success', "Event '{$event->title}' has been declined.");
+    }
+
+    /**
+     * Display users with pagination.
+     *
+     * @return \Inertia\Response
+     */
+    public function users()
+    {
+        $residents = User::where('role', 'resident')
+            ->where('status', 'approved')
+            ->with('purok')
+            ->latest()
+            ->paginate(10, ['*'], 'residents_page');
+
+        $partners = User::where('role', 'partner_agency')
+            ->where('status', 'approved')
+            ->latest()
+            ->paginate(10, ['*'], 'partners_page');
+
+        return Inertia::render('Captain/Users', [
+            'residents' => $residents,
+            'partners' => $partners
+        ]);
     }
 }

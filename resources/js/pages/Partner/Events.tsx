@@ -68,8 +68,8 @@ export default function Events({ events, puroks }: EventsProps) {
         start_date: '',
         end_date: '',
         purok_id: '',
-        has_certificate: false,
-        target_all_residents: false,
+        has_certificate: false as boolean,
+        target_all_residents: false as boolean,
         image: null as File | null,
     });
 

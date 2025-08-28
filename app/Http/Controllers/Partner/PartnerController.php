@@ -41,7 +41,7 @@ class PartnerController extends Controller
     {
         $puroks = Purok::all();
         $events = Event::where('created_by', Auth::id())
-            ->with(['purok', 'attendances'])
+            ->with(['attendances'])
             ->latest()
             ->get()
             ->map(function ($event) {
@@ -69,18 +69,23 @@ class PartnerController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date|after:now',
             'end_date' => 'nullable|date|after:start_date',
-            'purok_id' => 'nullable|exists:puroks,id',
+            'purok_ids' => 'nullable|array|max:3',
+            'purok_ids.*' => 'exists:puroks,id',
             'has_certificate' => 'boolean',
             'target_all_residents' => 'boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Determine if targeting all residents
-        $targetAllResidents = $request->input('target_all_residents', false) || is_null($request->purok_id);
+        $targetAllResidents = $request->input('target_all_residents', false);
+
+        // Ensure only up to 3 puroks can be selected
+        if (!$targetAllResidents && count($request->purok_ids ?? []) > 3) {
+            return back()->withErrors(['purok_ids' => 'You can select up to 3 puroks only.']);
+        }
 
         $eventData = [
             'created_by' => Auth::id(),
-            'purok_id' => $targetAllResidents ? null : $request->purok_id,
+            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
@@ -105,7 +110,6 @@ class PartnerController extends Controller
     {
         $event = Event::where('id', $eventId)
             ->where('created_by', Auth::id())
-            ->with(['purok'])
             ->firstOrFail();
 
         // Prevent editing approved or declined events
@@ -137,16 +141,22 @@ class PartnerController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
-            'purok_id' => 'nullable|exists:puroks,id',
+            'purok_ids' => 'nullable|array|max:3',
+            'purok_ids.*' => 'exists:puroks,id',
             'has_certificate' => 'boolean',
             'target_all_residents' => 'boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $targetAllResidents = $request->input('target_all_residents', false) || is_null($request->purok_id);
+        $targetAllResidents = $request->input('target_all_residents', false);
+
+        // Ensure only up to 3 puroks can be selected
+        if (!$targetAllResidents && count($request->purok_ids ?? []) > 3) {
+            return back()->withErrors(['purok_ids' => 'You can select up to 3 puroks only.']);
+        }
 
         $updateData = [
-            'purok_id' => $targetAllResidents ? null : $request->purok_id,
+            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,

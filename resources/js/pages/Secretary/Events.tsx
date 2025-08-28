@@ -6,7 +6,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
@@ -74,7 +73,7 @@ export default function Events({ events, puroks }: Props) {
         description: '',
         start_date: '',
         end_date: '',
-        purok_id: '',
+        purok_ids: [] as number[],
         has_certificate: false as boolean,
         target_all_residents: false as boolean,
         image: null as File | null,
@@ -88,7 +87,11 @@ export default function Events({ events, puroks }: Props) {
         formData.append('description', data.description);
         formData.append('start_date', data.start_date);
         if (data.end_date) formData.append('end_date', data.end_date);
-        if (data.purok_id) formData.append('purok_id', data.purok_id);
+        if (data.purok_ids.length > 0) {
+            data.purok_ids.forEach((id, index) => {
+                formData.append(`purok_ids[${index}]`, id.toString());
+            });
+        }
         formData.append('has_certificate', data.has_certificate ? '1' : '0');
         formData.append('target_all_residents', data.target_all_residents ? '1' : '0');
         if (data.image) formData.append('image', data.image);
@@ -377,7 +380,7 @@ export default function Events({ events, puroks }: Props) {
                                                         onCheckedChange={(checked) => {
                                                             setData('target_all_residents', checked as boolean);
                                                             if (checked) {
-                                                                setData('purok_id', '');
+                                                                setData('purok_ids', []);
                                                             }
                                                         }}
                                                     />
@@ -388,20 +391,37 @@ export default function Events({ events, puroks }: Props) {
 
                                                 {!data.target_all_residents && (
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="purok_id">Select Purok</Label>
-                                                        <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
-                                                            <SelectTrigger className={errors.purok_id ? 'border-red-500' : ''}>
-                                                                <SelectValue placeholder="Select a purok" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {puroks.map((purok) => (
-                                                                    <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                        <Label>Select Puroks (up to 3)</Label>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            {puroks.map((purok) => (
+                                                                <div key={purok.id} className="flex items-center space-x-2">
+                                                                    <Checkbox
+                                                                        id={`purok_${purok.id}`}
+                                                                        checked={data.purok_ids.includes(purok.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            if (checked) {
+                                                                                if (data.purok_ids.length < 3) {
+                                                                                    setData('purok_ids', [...data.purok_ids, purok.id]);
+                                                                                }
+                                                                            } else {
+                                                                                setData(
+                                                                                    'purok_ids',
+                                                                                    data.purok_ids.filter((id) => id !== purok.id),
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                        disabled={!data.purok_ids.includes(purok.id) && data.purok_ids.length >= 3}
+                                                                    />
+                                                                    <Label htmlFor={`purok_${purok.id}`} className="text-sm">
                                                                         {purok.name}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.purok_id && <p className="text-sm text-red-600">{errors.purok_id}</p>}
+                                                                    </Label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        {data.purok_ids.length >= 3 && (
+                                                            <p className="mt-1 text-sm text-amber-600">Maximum of 3 puroks can be selected</p>
+                                                        )}
+                                                        {errors.purok_ids && <p className="text-sm text-red-600">{errors.purok_ids}</p>}
                                                     </div>
                                                 )}
                                             </div>

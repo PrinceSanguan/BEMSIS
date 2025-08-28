@@ -11,7 +11,7 @@ class Event extends Model
 
     protected $fillable = [
         'created_by',
-        'purok_id',
+        'purok_ids',
         'title',
         'description',
         'image_path',
@@ -22,14 +22,15 @@ class Event extends Model
         'target_all_residents',
     ];
 
+    protected $casts = [
+        'purok_ids' => 'array',
+        'target_all_residents' => 'boolean',
+        'has_certificate' => 'boolean',
+    ];
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function purok()
-    {
-        return $this->belongsTo(Purok::class);
     }
 
     public function attendances()

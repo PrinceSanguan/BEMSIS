@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/pages/Captain/Header';
 import Sidebar from '@/pages/Captain/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Building2, CheckCircle, Mail, MapPin, Phone, User, Users as UsersIcon, XCircle } from 'lucide-react';
+import { Building2, CheckCircle, Eye, Mail, MapPin, Phone, User, Users as UsersIcon, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Purok {
@@ -350,6 +350,16 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div className="ml-4 flex flex-shrink-0">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => router.get(route('captain.users.detail', user.id))}
+                                                            >
+                                                                <Eye className="mr-1 h-4 w-4" />
+                                                                View Details
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -416,6 +426,16 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                     <span>Joined: {formatDate(user.created_at)}</span>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                        <div className="ml-4 flex flex-shrink-0">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => router.get(route('captain.users.detail', user.id))}
+                                                            >
+                                                                <Eye className="mr-1 h-4 w-4" />
+                                                                View Details
+                                                            </Button>
                                                         </div>
                                                     </div>
                                                 </div>

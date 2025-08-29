@@ -94,6 +94,7 @@ Route::middleware(['session.activity', CaptainMiddleware::class])->group(functio
 
   // Users Management
   Route::get('captain/users', [CaptainController::class, 'users'])->name('captain.users');
+  Route::get('captain/users/{user}/details', [CaptainController::class, 'userDetail'])->name('captain.users.detail');
 });
 
 /*

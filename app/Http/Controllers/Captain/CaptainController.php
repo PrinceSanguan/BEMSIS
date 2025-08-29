@@ -152,4 +152,19 @@ class CaptainController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Display user details.
+     *
+     * @param int $userId
+     * @return \Inertia\Response
+     */
+    public function userDetail($userId)
+    {
+        $user = User::with('purok')->findOrFail($userId);
+
+        return Inertia::render('Captain/UserDetails', [
+            'user' => $user
+        ]);
+    }
 }

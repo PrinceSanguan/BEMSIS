@@ -95,6 +95,8 @@ Route::middleware(['session.activity', CaptainMiddleware::class])->group(functio
   // Users Management
   Route::get('captain/users', [CaptainController::class, 'users'])->name('captain.users');
   Route::get('captain/users/{user}/details', [CaptainController::class, 'userDetail'])->name('captain.users.detail');
+  Route::patch('captain/users/{user}/activate', [CaptainController::class, 'activateUser'])->name('captain.users.activate');
+  Route::patch('captain/users/{user}/deactivate', [CaptainController::class, 'deactivateUser'])->name('captain.users.deactivate');
 });
 
 /*
@@ -112,6 +114,8 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
   Route::get('secretary/users', [SecretaryController::class, 'users'])->name('secretary.users');
   Route::patch('secretary/users/{user}/approve', [SecretaryController::class, 'approveUser'])->name('secretary.users.approve');
   Route::patch('secretary/users/{user}/decline', [SecretaryController::class, 'declineUser'])->name('secretary.users.decline');
+  Route::patch('secretary/users/{user}/activate', [SecretaryController::class, 'activateUser'])->name('secretary.users.activate');
+  Route::patch('secretary/users/{user}/deactivate', [SecretaryController::class, 'deactivateUser'])->name('secretary.users.deactivate');
   Route::get('secretary/users/{user}/details', [SecretaryController::class, 'userDetail'])->name('secretary.users.detail');
 
   // Events Management

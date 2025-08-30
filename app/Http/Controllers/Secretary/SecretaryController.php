@@ -500,4 +500,18 @@ class SecretaryController extends Controller
 
         return back()->with('success', 'Announcement deleted successfully!');
     }
+
+    public function activateUser(User $user)
+    {
+        $user->update(['is_active' => true]);
+
+        return redirect()->back()->with('success', 'User account has been activated successfully.');
+    }
+
+    public function deactivateUser(User $user)
+    {
+        $user->update(['is_active' => false]);
+
+        return redirect()->back()->with('success', 'User account has been deactivated successfully.');
+    }
 }

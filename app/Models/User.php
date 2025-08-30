@@ -17,6 +17,7 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'is_active',
         'purok_id',
         'failed_login_attempts',
         'locked_until',
@@ -57,6 +58,7 @@ class User extends Authenticatable
         'age' => 'integer',
         'failed_login_attempts' => 'integer',
         'locked_until' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     // Relationships

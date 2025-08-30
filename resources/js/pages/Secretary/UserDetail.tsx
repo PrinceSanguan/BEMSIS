@@ -35,6 +35,7 @@ interface User {
     phone: string;
     role: 'resident' | 'partner_agency' | 'secretary' | 'captain';
     status: 'pending' | 'approved' | 'declined';
+    is_active: boolean;
     purok?: Purok;
     created_at: string;
     updated_at: string;
@@ -103,6 +104,30 @@ export default function UserDetail({ user, className }: Props) {
             {
                 onFinish: () => setProcessing(false),
                 onSuccess: () => router.get('/secretary/users'),
+            },
+        );
+    };
+
+    const handleActivateUser = () => {
+        setProcessing(true);
+        router.patch(
+            `/secretary/users/${user.id}/activate`,
+            {},
+            {
+                onFinish: () => setProcessing(false),
+                onSuccess: () => router.reload({ only: ['user'] }),
+            },
+        );
+    };
+
+    const handleDeactivateUser = () => {
+        setProcessing(true);
+        router.patch(
+            `/secretary/users/${user.id}/deactivate`,
+            {},
+            {
+                onFinish: () => setProcessing(false),
+                onSuccess: () => router.reload({ only: ['user'] }),
             },
         );
     };
@@ -225,6 +250,32 @@ export default function UserDetail({ user, className }: Props) {
                                                     <UserX className="mr-2 h-4 w-4" />
                                                     {processing ? 'Processing...' : 'Decline'}
                                                 </Button>
+                                            </div>
+                                        )}
+
+                                        {user.status === 'approved' && (
+                                            <div className="flex gap-3">
+                                                {user.is_active ? (
+                                                    <Button
+                                                        onClick={handleDeactivateUser}
+                                                        disabled={processing}
+                                                        variant="outline"
+                                                        className="border-red-300 text-red-600 hover:border-red-400 hover:text-red-700"
+                                                    >
+                                                        <UserX className="mr-2 h-4 w-4" />
+                                                        {processing ? 'Processing...' : 'Deactivate Account'}
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        onClick={handleActivateUser}
+                                                        disabled={processing}
+                                                        variant="outline"
+                                                        className="border-green-300 text-green-600 hover:border-green-400 hover:text-green-700"
+                                                    >
+                                                        <UserCheck className="mr-2 h-4 w-4" />
+                                                        {processing ? 'Processing...' : 'Activate Account'}
+                                                    </Button>
+                                                )}
                                             </div>
                                         )}
                                     </div>

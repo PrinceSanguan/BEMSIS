@@ -22,6 +22,7 @@ interface User {
     phone: string;
     role: 'resident' | 'partner_agency' | 'secretary' | 'captain';
     status: 'pending' | 'approved' | 'declined';
+    is_active: boolean;
     purok?: Purok;
     created_at: string;
     updated_at: string;
@@ -446,6 +447,28 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     <Eye className="mr-2 h-4 w-4" />
                                                                     View Details
                                                                 </Button>
+
+                                                                {user.is_active ? (
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => router.patch(`/secretary/users/${user.id}/deactivate`)}
+                                                                        className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                                                                    >
+                                                                        <UserX className="h-4 w-4" />
+                                                                        Deactivate
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => router.patch(`/secretary/users/${user.id}/activate`)}
+                                                                        className="flex items-center gap-2 text-green-600 hover:text-green-700"
+                                                                    >
+                                                                        <UserCheck className="h-4 w-4" />
+                                                                        Activate
+                                                                    </Button>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Captain/Header';
 import Sidebar from '@/pages/Captain/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, Building2, Calendar, CheckCircle, Download, Eye, IdCard, Mail, MapPin, Phone, User, XCircle } from 'lucide-react';
+import { ArrowLeft, Building2, Calendar, CheckCircle, Download, Eye, IdCard, Mail, MapPin, Phone, User, UserX, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Purok {
@@ -20,6 +20,7 @@ interface User {
     phone: string;
     role: 'resident' | 'partner_agency' | 'secretary' | 'captain';
     status: 'pending' | 'approved' | 'declined';
+    is_active: boolean;
     purok?: Purok;
     created_at: string;
     updated_at: string;
@@ -180,6 +181,43 @@ export default function UserDetail({ user, className }: Props) {
                                     </div>
                                 </CardHeader>
                             </Card>
+
+                            {/* Activation Controls */}
+                            {user.status === 'approved' && (
+                                <Card>
+                                    <CardContent className="pt-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-medium text-gray-900">Account Status</h3>
+                                                <p className="text-sm text-gray-600">
+                                                    This account is currently {user.is_active ? 'active' : 'deactivated'}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                {user.is_active ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => router.patch(`/captain/users/${user.id}/deactivate`)}
+                                                        className="border-red-300 text-red-600 hover:border-red-400 hover:text-red-700"
+                                                    >
+                                                        <UserX className="mr-2 h-4 w-4" />
+                                                        Deactivate Account
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
+                                                        className="border-green-300 text-green-600 hover:border-green-400 hover:text-green-700"
+                                                    >
+                                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                                        Activate Account
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
 
                             {/* User Details */}
                             {user.role === 'resident' ? (

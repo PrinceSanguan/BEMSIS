@@ -77,6 +77,15 @@ class LoginController extends Controller
                 ]);
             }
 
+            // Check if user account is active.
+            if (!$user->is_active) {
+                Auth::logout();
+
+                throw ValidationException::withMessages([
+                    'auth' => 'Your account has been deactivated. Please contact the administrator.',
+                ]);
+            }
+
             $request->session()->regenerate();
 
             // Check user role and redirect accordingly

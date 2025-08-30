@@ -167,4 +167,18 @@ class CaptainController extends Controller
             'user' => $user
         ]);
     }
+
+    public function activateUser(User $user)
+    {
+        $user->update(['is_active' => true]);
+
+        return redirect()->back()->with('success', 'User account has been activated successfully.');
+    }
+
+    public function deactivateUser(User $user)
+    {
+        $user->update(['is_active' => false]);
+
+        return redirect()->back()->with('success', 'User account has been deactivated successfully.');
+    }
 }

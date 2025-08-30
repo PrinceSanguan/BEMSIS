@@ -22,6 +22,7 @@ interface User {
     phone: string;
     role: 'resident' | 'partner_agency' | 'secretary' | 'captain';
     status: 'pending' | 'approved' | 'declined';
+    is_active: boolean;
     purok?: Purok;
     created_at: string;
     updated_at: string;
@@ -350,7 +351,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-4 flex flex-shrink-0">
+                                                        <div className="ml-4 flex flex-shrink-0 gap-2">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
@@ -359,6 +360,26 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 <Eye className="mr-1 h-4 w-4" />
                                                                 View Details
                                                             </Button>
+
+                                                            {user.is_active ? (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => router.patch(`/captain/users/${user.id}/deactivate`)}
+                                                                    className="text-red-600 hover:text-red-700"
+                                                                >
+                                                                    Deactivate
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
+                                                                    className="text-green-600 hover:text-green-700"
+                                                                >
+                                                                    Activate
+                                                                </Button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -427,7 +448,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-4 flex flex-shrink-0">
+                                                        <div className="ml-4 flex flex-shrink-0 gap-2">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
@@ -436,6 +457,26 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 <Eye className="mr-1 h-4 w-4" />
                                                                 View Details
                                                             </Button>
+
+                                                            {user.is_active ? (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => router.patch(`/captain/users/${user.id}/deactivate`)}
+                                                                    className="text-red-600 hover:text-red-700"
+                                                                >
+                                                                    Deactivate
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
+                                                                    className="text-green-600 hover:text-green-700"
+                                                                >
+                                                                    Activate
+                                                                </Button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>

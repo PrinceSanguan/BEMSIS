@@ -21,6 +21,8 @@ class User extends Authenticatable
         'purok_id',
         'failed_login_attempts',
         'locked_until',
+        'last_seen_at',
+        'is_online',
 
         // Resident fields
         'first_name',
@@ -59,6 +61,8 @@ class User extends Authenticatable
         'failed_login_attempts' => 'integer',
         'locked_until' => 'datetime',
         'is_active' => 'boolean',
+        'last_seen_at' => 'datetime',
+        'is_online' => 'boolean',
     ];
 
     // Relationships
@@ -146,5 +150,56 @@ class User extends Authenticatable
         }
 
         return $this->locked_until->diffInMinutes(now());
+    }
+
+    /**
+     * Update user's last seen timestamp and mark as online
+     */
+    public function updateLastSeen(): void
+    {
+        $this->update([
+            'last_seen_at' => now(),
+            'is_online' => true
+        ]);
+    }
+
+    /**
+     * Check if user is currently considered online
+     */
+    public function isCurrentlyOnline(): bool
+    {
+        if (!$this->is_online || !$this->last_seen_at) {
+            return false;
+        }
+
+        // Consider offline if last seen more than 5 minutes ago
+        return $this->last_seen_at->isAfter(now()->subMinutes(5));
+    }
+
+    /**
+     * Mark user as offline
+     */
+    public function markOffline(): void
+    {
+        $this->update(['is_online' => false]);
+    }
+
+    /**
+     * Get formatted last seen time
+     */
+    public function getLastSeenAttribute($value): ?string
+    {
+        if (!$value) return null;
+
+        $lastSeen = \Carbon\Carbon::parse($value);
+        $now = now();
+
+        if ($lastSeen->isToday()) {
+            return $lastSeen->format('g:i A');
+        } elseif ($lastSeen->isYesterday()) {
+            return 'Yesterday at ' . $lastSeen->format('g:i A');
+        } else {
+            return $lastSeen->format('M j, Y g:i A');
+        }
     }
 }

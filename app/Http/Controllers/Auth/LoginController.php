@@ -58,6 +58,9 @@ class LoginController extends Controller
             /** @var \App\Models\User $user */
             $user->resetFailedAttempts();
 
+            // Mark user as online
+            $user->updateLastSeen();
+
             // Handle device tracking and notifications
             $this->handleDeviceTracking($request, $user);
 
@@ -134,6 +137,11 @@ class LoginController extends Controller
      */
     public function destroy(Request $request)
     {
+        // Mark user as offline before logout
+        if (Auth::check()) {
+            Auth::user()->markOffline();
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

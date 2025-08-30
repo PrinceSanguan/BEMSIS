@@ -6,7 +6,7 @@ import Header from '@/pages/Captain/Header';
 import Sidebar from '@/pages/Captain/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Building2, Calendar, CheckCircle, Download, Eye, IdCard, Mail, MapPin, Phone, User, UserX, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Purok {
     id: number;
@@ -24,6 +24,8 @@ interface User {
     purok?: Purok;
     created_at: string;
     updated_at: string;
+    last_seen_at?: string;
+    is_online?: boolean;
 
     // Resident fields
     first_name?: string;
@@ -67,6 +69,45 @@ interface PageProps {
 export default function UserDetail({ user, className }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(user);
+
+    // Update user status every 30 seconds
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/users/${user.id}/status`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    setCurrentUser((prev) => ({
+                        ...prev,
+                        is_online: userData.is_online,
+                        last_seen_at: userData.last_seen_at,
+                    }));
+                }
+            } catch (error) {
+                console.error('Failed to fetch user status:', error);
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, [user.id]);
+
+    const getOnlineStatus = () => {
+        if (currentUser.is_online) {
+            return { label: 'Online', color: 'bg-green-100 text-green-800', icon: '🟢' };
+        } else {
+            const lastSeen = currentUser.last_seen_at ? new Date(currentUser.last_seen_at) : null;
+            if (lastSeen) {
+                const diffInMinutes = Math.floor((Date.now() - lastSeen.getTime()) / (1000 * 60));
+                if (diffInMinutes < 5) {
+                    return { label: 'Recently Active', color: 'bg-yellow-100 text-yellow-800', icon: '🟡' };
+                } else {
+                    return { label: 'Offline', color: 'bg-gray-100 text-gray-800', icon: '⚫' };
+                }
+            }
+            return { label: 'Offline', color: 'bg-gray-100 text-gray-800', icon: '⚫' };
+        }
+    };
 
     const getRoleDisplay = (role: string) => {
         const roleMap: Record<string, { label: string; color: string }> = {
@@ -171,6 +212,10 @@ export default function UserDetail({ user, className }: Props) {
                                                 <Badge className={`px-3 py-1 ${statusDisplay.color}`}>
                                                     <StatusIcon className="mr-1 h-3 w-3" />
                                                     {statusDisplay.label}
+                                                </Badge>
+                                                <Badge className={`px-3 py-1 text-sm font-medium ${getOnlineStatus().color}`}>
+                                                    <span className="mr-1">{getOnlineStatus().icon}</span>
+                                                    {getOnlineStatus().label}
                                                 </Badge>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-gray-600">

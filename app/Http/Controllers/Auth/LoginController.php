@@ -139,7 +139,9 @@ class LoginController extends Controller
     {
         // Mark user as offline before logout
         if (Auth::check()) {
-            Auth::user()->markOffline();
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $user->markOffline();
         }
 
         Auth::logout();

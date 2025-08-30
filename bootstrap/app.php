@@ -21,9 +21,22 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\TrackUserActivity::class, // 
+            \App\Http\Middleware\TrackUserActivity::class,
+        ]);
+
+        // Add middleware alias for session activity
+        $middleware->alias([
+            'session.activity' => \App\Http\Middleware\SessionActivityMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->withCommands([
+        \App\Console\Commands\MarkUsersOffline::class,
+    ])
+    ->withSchedule(function ($schedule) {
+        // Mark users offline every minute
+        $schedule->command('users:mark-offline --minutes=5')->everyMinute();
+    })
+    ->create();

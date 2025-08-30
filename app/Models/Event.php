@@ -47,4 +47,25 @@ class Event extends Model
     {
         return $this->hasMany(Certificate::class);
     }
+
+    // Get associated puroks from JSON column
+    public function getPuroksAttribute()
+    {
+        if (is_null($this->purok_ids) || empty($this->purok_ids)) {
+            return collect();
+        }
+
+        return Purok::whereIn('id', $this->purok_ids)->get();
+    }
+
+    // Get purok names as string
+    public function getPurokNamesAttribute()
+    {
+        if (is_null($this->purok_ids) || empty($this->purok_ids)) {
+            return 'All Residents';
+        }
+
+        $puroks = Purok::whereIn('id', $this->purok_ids)->pluck('name');
+        return $puroks->join(', ');
+    }
 }

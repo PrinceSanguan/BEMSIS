@@ -26,7 +26,7 @@ class CaptainController extends Controller
         ];
 
         $approvedEvents = Event::where('status', 'approved')
-            ->with(['creator', 'purok'])
+            ->with(['creator'])
             ->latest()
             ->take(5)
             ->get()
@@ -49,7 +49,7 @@ class CaptainController extends Controller
     public function events()
     {
         $pendingEvents = Event::where('status', 'pending')
-            ->with(['creator', 'purok'])
+            ->with(['creator'])
             ->latest()
             ->get()
             ->map(function ($event) {

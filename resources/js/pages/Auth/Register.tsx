@@ -116,7 +116,7 @@ export default function Register() {
     };
 
     const validatePhone = (phone: string) => {
-        const phoneRegex = /^09\d{9}$/;
+        const phoneRegex = /^\d{9}$/;
         return phoneRegex.test(phone);
     };
 
@@ -473,11 +473,35 @@ export default function Register() {
                                                 <Input
                                                     id="contact_number"
                                                     type="text"
-                                                    placeholder="09XXXXXXXXX"
-                                                    value={data.contact_number}
-                                                    onChange={(e) => setData('contact_number', e.target.value)}
+                                                    placeholder="+63 9XX XXX XXXX"
+                                                    value={
+                                                        data.contact_number && data.contact_number.length > 0
+                                                            ? `+63 9${data.contact_number.length >= 2 ? data.contact_number.slice(0, 2) : data.contact_number}${data.contact_number.length >= 3 ? ' ' + data.contact_number.slice(2, 5) : ''}${data.contact_number.length >= 6 ? ' ' + data.contact_number.slice(5) : ''}`
+                                                            : '+63 9'
+                                                    }
+                                                    onChange={(e) => {
+                                                        const input = e.target.value.replace(/\D/g, '');
+                                                        if (input.startsWith('639')) {
+                                                            const digits = input.substring(3);
+                                                            if (digits.length <= 9) {
+                                                                setData('contact_number', digits);
+                                                            }
+                                                        } else if (input.startsWith('9')) {
+                                                            const digits = input.substring(1);
+                                                            if (digits.length <= 8) {
+                                                                setData('contact_number', input.substring(0, 9));
+                                                            }
+                                                        } else if (input.length <= 9 && /^[0-9]*$/.test(input)) {
+                                                            setData('contact_number', input);
+                                                        }
+                                                    }}
                                                     className={errors.contact_number ? 'border-red-300' : ''}
+                                                    maxLength={17}
                                                 />
+                                                <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
+                                                {!validatePhone(data.contact_number) && data.contact_number && (
+                                                    <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
+                                                )}
                                                 {errors.contact_number && <p className="text-sm text-red-500">{errors.contact_number}</p>}
                                             </div>
                                         </div>
@@ -535,11 +559,35 @@ export default function Register() {
                                                 <Input
                                                     id="agency_contact_number"
                                                     type="text"
-                                                    placeholder="09XXXXXXXXX"
-                                                    value={data.agency_contact_number}
-                                                    onChange={(e) => setData('agency_contact_number', e.target.value)}
+                                                    placeholder="+63 9XX XXX XXXX"
+                                                    value={
+                                                        data.agency_contact_number
+                                                            ? `+63 9${data.agency_contact_number.slice(0, 2)} ${data.agency_contact_number.slice(2, 5)} ${data.agency_contact_number.slice(5)}`
+                                                            : '+63 9'
+                                                    }
+                                                    onChange={(e) => {
+                                                        const input = e.target.value.replace(/\D/g, '');
+                                                        if (input.startsWith('639')) {
+                                                            const digits = input.substring(3);
+                                                            if (digits.length <= 9) {
+                                                                setData('agency_contact_number', digits);
+                                                            }
+                                                        } else if (input.startsWith('9')) {
+                                                            const digits = input.substring(1);
+                                                            if (digits.length <= 8) {
+                                                                setData('agency_contact_number', input.substring(0, 9));
+                                                            }
+                                                        } else if (input.length <= 9 && /^[0-9]*$/.test(input)) {
+                                                            setData('agency_contact_number', input);
+                                                        }
+                                                    }}
                                                     className={errors.agency_contact_number ? 'border-red-300' : ''}
+                                                    maxLength={17}
                                                 />
+                                                <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
+                                                {!validatePhone(data.agency_contact_number) && data.agency_contact_number && (
+                                                    <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
+                                                )}
                                                 {errors.agency_contact_number && (
                                                     <p className="text-sm text-red-500">{errors.agency_contact_number}</p>
                                                 )}

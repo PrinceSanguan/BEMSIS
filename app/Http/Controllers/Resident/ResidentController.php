@@ -35,6 +35,13 @@ class ResidentController extends Controller
         // Get upcoming events
         $upcomingEvents = Event::where('status', 'approved')
             ->where('start_date', '>=', now())
+            ->where(function ($query) use ($user) {
+                $query->where('target_all_residents', true)
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('target_all_residents', false)
+                            ->whereJsonContains('purok_ids', $user->purok_id);
+                    });
+            })
             ->orderBy('start_date', 'asc')
             ->take(5)
             ->with(['attendances' => function ($query) use ($user) {
@@ -59,8 +66,15 @@ class ResidentController extends Controller
 
         $events = Event::where('status', 'approved')
             ->where('start_date', '>=', now())
+            ->where(function ($query) use ($user) {
+                $query->where('target_all_residents', true)
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('target_all_residents', false)
+                            ->whereJsonContains('purok_ids', $user->purok_id);
+                    });
+            })
             ->orderBy('start_date', 'asc')
-            ->with(['creator', 'purok', 'attendances' => function ($query) use ($user) {
+            ->with(['creator', 'attendances' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])
             ->get()

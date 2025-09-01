@@ -79,7 +79,90 @@ class CaptainController extends Controller
 
         $event->update(['status' => 'approved']);
 
+        // Send SMS notifications to all residents
+        // Commented out to avoid sending SMS notifications to residents
+        // $this->sendSmsNotificationToResidents($event);
+
         return back()->with('success', "Event '{$event->title}' has been approved successfully!");
+    }
+
+    /**
+     * Send SMS notification to all residents about approved event
+     */
+    private function sendSmsNotificationToResidents($event)
+    {
+        try {
+            // Get all users with role 'resident'
+            $residents = User::where('role', 'resident')
+                ->where('status', 'approved')
+                ->whereNotNull('phone')
+                ->get();
+
+            foreach ($residents as $resident) {
+                $this->sendSms($resident, $event);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send SMS notifications for event approval', [
+                'event_id' => $event->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Send individual SMS to resident
+     */
+    private function sendSms($resident, $event)
+    {
+        try {
+            $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
+            $message = sprintf(
+                "Hi %s, Good news! The event '%s' scheduled for %s has been approved by the Captain. Stay tuned for more details!",
+                explode(' ', $resident->name)[0], // First name
+                $event->title,
+                date('F j, Y', strtotime($event->start_date))
+            );
+
+            $data = [
+                'api_token' => env('SMS_API_KEY'),
+                'message' => $message,
+                'phone_number' => $resident->phone,
+            ];
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/x-www-form-urlencoded'
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // Log SMS for record keeping
+            \App\Models\SmsLog::create([
+                'user_id' => $resident->id,
+                'phone' => $resident->phone,
+                'message' => $message,
+                'direction' => 'outgoing',
+            ]);
+
+            \Log::info('SMS sent successfully', [
+                'user_id' => $resident->id,
+                'phone' => $resident->phone,
+                'event_id' => $event->id,
+                'http_code' => $httpCode
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send SMS to resident', [
+                'user_id' => $resident->id,
+                'phone' => $resident->phone,
+                'event_id' => $event->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     /**

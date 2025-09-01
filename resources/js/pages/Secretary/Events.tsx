@@ -159,7 +159,7 @@ export default function Events({ events, puroks }: EventsProps) {
             const dayEvents = getEventsForDate(date);
 
             cells.push(
-                <div key={`prev-${i}`} className="min-h-16 border border-gray-200 bg-gray-50 p-1 opacity-40 sm:min-h-20 sm:p-2 lg:min-h-24">
+                <div key={`prev-${i}`} className="min-h-12 border border-gray-200 bg-gray-50 p-1 opacity-40 sm:min-h-16 sm:p-2 lg:min-h-24">
                     <div className="text-sm text-gray-500">{date.getDate()}</div>
                     {dayEvents.length > 0 && (
                         <div className="mt-1 space-y-1">
@@ -188,11 +188,11 @@ export default function Events({ events, puroks }: EventsProps) {
             cells.push(
                 <div
                     key={day}
-                    className={`min-h-16 border border-gray-200 bg-white p-1 sm:min-h-20 sm:p-2 lg:min-h-24 ${isToday ? 'border-blue-300 bg-blue-50' : ''}`}
+                    className={`min-h-12 border border-gray-200 bg-white p-1 sm:min-h-16 sm:p-2 lg:min-h-24 ${isToday ? 'border-blue-300 bg-blue-50' : ''}`}
                 >
                     <div className={`text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
                         {day}
-                        {isToday && <span className="ml-1 text-xs">(Today)</span>}
+                        {isToday}
                     </div>
                     {dayEvents.length > 0 && (
                         <div className="mt-1 space-y-1">
@@ -228,7 +228,7 @@ export default function Events({ events, puroks }: EventsProps) {
             const dayEvents = getEventsForDate(date);
 
             cells.push(
-                <div key={`next-${day}`} className="min-h-16 border border-gray-200 bg-gray-50 p-1 opacity-40 sm:min-h-20 sm:p-2 lg:min-h-24">
+                <div key={`next-${day}`} className="min-h-12 border border-gray-200 bg-gray-50 p-1 opacity-40 sm:min-h-16 sm:p-2 lg:min-h-24">
                     <div className="text-sm text-gray-500">{day}</div>
                     {dayEvents.length > 0 && (
                         <div className="mt-1 space-y-1">
@@ -467,8 +467,8 @@ export default function Events({ events, puroks }: EventsProps) {
 
                                     <CardContent>
                                         {/* Calendar Header */}
-                                        <div className="overflow-x-auto">
-                                            <div className="mb-2 grid min-w-[640px] grid-cols-7 gap-px lg:min-w-0">
+                                        <div>
+                                            <div className="mb-2 grid grid-cols-7 gap-px">
                                                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                                                     <div key={day} className="bg-gray-100 p-2 text-center text-sm font-medium text-gray-600">
                                                         <span className="hidden sm:inline">{day}</span>
@@ -479,8 +479,8 @@ export default function Events({ events, puroks }: EventsProps) {
                                         </div>
 
                                         {/* Calendar Grid */}
-                                        <div className="overflow-x-auto">
-                                            <div className="grid min-w-[640px] grid-cols-7 gap-px overflow-hidden rounded-lg border border-gray-200 lg:min-w-0">
+                                        <div>
+                                            <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-gray-200">
                                                 {renderCalendarCells()}
                                             </div>
                                         </div>

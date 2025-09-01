@@ -22,6 +22,60 @@ class RegisterController extends Controller
     // Store registration data
     public function store(Request $request)
     {
+        // Complete Globe/TM valid prefixes
+        $globeTMPrefixes = [
+            // Globe prefixes
+            '817',
+            '905',
+            '906',
+            '915',
+            '916',
+            '917',
+            '926',
+            '927',
+            '935',
+            '936',
+            '945',
+            '952',
+            '953',
+            '954',
+            '955',
+            '956',
+            '957',
+            '958',
+            '959',
+            '965',
+            '966',
+            '967',
+            '975',
+            '976',
+            '977',
+            '978',
+            '979',
+            '995',
+            '996',
+            '997',
+            // TM (Touch Mobile) prefixes  
+            '893',
+            '894',
+            '351',
+            '352',
+            '353',
+            '354',
+            '355',
+            '356',
+            '357',
+            '999',
+            // Additional Globe/TM prefixes
+            '946',
+            '947',
+            '948',
+            '949',
+            '950',
+            '951',
+            '994'
+        ];
+
         // Password policy validation rules
         $passwordRules = [
             'required',
@@ -39,6 +93,30 @@ class RegisterController extends Controller
             'role' => 'required|in:resident,partner_agency',
         ];
 
+        // Phone validation function
+        $phoneValidation = function ($attribute, $value, $fail) use ($globeTMPrefixes) {
+            // Check basic format first
+            if (!preg_match('/^639\d{9}$/', $value)) {
+                $fail('Phone number must be in format 639XXXXXXXXX.');
+                return;
+            }
+
+            // Extract the mobile number part (remove 639 prefix)
+            $mobileNumber = substr($value, 3);
+            $prefix = substr($mobileNumber, 0, 3);
+
+            if (!in_array($prefix, $globeTMPrefixes)) {
+                $fail('Only Globe and TM numbers are accepted.');
+                return;
+            }
+
+            // Check if phone number already exists
+            if (\App\Models\User::where('phone', $value)->exists()) {
+                $fail('This phone number is already registered in the system.');
+                return;
+            }
+        };
+
         // Role-specific validation
         if ($request->role === 'resident') {
             $rules = array_merge($baseRules, [
@@ -55,58 +133,7 @@ class RegisterController extends Controller
                 'occupation' => 'required|string|max:255',
                 'special_notes' => 'nullable|string',
                 'purok_id' => 'required|exists:puroks,id',
-                'phone' => [
-                    'required',
-                    'string',
-                    'regex:/^639\d{9}$/',
-                    function ($attribute, $value, $fail) {
-                        // Extract the mobile number part (remove 639 prefix)
-                        $mobileNumber = substr($value, 3);
-
-                        // Globe/TM valid prefixes
-                        $globeTMPrefixes = [
-                            '905',
-                            '906',
-                            '915',
-                            '916',
-                            '917',
-                            '926',
-                            '927',
-                            '935',
-                            '936',
-                            '945',
-                            '952',
-                            '953',
-                            '954',
-                            '955',
-                            '956',
-                            '957',
-                            '958',
-                            '959',
-                            '965',
-                            '966',
-                            '967',
-                            '975',
-                            '976',
-                            '977',
-                            '978',
-                            '979',
-                            '995',
-                            '996',
-                            '997',
-                            '817'
-                        ];
-
-                        $prefix = substr($mobileNumber, 0, 3);
-                        if (!in_array($prefix, $globeTMPrefixes)) {
-                            $fail('Only Globe and TM numbers are accepted.');
-                        }
-
-                        if (\App\Models\User::where('phone', $value)->exists()) {
-                            $fail('This phone number is already registered in the system.');
-                        }
-                    }
-                ],
+                'phone' => ['required', 'string', $phoneValidation],
                 'valid_id' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB max
             ]);
         } else { // partner_agency
@@ -115,59 +142,7 @@ class RegisterController extends Controller
                 'representative_first_name' => 'required|string|max:255',
                 'representative_last_name' => 'required|string|max:255',
                 'agency_address' => 'nullable|string|max:500',
-                'agency_phone' => [
-                    'required',
-                    'string',
-                    'regex:/^639\d{9}$/',
-                    function ($attribute, $value, $fail) {
-                        // Extract the mobile number part (remove 639 prefix)
-                        $mobileNumber = substr($value, 3);
-
-                        // Globe/TM valid prefixes
-                        $globeTMPrefixes = [
-                            '905',
-                            '906',
-                            '915',
-                            '916',
-                            '917',
-                            '926',
-                            '927',
-                            '935',
-                            '936',
-                            '945',
-                            '952',
-                            '953',
-                            '954',
-                            '955',
-                            '956',
-                            '957',
-                            '958',
-                            '959',
-                            '965',
-                            '966',
-                            '967',
-                            '975',
-                            '976',
-                            '977',
-                            '978',
-                            '979',
-                            '995',
-                            '996',
-                            '997',
-                            '817'
-                        ];
-
-                        $prefix = substr($mobileNumber, 0, 3);
-                        if (!in_array($prefix, $globeTMPrefixes)) {
-                            $fail('Only Globe and TM numbers are accepted.');
-                        }
-
-                        if (\App\Models\User::where('phone', $value)->exists()) {
-                            $fail('This phone number is already registered in the system.');
-                        }
-                    }
-                ],
-
+                'agency_phone' => ['required', 'string', $phoneValidation],
                 'agency_valid_id' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB max
             ]);
         }
@@ -176,8 +151,6 @@ class RegisterController extends Controller
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'date_of_birth.before' => 'You must be at least 13 years old to register.',
             'age.min' => 'You must be at least 13 years old to register.',
-            'phone.regex' => 'Phone number must be in format 639XXXXXXXXX.',
-            'agency_phone.regex' => 'Phone number must be in format 639XXXXXXXXX.',
         ]);
 
         // Handle file uploads

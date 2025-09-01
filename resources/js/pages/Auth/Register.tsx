@@ -64,7 +64,7 @@ export default function Register() {
         agency_valid_id: null as File | null,
     });
 
-    // Calculate age when date of birth changes
+    // Auto-calculate age when date of birth changes
     useEffect(() => {
         if (data.date_of_birth) {
             const birthDate = new Date(data.date_of_birth);
@@ -82,20 +82,12 @@ export default function Register() {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-
-        if (data.password !== data.password_confirmation) {
-            return;
-        }
-
-        // Use Inertia's built-in form submission
         post(route('auth.register.store'));
     };
 
     const handleRegistrationTypeChange = (value: string) => {
         setData('role', value);
         setRegistrationType(value as 'resident' | 'partner_agency');
-
-        // Reset form data when switching types
         reset();
         setData('role', value);
     };
@@ -105,104 +97,13 @@ export default function Register() {
         reset();
     };
 
-    const validatePassword = (password: string) => {
-        const minLength = password.length >= 8 && password.length <= 12;
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const hasNumber = /\d/.test(password);
-        const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-        return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
-    };
-
-    const validatePhone = (phone: string) => {
-        const phoneRegex = /^639\d{9}$/;
-        return phoneRegex.test(phone);
-    };
-
-    const validateGlobeTMPhone = (phone: string) => {
-        if (!phone || phone.length !== 12 || !phone.startsWith('639')) return false;
-
-        // Globe/TM valid prefixes (after 639)
-        const globeTMPrefixes = [
-            '905',
-            '906',
-            '915',
-            '916',
-            '917',
-            '926',
-            '927',
-            '935',
-            '936',
-            '945',
-            '952',
-            '953',
-            '954',
-            '955',
-            '956',
-            '957',
-            '958',
-            '959',
-            '965',
-            '966',
-            '967',
-            '975',
-            '976',
-            '977',
-            '978',
-            '979',
-            '995',
-            '996',
-            '997',
-            '817',
-        ];
-
-        const prefix = phone.substring(3, 6); // Get digits 4-6 (after 639)
-        return globeTMPrefixes.includes(prefix);
-    };
-
-    const isResidentFormValid = () => {
-        return (
-            data.first_name.trim() !== '' &&
-            data.last_name.trim() !== '' &&
-            data.place_of_birth.trim() !== '' &&
-            data.date_of_birth !== '' &&
-            parseInt(data.age) >= 13 &&
-            data.sex !== '' &&
-            data.civil_status.trim() !== '' &&
-            data.citizenship.trim() !== '' &&
-            data.occupation.trim() !== '' &&
-            data.purok_id !== '' &&
-            data.email.trim() !== '' &&
-            validatePhone(data.phone) &&
-            validateGlobeTMPhone(data.phone) &&
-            data.valid_id !== null &&
-            validatePassword(data.password) &&
-            data.password === data.password_confirmation
-        );
-    };
-
-    const isAgencyFormValid = () => {
-        return (
-            data.agency_name.trim() !== '' &&
-            data.representative_first_name.trim() !== '' &&
-            data.representative_last_name.trim() !== '' &&
-            data.email.trim() !== '' &&
-            validatePhone(data.agency_phone) &&
-            validateGlobeTMPhone(data.agency_phone) &&
-            data.agency_valid_id !== null &&
-            validatePassword(data.password) &&
-            data.password === data.password_confirmation
-        );
-    };
-
-    const isFormValid = () => {
-        if (data.role === 'resident') {
-            return isResidentFormValid();
-        } else if (data.role === 'partner_agency') {
-            return isAgencyFormValid();
+    // Simple phone number formatter for display only
+    const formatPhoneDisplay = (phone: string) => {
+        if (!phone) return '';
+        if (phone.length >= 12) {
+            return `+${phone.slice(0, 2)} ${phone.slice(2, 5)} ${phone.slice(5, 8)} ${phone.slice(8)}`;
         }
-        return false;
+        return phone;
     };
 
     return (
@@ -233,7 +134,7 @@ export default function Register() {
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Registration Type Selection or Back Button */}
+                            {/* Registration Type Selection */}
                             {!registrationType ? (
                                 <div className="space-y-4">
                                     <Label className="text-lg font-semibold text-gray-800">
@@ -283,308 +184,212 @@ export default function Register() {
                                             <h2 className="text-lg font-semibold text-gray-800">
                                                 {registrationType === 'resident' ? 'Resident Registration' : 'Partner Agency Registration'}
                                             </h2>
-                                            <p className="text-sm text-gray-500">
-                                                {registrationType === 'resident'
-                                                    ? 'Complete your community member registration'
-                                                    : 'Complete your organization registration'}
-                                            </p>
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleBackToSelection}
-                                        className="flex items-center space-x-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-                                    >
-                                        <span>← Back</span>
-                                    </button>
+                                    <Button type="button" variant="outline" onClick={handleBackToSelection}>
+                                        ← Back
+                                    </Button>
                                 </div>
                             )}
 
                             {/* Resident Registration Form */}
                             {registrationType === 'resident' && (
                                 <div className="space-y-6">
-                                    <div className="border-t pt-6">
-                                        <h2 className="mb-4 text-xl font-semibold text-gray-800">Resident Information</h2>
+                                    <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
 
-                                        {/* Name Fields */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="first_name">
-                                                    First Name <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="first_name"
-                                                    type="text"
-                                                    placeholder="First name"
-                                                    value={data.first_name}
-                                                    onChange={(e) => setData('first_name', e.target.value)}
-                                                    className={errors.first_name ? 'border-red-300' : ''}
-                                                />
-                                                {errors.first_name && <p className="text-sm text-red-500">{errors.first_name}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="middle_name">Middle Name</Label>
-                                                <Input
-                                                    id="middle_name"
-                                                    type="text"
-                                                    placeholder="Middle name"
-                                                    value={data.middle_name}
-                                                    onChange={(e) => setData('middle_name', e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="last_name">
-                                                    Last Name <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="last_name"
-                                                    type="text"
-                                                    placeholder="Last name"
-                                                    value={data.last_name}
-                                                    onChange={(e) => setData('last_name', e.target.value)}
-                                                    className={errors.last_name ? 'border-red-300' : ''}
-                                                />
-                                                {errors.last_name && <p className="text-sm text-red-500">{errors.last_name}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="extension">Extension</Label>
-                                                <Select value={data.extension} onValueChange={(value) => setData('extension', value)}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="none">None</SelectItem>
-                                                        <SelectItem value="Jr.">Jr.</SelectItem>
-                                                        <SelectItem value="Sr.">Sr.</SelectItem>
-                                                        <SelectItem value="II">II</SelectItem>
-                                                        <SelectItem value="III">III</SelectItem>
-                                                        <SelectItem value="IV">IV</SelectItem>
-                                                        <SelectItem value="V">V</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                    {/* Name Fields */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                        <div>
+                                            <Label htmlFor="first_name">First Name *</Label>
+                                            <Input
+                                                id="first_name"
+                                                value={data.first_name}
+                                                onChange={(e) => setData('first_name', e.target.value)}
+                                                className={errors.first_name ? 'border-red-300' : ''}
+                                            />
+                                            {errors.first_name && <p className="text-sm text-red-500">{errors.first_name}</p>}
                                         </div>
-
-                                        {/* Birth Information */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="place_of_birth">
-                                                    Place of Birth <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="place_of_birth"
-                                                    type="text"
-                                                    placeholder="City, Province"
-                                                    value={data.place_of_birth}
-                                                    onChange={(e) => setData('place_of_birth', e.target.value)}
-                                                    className={errors.place_of_birth ? 'border-red-300' : ''}
-                                                />
-                                                {errors.place_of_birth && <p className="text-sm text-red-500">{errors.place_of_birth}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="date_of_birth">
-                                                    Date of Birth <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="date_of_birth"
-                                                    type="date"
-                                                    value={data.date_of_birth}
-                                                    onChange={(e) => setData('date_of_birth', e.target.value)}
-                                                    className={errors.date_of_birth ? 'border-red-300' : ''}
-                                                />
-                                                {errors.date_of_birth && <p className="text-sm text-red-500">{errors.date_of_birth}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="age">
-                                                    Age <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input id="age" type="number" placeholder="Age" value={data.age} readOnly className="bg-gray-50" />
-                                                {parseInt(data.age) < 13 && data.age !== '' && (
-                                                    <p className="text-sm text-red-500">Must be at least 13 years old</p>
-                                                )}
-                                                {errors.age && <p className="text-sm text-red-500">{errors.age}</p>}
-                                            </div>
-                                        </div>
-
-                                        {/* Personal Information */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="sex">
-                                                    Sex <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Select value={data.sex} onValueChange={(value) => setData('sex', value)}>
-                                                    <SelectTrigger className={errors.sex ? 'border-red-300' : ''}>
-                                                        <SelectValue placeholder="Select sex" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Male">Male</SelectItem>
-                                                        <SelectItem value="Female">Female</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.sex && <p className="text-sm text-red-500">{errors.sex}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="civil_status">
-                                                    Civil Status <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Select value={data.civil_status} onValueChange={(value) => setData('civil_status', value)}>
-                                                    <SelectTrigger className={errors.civil_status ? 'border-red-300' : ''}>
-                                                        <SelectValue placeholder="Select status" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Single">Single</SelectItem>
-                                                        <SelectItem value="Married">Married</SelectItem>
-                                                        <SelectItem value="Widowed">Widowed</SelectItem>
-                                                        <SelectItem value="Separated">Separated</SelectItem>
-                                                        <SelectItem value="Divorced">Divorced</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.civil_status && <p className="text-sm text-red-500">{errors.civil_status}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="citizenship">
-                                                    Citizenship <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="citizenship"
-                                                    type="text"
-                                                    placeholder="e.g., Filipino"
-                                                    value={data.citizenship}
-                                                    onChange={(e) => setData('citizenship', e.target.value)}
-                                                    className={errors.citizenship ? 'border-red-300' : ''}
-                                                />
-                                                {errors.citizenship && <p className="text-sm text-red-500">{errors.citizenship}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="occupation">
-                                                    Occupation <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="occupation"
-                                                    type="text"
-                                                    placeholder="Your occupation"
-                                                    value={data.occupation}
-                                                    onChange={(e) => setData('occupation', e.target.value)}
-                                                    className={errors.occupation ? 'border-red-300' : ''}
-                                                />
-                                                {errors.occupation && <p className="text-sm text-red-500">{errors.occupation}</p>}
-                                            </div>
-                                        </div>
-
-                                        {/* Special Notes */}
-                                        <div className="mb-4">
-                                            <Label htmlFor="special_notes">Special Notes</Label>
-                                            <p className="mb-2 text-sm text-gray-500">
-                                                Indicate if: Labor/Employed, Unemployed, PWD, Solo Parent, Out of School Youth (OSY), Out of School
-                                                Children (OSC), and/or IP
-                                            </p>
-                                            <Textarea
-                                                id="special_notes"
-                                                placeholder="Please specify any applicable categories..."
-                                                value={data.special_notes}
-                                                onChange={(e) => setData('special_notes', e.target.value)}
-                                                rows={3}
+                                        <div>
+                                            <Label htmlFor="middle_name">Middle Name</Label>
+                                            <Input
+                                                id="middle_name"
+                                                value={data.middle_name}
+                                                onChange={(e) => setData('middle_name', e.target.value)}
                                             />
                                         </div>
-
-                                        {/* Location and Contact */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="purok_id">
-                                                    Purok <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
-                                                    <SelectTrigger className={errors.purok_id ? 'border-red-300' : ''}>
-                                                        <SelectValue placeholder="Choose your purok" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {puroks
-                                                            .filter((purok) => purok.name.match(/Purok [1-7]/))
-                                                            .map((purok) => (
-                                                                <SelectItem key={purok.id} value={purok.id.toString()}>
-                                                                    {purok.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.purok_id && <p className="text-sm text-red-500">{errors.purok_id}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="phone">
-                                                    Phone Number <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="phone"
-                                                    type="text"
-                                                    placeholder="+63 9XX XXX XXXX"
-                                                    value={
-                                                        data.phone
-                                                            ? `+${data.phone.slice(0, 2)} ${data.phone.slice(2, 5)} ${data.phone.slice(5, 8)} ${data.phone.slice(8)}`
-                                                            : '+63 9XX XXX XXXX'
-                                                    }
-                                                    onChange={(e) => {
-                                                        // Extract only digits from input
-                                                        let input = e.target.value.replace(/\D/g, '');
-
-                                                        // Allow clearing the field
-                                                        if (input.length === 0 || input === '63' || input === '639') {
-                                                            setData('phone', '');
-                                                            return;
-                                                        }
-
-                                                        // Convert different formats to 639XXXXXXXXX
-                                                        if (input.startsWith('09')) {
-                                                            // Convert 09XXXXXXXXX to 639XXXXXXXXX
-                                                            input = '639' + input.substring(2);
-                                                        } else if (input.startsWith('9') && input.length <= 10) {
-                                                            // Convert 9XXXXXXXXX to 639XXXXXXXXX
-                                                            input = '639' + input;
-                                                        } else if (!input.startsWith('639')) {
-                                                            // If not starting with 639, assume it's missing and prepend
-                                                            if (input.length <= 9) {
-                                                                input = '639' + input;
-                                                            }
-                                                        }
-
-                                                        // Ensure it starts with 639 and is not longer than 12 digits
-                                                        if (input.startsWith('639') && input.length <= 12) {
-                                                            setData('phone', input);
-                                                        }
-                                                    }}
-                                                    className={errors.phone ? 'border-red-300' : ''}
-                                                    maxLength={17}
-                                                />
-                                                <p className="text-xs text-gray-500">Enter phone number (e.g., 09123456789 or 9123456789)</p>
-                                                {data.agency_phone && !validatePhone(data.agency_phone) && (
-                                                    <p className="text-sm text-red-500">Please enter a valid phone number</p>
-                                                )}
-                                                {data.phone && validatePhone(data.phone) && !validateGlobeTMPhone(data.phone) && (
-                                                    <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
-                                                )}
-                                                {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
-                                            </div>
+                                        <div>
+                                            <Label htmlFor="last_name">Last Name *</Label>
+                                            <Input
+                                                id="last_name"
+                                                value={data.last_name}
+                                                onChange={(e) => setData('last_name', e.target.value)}
+                                                className={errors.last_name ? 'border-red-300' : ''}
+                                            />
+                                            {errors.last_name && <p className="text-sm text-red-500">{errors.last_name}</p>}
                                         </div>
-
-                                        {/* Valid ID Upload */}
-                                        <div className="mb-4">
-                                            <Label htmlFor="valid_id">
-                                                Submit Valid ID <span className="text-red-500">*</span>
-                                            </Label>
-                                            <p className="mb-2 text-sm text-gray-500">
-                                                Upload a government-issued ID (National ID, Voter's ID, Driver's License). Max 5MB.
-                                            </p>
-                                            <div className="flex items-center space-x-2">
-                                                <Input
-                                                    id="valid_id"
-                                                    type="file"
-                                                    accept=".jpeg,.jpg,.png,.pdf"
-                                                    onChange={(e) => setData('valid_id', e.target.files?.[0] || null)}
-                                                    className={errors.valid_id ? 'border-red-300' : ''}
-                                                />
-                                                <Upload className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            {errors.valid_id && <p className="text-sm text-red-500">{errors.valid_id}</p>}
+                                        <div>
+                                            <Label htmlFor="extension">Extension</Label>
+                                            <Select value={data.extension} onValueChange={(value) => setData('extension', value)}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">None</SelectItem>
+                                                    <SelectItem value="Jr.">Jr.</SelectItem>
+                                                    <SelectItem value="Sr.">Sr.</SelectItem>
+                                                    <SelectItem value="II">II</SelectItem>
+                                                    <SelectItem value="III">III</SelectItem>
+                                                    <SelectItem value="IV">IV</SelectItem>
+                                                    <SelectItem value="V">V</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
+                                    </div>
+
+                                    {/* Birth Information */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                        <div>
+                                            <Label htmlFor="place_of_birth">Place of Birth *</Label>
+                                            <Input
+                                                id="place_of_birth"
+                                                value={data.place_of_birth}
+                                                onChange={(e) => setData('place_of_birth', e.target.value)}
+                                                className={errors.place_of_birth ? 'border-red-300' : ''}
+                                            />
+                                            {errors.place_of_birth && <p className="text-sm text-red-500">{errors.place_of_birth}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="date_of_birth">Date of Birth *</Label>
+                                            <Input
+                                                id="date_of_birth"
+                                                type="date"
+                                                value={data.date_of_birth}
+                                                onChange={(e) => setData('date_of_birth', e.target.value)}
+                                                className={errors.date_of_birth ? 'border-red-300' : ''}
+                                            />
+                                            {errors.date_of_birth && <p className="text-sm text-red-500">{errors.date_of_birth}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="age">Age *</Label>
+                                            <Input id="age" type="number" value={data.age} readOnly className="bg-gray-50" />
+                                            {errors.age && <p className="text-sm text-red-500">{errors.age}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Personal Details */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                        <div>
+                                            <Label htmlFor="sex">Sex *</Label>
+                                            <Select value={data.sex} onValueChange={(value) => setData('sex', value)}>
+                                                <SelectTrigger className={errors.sex ? 'border-red-300' : ''}>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Male">Male</SelectItem>
+                                                    <SelectItem value="Female">Female</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.sex && <p className="text-sm text-red-500">{errors.sex}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="civil_status">Civil Status *</Label>
+                                            <Select value={data.civil_status} onValueChange={(value) => setData('civil_status', value)}>
+                                                <SelectTrigger className={errors.civil_status ? 'border-red-300' : ''}>
+                                                    <SelectValue placeholder="Select" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Single">Single</SelectItem>
+                                                    <SelectItem value="Married">Married</SelectItem>
+                                                    <SelectItem value="Widowed">Widowed</SelectItem>
+                                                    <SelectItem value="Separated">Separated</SelectItem>
+                                                    <SelectItem value="Divorced">Divorced</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.civil_status && <p className="text-sm text-red-500">{errors.civil_status}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="citizenship">Citizenship *</Label>
+                                            <Input
+                                                id="citizenship"
+                                                value={data.citizenship}
+                                                onChange={(e) => setData('citizenship', e.target.value)}
+                                                className={errors.citizenship ? 'border-red-300' : ''}
+                                            />
+                                            {errors.citizenship && <p className="text-sm text-red-500">{errors.citizenship}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="occupation">Occupation *</Label>
+                                            <Input
+                                                id="occupation"
+                                                value={data.occupation}
+                                                onChange={(e) => setData('occupation', e.target.value)}
+                                                className={errors.occupation ? 'border-red-300' : ''}
+                                            />
+                                            {errors.occupation && <p className="text-sm text-red-500">{errors.occupation}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Special Notes */}
+                                    <div>
+                                        <Label htmlFor="special_notes">Special Notes</Label>
+                                        <p className="mb-2 text-sm text-gray-500">
+                                            Indicate if: Labor/Employed, Unemployed, PWD, Solo Parent, OSY, OSC, and/or IP
+                                        </p>
+                                        <Textarea
+                                            id="special_notes"
+                                            value={data.special_notes}
+                                            onChange={(e) => setData('special_notes', e.target.value)}
+                                            rows={3}
+                                        />
+                                    </div>
+
+                                    {/* Location and Contact */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="purok_id">Purok *</Label>
+                                            <Select value={data.purok_id} onValueChange={(value) => setData('purok_id', value)}>
+                                                <SelectTrigger className={errors.purok_id ? 'border-red-300' : ''}>
+                                                    <SelectValue placeholder="Choose your purok" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {puroks
+                                                        .filter((purok) => purok.name.match(/Purok [1-7]/))
+                                                        .map((purok) => (
+                                                            <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                                {purok.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.purok_id && <p className="text-sm text-red-500">{errors.purok_id}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="phone">Phone Number * (Globe/TM only)</Label>
+                                            <Input
+                                                id="phone"
+                                                placeholder="09123456789"
+                                                value={data.phone}
+                                                onChange={(e) => setData('phone', e.target.value)}
+                                                className={errors.phone ? 'border-red-300' : ''}
+                                            />
+                                            {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Valid ID Upload */}
+                                    <div>
+                                        <Label htmlFor="valid_id">Valid ID * (Max 5MB)</Label>
+                                        <div className="flex items-center space-x-2">
+                                            <Input
+                                                id="valid_id"
+                                                type="file"
+                                                accept=".jpeg,.jpg,.png,.pdf"
+                                                onChange={(e) => setData('valid_id', e.target.files?.[0] || null)}
+                                                className={errors.valid_id ? 'border-red-300' : ''}
+                                            />
+                                            <Upload className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        {errors.valid_id && <p className="text-sm text-red-500">{errors.valid_id}</p>}
                                     </div>
                                 </div>
                             )}
@@ -592,269 +397,172 @@ export default function Register() {
                             {/* Partner Agency Registration Form */}
                             {registrationType === 'partner_agency' && (
                                 <div className="space-y-6">
-                                    <div className="border-t pt-6">
-                                        <h2 className="mb-4 text-xl font-semibold text-gray-800">Partner Agency Information</h2>
+                                    <h3 className="text-lg font-semibold text-gray-800">Agency Information</h3>
 
-                                        {/* Agency Information */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="agency_name">
-                                                    Agency Name <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="agency_name"
-                                                    type="text"
-                                                    placeholder="e.g., BFP, DICT, BJMP"
-                                                    value={data.agency_name}
-                                                    onChange={(e) => setData('agency_name', e.target.value)}
-                                                    className={errors.agency_name ? 'border-red-300' : ''}
-                                                />
-                                                {errors.agency_name && <p className="text-sm text-red-500">{errors.agency_name}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="agency_phone">
-                                                    Agency Phone Number <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="agency_phone"
-                                                    type="text"
-                                                    placeholder="+63 9XX XXX XXXX"
-                                                    value={
-                                                        data.agency_phone
-                                                            ? `+${data.agency_phone.slice(0, 2)} ${data.agency_phone.slice(2, 5)} ${data.agency_phone.slice(5, 8)} ${data.agency_phone.slice(8)}`
-                                                            : '+63 9XX XXX XXXX'
-                                                    }
-                                                    onChange={(e) => {
-                                                        // Extract only digits from input
-                                                        let input = e.target.value.replace(/\D/g, '');
-
-                                                        // Allow clearing the field
-                                                        if (input.length === 0 || input === '63' || input === '639') {
-                                                            setData('phone', '');
-                                                            return;
-                                                        }
-
-                                                        // Convert different formats to 639XXXXXXXXX
-                                                        if (input.startsWith('09')) {
-                                                            // Convert 09XXXXXXXXX to 639XXXXXXXXX
-                                                            input = '639' + input.substring(2);
-                                                        } else if (input.startsWith('9') && input.length <= 10) {
-                                                            // Convert 9XXXXXXXXX to 639XXXXXXXXX
-                                                            input = '639' + input;
-                                                        } else if (!input.startsWith('639')) {
-                                                            // If not starting with 639, assume it's missing and prepend
-                                                            if (input.length <= 9) {
-                                                                input = '639' + input;
-                                                            }
-                                                        }
-
-                                                        // Ensure it starts with 639 and is not longer than 12 digits
-                                                        if (input.startsWith('639') && input.length <= 12) {
-                                                            setData('phone', input);
-                                                        }
-                                                    }}
-                                                    className={errors.agency_phone ? 'border-red-300' : ''}
-                                                    maxLength={17}
-                                                />
-                                                <p className="text-xs text-gray-500">Enter phone number (e.g., 09123456789 or 9123456789)</p>
-                                                {data.agency_phone && !validatePhone(data.agency_phone) && (
-                                                    <p className="text-sm text-red-500">Please enter a valid phone number</p>
-                                                )}
-                                                {data.agency_phone &&
-                                                    validatePhone(data.agency_phone) &&
-                                                    !validateGlobeTMPhone(data.agency_phone) && (
-                                                        <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
-                                                    )}
-                                                {errors.agency_phone && <p className="text-sm text-red-500">{errors.agency_phone}</p>}
-                                            </div>
-                                        </div>
-
-                                        {/* Representative Information */}
-                                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="representative_first_name">
-                                                    Representative First Name <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="representative_first_name"
-                                                    type="text"
-                                                    placeholder="First name"
-                                                    value={data.representative_first_name}
-                                                    onChange={(e) => setData('representative_first_name', e.target.value)}
-                                                    className={errors.representative_first_name ? 'border-red-300' : ''}
-                                                />
-                                                {errors.representative_first_name && (
-                                                    <p className="text-sm text-red-500">{errors.representative_first_name}</p>
-                                                )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="representative_last_name">
-                                                    Representative Last Name <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="representative_last_name"
-                                                    type="text"
-                                                    placeholder="Last name"
-                                                    value={data.representative_last_name}
-                                                    onChange={(e) => setData('representative_last_name', e.target.value)}
-                                                    className={errors.representative_last_name ? 'border-red-300' : ''}
-                                                />
-                                                {errors.representative_last_name && (
-                                                    <p className="text-sm text-red-500">{errors.representative_last_name}</p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Agency Address */}
-                                        <div className="mb-4">
-                                            <Label htmlFor="agency_address">Agency Address (Optional)</Label>
-                                            <Textarea
-                                                id="agency_address"
-                                                placeholder="Full agency address"
-                                                value={data.agency_address}
-                                                onChange={(e) => setData('agency_address', e.target.value)}
-                                                rows={2}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="agency_name">Agency Name *</Label>
+                                            <Input
+                                                id="agency_name"
+                                                value={data.agency_name}
+                                                onChange={(e) => setData('agency_name', e.target.value)}
+                                                className={errors.agency_name ? 'border-red-300' : ''}
                                             />
+                                            {errors.agency_name && <p className="text-sm text-red-500">{errors.agency_name}</p>}
                                         </div>
+                                        <div>
+                                            <Label htmlFor="agency_phone">Phone Number * (Globe/TM only)</Label>
+                                            <Input
+                                                id="agency_phone"
+                                                placeholder="09123456789"
+                                                value={data.agency_phone}
+                                                onChange={(e) => setData('agency_phone', e.target.value)}
+                                                className={errors.agency_phone ? 'border-red-300' : ''}
+                                            />
+                                            {errors.agency_phone && <p className="text-sm text-red-500">{errors.agency_phone}</p>}
+                                        </div>
+                                    </div>
 
-                                        {/* Valid ID/Endorsement Upload */}
-                                        <div className="mb-4">
-                                            <Label htmlFor="agency_valid_id">
-                                                Upload Valid ID or Official Agency Endorsement <span className="text-red-500">*</span>
-                                            </Label>
-                                            <p className="mb-2 text-sm text-gray-500">
-                                                Upload representative's valid ID OR official agency endorsement/accreditation file. Max 5MB.
-                                            </p>
-                                            <div className="flex items-center space-x-2">
-                                                <Input
-                                                    id="agency_valid_id"
-                                                    type="file"
-                                                    accept=".jpeg,.jpg,.png,.pdf"
-                                                    onChange={(e) => setData('agency_valid_id', e.target.files?.[0] || null)}
-                                                    className={errors.agency_valid_id ? 'border-red-300' : ''}
-                                                />
-                                                <FileText className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            {errors.agency_valid_id && <p className="text-sm text-red-500">{errors.agency_valid_id}</p>}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="representative_first_name">Representative First Name *</Label>
+                                            <Input
+                                                id="representative_first_name"
+                                                value={data.representative_first_name}
+                                                onChange={(e) => setData('representative_first_name', e.target.value)}
+                                                className={errors.representative_first_name ? 'border-red-300' : ''}
+                                            />
+                                            {errors.representative_first_name && (
+                                                <p className="text-sm text-red-500">{errors.representative_first_name}</p>
+                                            )}
                                         </div>
+                                        <div>
+                                            <Label htmlFor="representative_last_name">Representative Last Name *</Label>
+                                            <Input
+                                                id="representative_last_name"
+                                                value={data.representative_last_name}
+                                                onChange={(e) => setData('representative_last_name', e.target.value)}
+                                                className={errors.representative_last_name ? 'border-red-300' : ''}
+                                            />
+                                            {errors.representative_last_name && (
+                                                <p className="text-sm text-red-500">{errors.representative_last_name}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="agency_address">Agency Address (Optional)</Label>
+                                        <Textarea
+                                            id="agency_address"
+                                            value={data.agency_address}
+                                            onChange={(e) => setData('agency_address', e.target.value)}
+                                            rows={2}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="agency_valid_id">Valid ID/Endorsement * (Max 5MB)</Label>
+                                        <div className="flex items-center space-x-2">
+                                            <Input
+                                                id="agency_valid_id"
+                                                type="file"
+                                                accept=".jpeg,.jpg,.png,.pdf"
+                                                onChange={(e) => setData('agency_valid_id', e.target.files?.[0] || null)}
+                                                className={errors.agency_valid_id ? 'border-red-300' : ''}
+                                            />
+                                            <FileText className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        {errors.agency_valid_id && <p className="text-sm text-red-500">{errors.agency_valid_id}</p>}
                                     </div>
                                 </div>
                             )}
 
-                            {/* Common Fields - Email and Password */}
+                            {/* Account Credentials */}
                             {registrationType && (
                                 <div className="space-y-6">
-                                    <div className="border-t pt-6">
-                                        <h2 className="mb-4 text-xl font-semibold text-gray-800">Account Credentials</h2>
+                                    <h3 className="text-lg font-semibold text-gray-800">Account Credentials</h3>
 
-                                        {/* Email */}
-                                        <div className="mb-4">
-                                            <Label htmlFor="email">
-                                                Email Address <span className="text-red-500">*</span>
-                                            </Label>
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                placeholder="your.email@example.com"
-                                                value={data.email}
-                                                onChange={(e) => setData('email', e.target.value)}
-                                                className={errors.email ? 'border-red-300' : ''}
-                                            />
-                                            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-                                        </div>
+                                    <div>
+                                        <Label htmlFor="email">Email Address *</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            className={errors.email ? 'border-red-300' : ''}
+                                        />
+                                        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                                    </div>
 
-                                        {/* Password Policy Info */}
-                                        <div className="mb-4 rounded-lg bg-blue-50 p-4">
-                                            <h3 className="mb-2 font-semibold text-blue-800">Password Requirements:</h3>
-                                            <ul className="space-y-1 text-sm text-blue-700">
-                                                <li>• 8-12 characters long</li>
-                                                <li>• At least 1 uppercase letter (A-Z)</li>
-                                                <li>• At least 1 lowercase letter (a-z)</li>
-                                                <li>• At least 1 number (0-9)</li>
-                                                <li>• At least 1 special character (!@#$%^&*)</li>
-                                            </ul>
-                                        </div>
+                                    <div className="rounded-lg bg-blue-50 p-4">
+                                        <h4 className="mb-2 font-semibold text-blue-800">Password Requirements:</h4>
+                                        <ul className="space-y-1 text-sm text-blue-700">
+                                            <li>• 8-12 characters long</li>
+                                            <li>• At least 1 uppercase letter (A-Z)</li>
+                                            <li>• At least 1 lowercase letter (a-z)</li>
+                                            <li>• At least 1 number (0-9)</li>
+                                            <li>• At least 1 special character (!@#$%^&*)</li>
+                                        </ul>
+                                    </div>
 
-                                        {/* Password Fields */}
-                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="password">
-                                                    Password <span className="text-red-500">*</span>
-                                                </Label>
-                                                <div className="relative">
-                                                    <Input
-                                                        id="password"
-                                                        type={showPassword ? 'text' : 'password'}
-                                                        placeholder="Create a strong password"
-                                                        value={data.password}
-                                                        onChange={(e) => setData('password', e.target.value)}
-                                                        className={errors.password ? 'border-red-300 pr-10' : 'pr-10'}
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        className="absolute inset-y-0 right-0 flex items-center pr-3"
-                                                        onClick={() => setShowPassword(!showPassword)}
-                                                    >
-                                                        {showPassword ? (
-                                                            <EyeOff className="h-4 w-4 text-gray-400" />
-                                                        ) : (
-                                                            <Eye className="h-4 w-4 text-gray-400" />
-                                                        )}
-                                                    </button>
-                                                </div>
-                                                {data.password && !validatePassword(data.password) && (
-                                                    <p className="text-sm text-red-500">Password does not meet requirements</p>
-                                                )}
-                                                {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
+                                            <Label htmlFor="password">Password *</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password"
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    value={data.password}
+                                                    onChange={(e) => setData('password', e.target.value)}
+                                                    className={errors.password ? 'border-red-300 pr-10' : 'pr-10'}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-gray-400" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-gray-400" />
+                                                    )}
+                                                </button>
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="password_confirmation">
-                                                    Confirm Password <span className="text-red-500">*</span>
-                                                </Label>
-                                                <div className="relative">
-                                                    <Input
-                                                        id="password_confirmation"
-                                                        type={showConfirmPassword ? 'text' : 'password'}
-                                                        placeholder="Confirm your password"
-                                                        value={data.password_confirmation}
-                                                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                        className={errors.password_confirmation ? 'border-red-300 pr-10' : 'pr-10'}
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        className="absolute inset-y-0 right-0 flex items-center pr-3"
-                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    >
-                                                        {showConfirmPassword ? (
-                                                            <EyeOff className="h-4 w-4 text-gray-400" />
-                                                        ) : (
-                                                            <Eye className="h-4 w-4 text-gray-400" />
-                                                        )}
-                                                    </button>
-                                                </div>
-                                                {data.password_confirmation && data.password !== data.password_confirmation && (
-                                                    <p className="text-sm text-red-500">Passwords do not match</p>
-                                                )}
-                                                {errors.password_confirmation && (
-                                                    <p className="text-sm text-red-500">{errors.password_confirmation}</p>
-                                                )}
+                                            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                                        </div>
+                                        <div>
+                                            <Label htmlFor="password_confirmation">Confirm Password *</Label>
+                                            <div className="relative">
+                                                <Input
+                                                    id="password_confirmation"
+                                                    type={showConfirmPassword ? 'text' : 'password'}
+                                                    value={data.password_confirmation}
+                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                    className={errors.password_confirmation ? 'border-red-300 pr-10' : 'pr-10'}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4 text-gray-400" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4 text-gray-400" />
+                                                    )}
+                                                </button>
                                             </div>
+                                            {errors.password_confirmation && <p className="text-sm text-red-500">{errors.password_confirmation}</p>}
                                         </div>
                                     </div>
 
-                                    {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className="h-12 w-full bg-blue-600 text-lg font-medium hover:bg-blue-700"
-                                        disabled={processing || !isFormValid()}
-                                    >
+                                    <Button type="submit" className="h-12 w-full bg-blue-600 text-lg hover:bg-blue-700" disabled={processing}>
                                         {processing ? 'Creating Account...' : 'Create Account'}
                                     </Button>
                                 </div>
                             )}
                         </form>
 
-                        {/* Login Link */}
                         <p className="mt-6 text-center text-sm text-gray-500">
                             Already have an account?{' '}
                             <a href={route('auth.login')} className="text-blue-500 hover:underline">

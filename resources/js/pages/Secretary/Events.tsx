@@ -255,7 +255,7 @@ export default function Events({ events, puroks }: EventsProps) {
         if (confirm('Are you sure you want to delete this event?')) {
             setProcessing((prev) => new Set(prev).add(eventId));
 
-            router.delete(route('secretary.events.destroy', eventId), {
+            router.delete(route('secretary.events.delete', eventId), {
                 onFinish: () => {
                     setProcessing((prev) => {
                         const newSet = new Set(prev);
@@ -508,6 +508,7 @@ export default function Events({ events, puroks }: EventsProps) {
                                                     const isProcessingEvent = processing.has(event.id);
                                                     const isPast = isEventPast(event.start_date);
                                                     const canEdit = event.status === 'pending';
+                                                    const canDelete = event.status === 'pending' || event.status === 'declined';
 
                                                     return (
                                                         <div
@@ -573,7 +574,7 @@ export default function Events({ events, puroks }: EventsProps) {
                                                                         View Details
                                                                     </Button>
 
-                                                                    {canEdit && (
+                                                                    {canDelete && (
                                                                         <Button
                                                                             variant="outline"
                                                                             size="sm"
@@ -767,7 +768,11 @@ export default function Events({ events, puroks }: EventsProps) {
                                     id="end_date"
                                     type="datetime-local"
                                     value={data.end_date}
-                                    min={data.start_date || new Date().toISOString().slice(0, 16)}
+                                    min={
+                                        data.start_date
+                                            ? new Date(new Date(data.start_date).getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)
+                                            : undefined
+                                    }
                                     onChange={(e) => setData('end_date', e.target.value)}
                                     className={errors.end_date ? 'border-red-500' : ''}
                                     disabled={!data.start_date}

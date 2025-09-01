@@ -60,7 +60,46 @@ class RegisterController extends Controller
                     'string',
                     'regex:/^\d{9}$/',
                     function ($attribute, $value, $fail) {
-                        $fullNumber = '09' . $value;
+                        // Globe/TM valid prefixes
+                        $globeTMPrefixes = [
+                            '905',
+                            '906',
+                            '915',
+                            '916',
+                            '917',
+                            '926',
+                            '927',
+                            '935',
+                            '936',
+                            '945',
+                            '952',
+                            '953',
+                            '954',
+                            '955',
+                            '956',
+                            '957',
+                            '958',
+                            '959',
+                            '965',
+                            '966',
+                            '967',
+                            '975',
+                            '976',
+                            '977',
+                            '978',
+                            '979',
+                            '995',
+                            '996',
+                            '997',
+                            '817'
+                        ];
+
+                        $prefix = substr($value, 0, 3);
+                        if (!in_array($prefix, $globeTMPrefixes)) {
+                            $fail('Only Globe and TM numbers are accepted.');
+                        }
+
+                        $fullNumber = '639' . $value;
                         if (\App\Models\User::where('phone', $fullNumber)->exists()) {
                             $fail('This contact number is already registered in the system.');
                         }
@@ -79,7 +118,46 @@ class RegisterController extends Controller
                     'string',
                     'regex:/^\d{9}$/',
                     function ($attribute, $value, $fail) {
-                        $fullNumber = '09' . $value;
+                        // Globe/TM valid prefixes
+                        $globeTMPrefixes = [
+                            '905',
+                            '906',
+                            '915',
+                            '916',
+                            '917',
+                            '926',
+                            '927',
+                            '935',
+                            '936',
+                            '945',
+                            '952',
+                            '953',
+                            '954',
+                            '955',
+                            '956',
+                            '957',
+                            '958',
+                            '959',
+                            '965',
+                            '966',
+                            '967',
+                            '975',
+                            '976',
+                            '977',
+                            '978',
+                            '979',
+                            '995',
+                            '996',
+                            '997',
+                            '817'
+                        ];
+
+                        $prefix = substr($value, 0, 3);
+                        if (!in_array($prefix, $globeTMPrefixes)) {
+                            $fail('Only Globe and TM numbers are accepted.');
+                        }
+
+                        $fullNumber = '639' . $value;
                         if (\App\Models\User::where('phone', $fullNumber)->exists()) {
                             $fail('This contact number is already registered in the system.');
                         }
@@ -133,8 +211,8 @@ class RegisterController extends Controller
                 'occupation' => $validated['occupation'],
                 'special_notes' => $validated['special_notes'],
                 'purok_id' => $validated['purok_id'],
-                'contact_number' => '09' . $validated['contact_number'],
-                'phone' => '09' . $validated['contact_number'], // Keep for compatibility
+                'contact_number' => $validated['contact_number'],
+                'phone' => '639' . $validated['contact_number'],
                 'valid_id_path' => $validIdPath,
             ]);
         } else { // partner_agency
@@ -144,8 +222,8 @@ class RegisterController extends Controller
                 'representative_first_name' => $validated['representative_first_name'],
                 'representative_last_name' => $validated['representative_last_name'],
                 'agency_address' => $validated['agency_address'],
-                'agency_contact_number' => '09' . $validated['agency_contact_number'],
-                'phone' => '09' . $validated['agency_contact_number'], // Keep for compatibility
+                'agency_contact_number' => '639' . $validated['agency_contact_number'],
+                'phone' => '639' . $validated['agency_contact_number'],
                 'agency_valid_id_path' => $agencyValidIdPath,
             ]);
         }

@@ -120,6 +120,47 @@ export default function Register() {
         return phoneRegex.test(phone);
     };
 
+    const validateGlobeTMPhone = (phone: string) => {
+        if (!phone || phone.length !== 9) return false;
+
+        // Globe/TM valid prefixes (first 3 digits after 63)
+        const globeTMPrefixes = [
+            '905',
+            '906',
+            '915',
+            '916',
+            '917',
+            '926',
+            '927',
+            '935',
+            '936',
+            '945',
+            '952',
+            '953',
+            '954',
+            '955',
+            '956',
+            '957',
+            '958',
+            '959',
+            '965',
+            '966',
+            '967',
+            '975',
+            '976',
+            '977',
+            '978',
+            '979',
+            '995',
+            '996',
+            '997',
+            '817',
+        ];
+
+        const prefix = phone.substring(0, 3);
+        return globeTMPrefixes.includes(prefix);
+    };
+
     const isResidentFormValid = () => {
         return (
             data.first_name.trim() !== '' &&
@@ -134,6 +175,7 @@ export default function Register() {
             data.purok_id !== '' &&
             data.email.trim() !== '' &&
             validatePhone(data.contact_number) &&
+            validateGlobeTMPhone(data.contact_number) &&
             data.valid_id !== null &&
             validatePassword(data.password) &&
             data.password === data.password_confirmation
@@ -147,6 +189,7 @@ export default function Register() {
             data.representative_last_name.trim() !== '' &&
             data.email.trim() !== '' &&
             validatePhone(data.agency_contact_number) &&
+            validateGlobeTMPhone(data.agency_contact_number) &&
             data.agency_valid_id !== null &&
             validatePassword(data.password) &&
             data.password === data.password_confirmation
@@ -476,32 +519,41 @@ export default function Register() {
                                                     placeholder="+63 9XX XXX XXXX"
                                                     value={
                                                         data.contact_number && data.contact_number.length > 0
-                                                            ? `+63 9${data.contact_number.length >= 2 ? data.contact_number.slice(0, 2) : data.contact_number}${data.contact_number.length >= 3 ? ' ' + data.contact_number.slice(2, 5) : ''}${data.contact_number.length >= 6 ? ' ' + data.contact_number.slice(5) : ''}`
+                                                            ? `+63 ${data.contact_number.length >= 3 ? data.contact_number.slice(0, 3) : data.contact_number}${data.contact_number.length >= 6 ? ' ' + data.contact_number.slice(3, 6) : data.contact_number.length > 3 ? ' ' + data.contact_number.slice(3) : ''}${data.contact_number.length >= 9 ? ' ' + data.contact_number.slice(6) : data.contact_number.length > 6 ? ' ' + data.contact_number.slice(6) : ''}`
                                                             : '+63 9'
                                                     }
                                                     onChange={(e) => {
+                                                        // Extract only digits from input
                                                         const input = e.target.value.replace(/\D/g, '');
+
+                                                        // Remove the "639" prefix if user somehow types it
+                                                        let cleanInput = input;
                                                         if (input.startsWith('639')) {
-                                                            const digits = input.substring(3);
-                                                            if (digits.length <= 9) {
-                                                                setData('contact_number', digits);
-                                                            }
-                                                        } else if (input.startsWith('9')) {
-                                                            const digits = input.substring(1);
-                                                            if (digits.length <= 8) {
-                                                                setData('contact_number', input.substring(0, 9));
-                                                            }
-                                                        } else if (input.length <= 9 && /^[0-9]*$/.test(input)) {
-                                                            setData('contact_number', input);
+                                                            cleanInput = input.substring(3);
+                                                        }
+
+                                                        // Always ensure it starts with 9 and limit to 9 digits total
+                                                        if (cleanInput.length === 0) {
+                                                            setData('contact_number', '');
+                                                        } else if (cleanInput.startsWith('9') && cleanInput.length <= 9) {
+                                                            setData('contact_number', cleanInput);
+                                                        } else if (!cleanInput.startsWith('9') && cleanInput.length <= 8) {
+                                                            // If user types digits without 9, prepend 9
+                                                            setData('contact_number', '9' + cleanInput);
                                                         }
                                                     }}
                                                     className={errors.contact_number ? 'border-red-300' : ''}
                                                     maxLength={17}
                                                 />
                                                 <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
-                                                {!validatePhone(data.contact_number) && data.contact_number && (
+                                                {data.contact_number && !validatePhone(data.contact_number) && (
                                                     <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
                                                 )}
+                                                {data.contact_number &&
+                                                    validatePhone(data.contact_number) &&
+                                                    !validateGlobeTMPhone(data.contact_number) && (
+                                                        <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
+                                                    )}
                                                 {errors.contact_number && <p className="text-sm text-red-500">{errors.contact_number}</p>}
                                             </div>
                                         </div>
@@ -561,33 +613,42 @@ export default function Register() {
                                                     type="text"
                                                     placeholder="+63 9XX XXX XXXX"
                                                     value={
-                                                        data.agency_contact_number
-                                                            ? `+63 9${data.agency_contact_number.slice(0, 2)} ${data.agency_contact_number.slice(2, 5)} ${data.agency_contact_number.slice(5)}`
+                                                        data.agency_contact_number && data.agency_contact_number.length > 0
+                                                            ? `+63 ${data.agency_contact_number.length >= 3 ? data.agency_contact_number.slice(0, 3) : data.agency_contact_number}${data.agency_contact_number.length >= 6 ? ' ' + data.agency_contact_number.slice(3, 6) : data.agency_contact_number.length > 3 ? ' ' + data.agency_contact_number.slice(3) : ''}${data.agency_contact_number.length >= 9 ? ' ' + data.agency_contact_number.slice(6) : data.agency_contact_number.length > 6 ? ' ' + data.agency_contact_number.slice(6) : ''}`
                                                             : '+63 9'
                                                     }
                                                     onChange={(e) => {
+                                                        // Extract only digits from input
                                                         const input = e.target.value.replace(/\D/g, '');
+
+                                                        // Remove the "639" prefix if user somehow types it
+                                                        let cleanInput = input;
                                                         if (input.startsWith('639')) {
-                                                            const digits = input.substring(3);
-                                                            if (digits.length <= 9) {
-                                                                setData('agency_contact_number', digits);
-                                                            }
-                                                        } else if (input.startsWith('9')) {
-                                                            const digits = input.substring(1);
-                                                            if (digits.length <= 8) {
-                                                                setData('agency_contact_number', input.substring(0, 9));
-                                                            }
-                                                        } else if (input.length <= 9 && /^[0-9]*$/.test(input)) {
-                                                            setData('agency_contact_number', input);
+                                                            cleanInput = input.substring(3);
+                                                        }
+
+                                                        // Always ensure it starts with 9 and limit to 9 digits total
+                                                        if (cleanInput.length === 0) {
+                                                            setData('agency_contact_number', '');
+                                                        } else if (cleanInput.startsWith('9') && cleanInput.length <= 9) {
+                                                            setData('agency_contact_number', cleanInput);
+                                                        } else if (!cleanInput.startsWith('9') && cleanInput.length <= 8) {
+                                                            // If user types digits without 9, prepend 9
+                                                            setData('agency_contact_number', '9' + cleanInput);
                                                         }
                                                     }}
                                                     className={errors.agency_contact_number ? 'border-red-300' : ''}
                                                     maxLength={17}
                                                 />
                                                 <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
-                                                {!validatePhone(data.agency_contact_number) && data.agency_contact_number && (
+                                                {data.agency_contact_number && !validatePhone(data.agency_contact_number) && (
                                                     <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
                                                 )}
+                                                {data.agency_contact_number &&
+                                                    validatePhone(data.agency_contact_number) &&
+                                                    !validateGlobeTMPhone(data.agency_contact_number) && (
+                                                        <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
+                                                    )}
                                                 {errors.agency_contact_number && (
                                                     <p className="text-sm text-red-500">{errors.agency_contact_number}</p>
                                                 )}

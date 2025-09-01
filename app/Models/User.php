@@ -37,7 +37,6 @@ class User extends Authenticatable
         'citizenship',
         'occupation',
         'special_notes',
-        'contact_number',
         'valid_id_path',
 
         // Partner Agency fields
@@ -45,7 +44,6 @@ class User extends Authenticatable
         'representative_first_name',
         'representative_last_name',
         'agency_address',
-        'agency_contact_number',
         'agency_valid_id_path',
         'agency_endorsement_path',
     ];

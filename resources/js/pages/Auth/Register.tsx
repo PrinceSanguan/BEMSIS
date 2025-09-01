@@ -52,7 +52,7 @@ export default function Register() {
         occupation: '',
         special_notes: '',
         purok_id: '',
-        contact_number: '',
+        phone: '',
         valid_id: null as File | null,
 
         // Partner Agency fields
@@ -60,7 +60,7 @@ export default function Register() {
         representative_first_name: '',
         representative_last_name: '',
         agency_address: '',
-        agency_contact_number: '',
+        agency_phone: '',
         agency_valid_id: null as File | null,
     });
 
@@ -116,14 +116,14 @@ export default function Register() {
     };
 
     const validatePhone = (phone: string) => {
-        const phoneRegex = /^\d{9}$/;
+        const phoneRegex = /^639\d{9}$/;
         return phoneRegex.test(phone);
     };
 
     const validateGlobeTMPhone = (phone: string) => {
-        if (!phone || phone.length !== 9) return false;
+        if (!phone || phone.length !== 12 || !phone.startsWith('639')) return false;
 
-        // Globe/TM valid prefixes (first 3 digits after 63)
+        // Globe/TM valid prefixes (after 639)
         const globeTMPrefixes = [
             '905',
             '906',
@@ -157,7 +157,7 @@ export default function Register() {
             '817',
         ];
 
-        const prefix = phone.substring(0, 3);
+        const prefix = phone.substring(3, 6); // Get digits 4-6 (after 639)
         return globeTMPrefixes.includes(prefix);
     };
 
@@ -174,8 +174,8 @@ export default function Register() {
             data.occupation.trim() !== '' &&
             data.purok_id !== '' &&
             data.email.trim() !== '' &&
-            validatePhone(data.contact_number) &&
-            validateGlobeTMPhone(data.contact_number) &&
+            validatePhone(data.phone) &&
+            validateGlobeTMPhone(data.phone) &&
             data.valid_id !== null &&
             validatePassword(data.password) &&
             data.password === data.password_confirmation
@@ -188,8 +188,8 @@ export default function Register() {
             data.representative_first_name.trim() !== '' &&
             data.representative_last_name.trim() !== '' &&
             data.email.trim() !== '' &&
-            validatePhone(data.agency_contact_number) &&
-            validateGlobeTMPhone(data.agency_contact_number) &&
+            validatePhone(data.agency_phone) &&
+            validateGlobeTMPhone(data.agency_phone) &&
             data.agency_valid_id !== null &&
             validatePassword(data.password) &&
             data.password === data.password_confirmation
@@ -510,51 +510,58 @@ export default function Register() {
                                                 {errors.purok_id && <p className="text-sm text-red-500">{errors.purok_id}</p>}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="contact_number">
-                                                    Contact Number <span className="text-red-500">*</span>
+                                                <Label htmlFor="phone">
+                                                    Phone Number <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Input
-                                                    id="contact_number"
+                                                    id="phone"
                                                     type="text"
                                                     placeholder="+63 9XX XXX XXXX"
                                                     value={
-                                                        data.contact_number && data.contact_number.length > 0
-                                                            ? `+63 ${data.contact_number.length >= 3 ? data.contact_number.slice(0, 3) : data.contact_number}${data.contact_number.length >= 6 ? ' ' + data.contact_number.slice(3, 6) : data.contact_number.length > 3 ? ' ' + data.contact_number.slice(3) : ''}${data.contact_number.length >= 9 ? ' ' + data.contact_number.slice(6) : data.contact_number.length > 6 ? ' ' + data.contact_number.slice(6) : ''}`
-                                                            : '+63 9'
+                                                        data.phone
+                                                            ? `+${data.phone.slice(0, 2)} ${data.phone.slice(2, 5)} ${data.phone.slice(5, 8)} ${data.phone.slice(8)}`
+                                                            : '+63 9XX XXX XXXX'
                                                     }
                                                     onChange={(e) => {
                                                         // Extract only digits from input
-                                                        const input = e.target.value.replace(/\D/g, '');
+                                                        let input = e.target.value.replace(/\D/g, '');
 
-                                                        // Remove the "639" prefix if user somehow types it
-                                                        let cleanInput = input;
-                                                        if (input.startsWith('639')) {
-                                                            cleanInput = input.substring(3);
+                                                        // Allow clearing the field
+                                                        if (input.length === 0 || input === '63' || input === '639') {
+                                                            setData('phone', '');
+                                                            return;
                                                         }
 
-                                                        // Always ensure it starts with 9 and limit to 9 digits total
-                                                        if (cleanInput.length === 0) {
-                                                            setData('contact_number', '');
-                                                        } else if (cleanInput.startsWith('9') && cleanInput.length <= 9) {
-                                                            setData('contact_number', cleanInput);
-                                                        } else if (!cleanInput.startsWith('9') && cleanInput.length <= 8) {
-                                                            // If user types digits without 9, prepend 9
-                                                            setData('contact_number', '9' + cleanInput);
+                                                        // Convert different formats to 639XXXXXXXXX
+                                                        if (input.startsWith('09')) {
+                                                            // Convert 09XXXXXXXXX to 639XXXXXXXXX
+                                                            input = '639' + input.substring(2);
+                                                        } else if (input.startsWith('9') && input.length <= 10) {
+                                                            // Convert 9XXXXXXXXX to 639XXXXXXXXX
+                                                            input = '639' + input;
+                                                        } else if (!input.startsWith('639')) {
+                                                            // If not starting with 639, assume it's missing and prepend
+                                                            if (input.length <= 9) {
+                                                                input = '639' + input;
+                                                            }
+                                                        }
+
+                                                        // Ensure it starts with 639 and is not longer than 12 digits
+                                                        if (input.startsWith('639') && input.length <= 12) {
+                                                            setData('phone', input);
                                                         }
                                                     }}
-                                                    className={errors.contact_number ? 'border-red-300' : ''}
+                                                    className={errors.phone ? 'border-red-300' : ''}
                                                     maxLength={17}
                                                 />
-                                                <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
-                                                {data.contact_number && !validatePhone(data.contact_number) && (
-                                                    <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
+                                                <p className="text-xs text-gray-500">Enter phone number (e.g., 09123456789 or 9123456789)</p>
+                                                {data.agency_phone && !validatePhone(data.agency_phone) && (
+                                                    <p className="text-sm text-red-500">Please enter a valid phone number</p>
                                                 )}
-                                                {data.contact_number &&
-                                                    validatePhone(data.contact_number) &&
-                                                    !validateGlobeTMPhone(data.contact_number) && (
-                                                        <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
-                                                    )}
-                                                {errors.contact_number && <p className="text-sm text-red-500">{errors.contact_number}</p>}
+                                                {data.phone && validatePhone(data.phone) && !validateGlobeTMPhone(data.phone) && (
+                                                    <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
+                                                )}
+                                                {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
                                             </div>
                                         </div>
 
@@ -605,53 +612,60 @@ export default function Register() {
                                                 {errors.agency_name && <p className="text-sm text-red-500">{errors.agency_name}</p>}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="agency_contact_number">
-                                                    Agency Contact Number <span className="text-red-500">*</span>
+                                                <Label htmlFor="agency_phone">
+                                                    Agency Phone Number <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Input
-                                                    id="agency_contact_number"
+                                                    id="agency_phone"
                                                     type="text"
                                                     placeholder="+63 9XX XXX XXXX"
                                                     value={
-                                                        data.agency_contact_number && data.agency_contact_number.length > 0
-                                                            ? `+63 ${data.agency_contact_number.length >= 3 ? data.agency_contact_number.slice(0, 3) : data.agency_contact_number}${data.agency_contact_number.length >= 6 ? ' ' + data.agency_contact_number.slice(3, 6) : data.agency_contact_number.length > 3 ? ' ' + data.agency_contact_number.slice(3) : ''}${data.agency_contact_number.length >= 9 ? ' ' + data.agency_contact_number.slice(6) : data.agency_contact_number.length > 6 ? ' ' + data.agency_contact_number.slice(6) : ''}`
-                                                            : '+63 9'
+                                                        data.agency_phone
+                                                            ? `+${data.agency_phone.slice(0, 2)} ${data.agency_phone.slice(2, 5)} ${data.agency_phone.slice(5, 8)} ${data.agency_phone.slice(8)}`
+                                                            : '+63 9XX XXX XXXX'
                                                     }
                                                     onChange={(e) => {
                                                         // Extract only digits from input
-                                                        const input = e.target.value.replace(/\D/g, '');
+                                                        let input = e.target.value.replace(/\D/g, '');
 
-                                                        // Remove the "639" prefix if user somehow types it
-                                                        let cleanInput = input;
-                                                        if (input.startsWith('639')) {
-                                                            cleanInput = input.substring(3);
+                                                        // Allow clearing the field
+                                                        if (input.length === 0 || input === '63' || input === '639') {
+                                                            setData('phone', '');
+                                                            return;
                                                         }
 
-                                                        // Always ensure it starts with 9 and limit to 9 digits total
-                                                        if (cleanInput.length === 0) {
-                                                            setData('agency_contact_number', '');
-                                                        } else if (cleanInput.startsWith('9') && cleanInput.length <= 9) {
-                                                            setData('agency_contact_number', cleanInput);
-                                                        } else if (!cleanInput.startsWith('9') && cleanInput.length <= 8) {
-                                                            // If user types digits without 9, prepend 9
-                                                            setData('agency_contact_number', '9' + cleanInput);
+                                                        // Convert different formats to 639XXXXXXXXX
+                                                        if (input.startsWith('09')) {
+                                                            // Convert 09XXXXXXXXX to 639XXXXXXXXX
+                                                            input = '639' + input.substring(2);
+                                                        } else if (input.startsWith('9') && input.length <= 10) {
+                                                            // Convert 9XXXXXXXXX to 639XXXXXXXXX
+                                                            input = '639' + input;
+                                                        } else if (!input.startsWith('639')) {
+                                                            // If not starting with 639, assume it's missing and prepend
+                                                            if (input.length <= 9) {
+                                                                input = '639' + input;
+                                                            }
+                                                        }
+
+                                                        // Ensure it starts with 639 and is not longer than 12 digits
+                                                        if (input.startsWith('639') && input.length <= 12) {
+                                                            setData('phone', input);
                                                         }
                                                     }}
-                                                    className={errors.agency_contact_number ? 'border-red-300' : ''}
+                                                    className={errors.agency_phone ? 'border-red-300' : ''}
                                                     maxLength={17}
                                                 />
-                                                <p className="text-xs text-gray-500">Enter 9 digits (e.g., 123456789)</p>
-                                                {data.agency_contact_number && !validatePhone(data.agency_contact_number) && (
-                                                    <p className="text-sm text-red-500">Please enter exactly 9 digits</p>
+                                                <p className="text-xs text-gray-500">Enter phone number (e.g., 09123456789 or 9123456789)</p>
+                                                {data.agency_phone && !validatePhone(data.agency_phone) && (
+                                                    <p className="text-sm text-red-500">Please enter a valid phone number</p>
                                                 )}
-                                                {data.agency_contact_number &&
-                                                    validatePhone(data.agency_contact_number) &&
-                                                    !validateGlobeTMPhone(data.agency_contact_number) && (
+                                                {data.agency_phone &&
+                                                    validatePhone(data.agency_phone) &&
+                                                    !validateGlobeTMPhone(data.agency_phone) && (
                                                         <p className="text-sm text-red-500">Only Globe and TM numbers are accepted</p>
                                                     )}
-                                                {errors.agency_contact_number && (
-                                                    <p className="text-sm text-red-500">{errors.agency_contact_number}</p>
-                                                )}
+                                                {errors.agency_phone && <p className="text-sm text-red-500">{errors.agency_phone}</p>}
                                             </div>
                                         </div>
 

@@ -55,11 +55,14 @@ class RegisterController extends Controller
                 'occupation' => 'required|string|max:255',
                 'special_notes' => 'nullable|string',
                 'purok_id' => 'required|exists:puroks,id',
-                'contact_number' => [
+                'phone' => [
                     'required',
                     'string',
-                    'regex:/^\d{9}$/',
+                    'regex:/^639\d{9}$/',
                     function ($attribute, $value, $fail) {
+                        // Extract the mobile number part (remove 639 prefix)
+                        $mobileNumber = substr($value, 3);
+
                         // Globe/TM valid prefixes
                         $globeTMPrefixes = [
                             '905',
@@ -94,14 +97,13 @@ class RegisterController extends Controller
                             '817'
                         ];
 
-                        $prefix = substr($value, 0, 3);
+                        $prefix = substr($mobileNumber, 0, 3);
                         if (!in_array($prefix, $globeTMPrefixes)) {
                             $fail('Only Globe and TM numbers are accepted.');
                         }
 
-                        $fullNumber = '639' . $value;
-                        if (\App\Models\User::where('phone', $fullNumber)->exists()) {
-                            $fail('This contact number is already registered in the system.');
+                        if (\App\Models\User::where('phone', $value)->exists()) {
+                            $fail('This phone number is already registered in the system.');
                         }
                     }
                 ],
@@ -113,11 +115,14 @@ class RegisterController extends Controller
                 'representative_first_name' => 'required|string|max:255',
                 'representative_last_name' => 'required|string|max:255',
                 'agency_address' => 'nullable|string|max:500',
-                'agency_contact_number' => [
+                'agency_phone' => [
                     'required',
                     'string',
-                    'regex:/^\d{9}$/',
+                    'regex:/^639\d{9}$/',
                     function ($attribute, $value, $fail) {
+                        // Extract the mobile number part (remove 639 prefix)
+                        $mobileNumber = substr($value, 3);
+
                         // Globe/TM valid prefixes
                         $globeTMPrefixes = [
                             '905',
@@ -152,17 +157,17 @@ class RegisterController extends Controller
                             '817'
                         ];
 
-                        $prefix = substr($value, 0, 3);
+                        $prefix = substr($mobileNumber, 0, 3);
                         if (!in_array($prefix, $globeTMPrefixes)) {
                             $fail('Only Globe and TM numbers are accepted.');
                         }
 
-                        $fullNumber = '639' . $value;
-                        if (\App\Models\User::where('phone', $fullNumber)->exists()) {
-                            $fail('This contact number is already registered in the system.');
+                        if (\App\Models\User::where('phone', $value)->exists()) {
+                            $fail('This phone number is already registered in the system.');
                         }
                     }
                 ],
+
                 'agency_valid_id' => 'required|file|mimes:jpeg,jpg,png,pdf|max:5120', // 5MB max
             ]);
         }
@@ -171,10 +176,8 @@ class RegisterController extends Controller
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'date_of_birth.before' => 'You must be at least 13 years old to register.',
             'age.min' => 'You must be at least 13 years old to register.',
-            'contact_number.regex' => 'Contact number must be exactly 9 digits.',
-            'contact_number.unique' => 'This contact number is already registered in the system.',
-            'agency_contact_number.regex' => 'Agency contact number must be exactly 9 digits.',
-            'agency_contact_number.unique' => 'This contact number is already registered in the system.',
+            'phone.regex' => 'Phone number must be in format 639XXXXXXXXX.',
+            'agency_phone.regex' => 'Phone number must be in format 639XXXXXXXXX.',
         ]);
 
         // Handle file uploads
@@ -211,8 +214,7 @@ class RegisterController extends Controller
                 'occupation' => $validated['occupation'],
                 'special_notes' => $validated['special_notes'],
                 'purok_id' => $validated['purok_id'],
-                'contact_number' => $validated['contact_number'],
-                'phone' => '639' . $validated['contact_number'],
+                'phone' => $validated['phone'],
                 'valid_id_path' => $validIdPath,
             ]);
         } else { // partner_agency
@@ -222,8 +224,7 @@ class RegisterController extends Controller
                 'representative_first_name' => $validated['representative_first_name'],
                 'representative_last_name' => $validated['representative_last_name'],
                 'agency_address' => $validated['agency_address'],
-                'agency_contact_number' => '639' . $validated['agency_contact_number'],
-                'phone' => '639' . $validated['agency_contact_number'],
+                'phone' => $validated['agency_phone'],
                 'agency_valid_id_path' => $agencyValidIdPath,
             ]);
         }

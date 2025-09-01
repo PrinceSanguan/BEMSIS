@@ -173,7 +173,7 @@ class RegisterController extends Controller
 
         if ($validated['role'] === 'resident') {
             $userData = array_merge($userData, [
-                'name' => trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name'] . ' ' . ($validated['extension'] ?? '')),
+                'name' => trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name'] . ' ' . ($validated['extension'] === 'none' ? '' : ($validated['extension'] ?? ''))),
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],

@@ -280,7 +280,7 @@ export default function UserDetail({ user, className }: Props) {
                                                 <div>
                                                     <span className="font-medium text-gray-600">Full Name:</span>
                                                     <p className="mt-1">
-                                                        {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.extension || ''}`.trim()}
+                                                        {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.extension ? user.extension : ''}`.trim()}
                                                     </p>
                                                 </div>
                                                 <div>

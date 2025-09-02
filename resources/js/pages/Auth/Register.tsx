@@ -49,6 +49,7 @@ export default function Register() {
     };
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [registrationType, setRegistrationType] = useState<'resident' | 'partner_agency' | ''>('');
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         // Common fields
@@ -571,6 +572,7 @@ export default function Register() {
                                                         const value = e.target.value;
                                                         setData('password', value);
                                                         validatePassword(value);
+                                                        setPasswordsMatch(value === data.password_confirmation || data.password_confirmation === '');
                                                     }}
                                                     className={errors.password ? 'border-red-300 pr-10' : 'pr-10'}
                                                 />
@@ -595,8 +597,12 @@ export default function Register() {
                                                     id="password_confirmation"
                                                     type={showConfirmPassword ? 'text' : 'password'}
                                                     value={data.password_confirmation}
-                                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                    className={errors.password_confirmation ? 'border-red-300 pr-10' : 'pr-10'}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setData('password_confirmation', value);
+                                                        setPasswordsMatch(data.password === value || value === '');
+                                                    }}
+                                                    className={`${errors.password_confirmation || (!passwordsMatch && data.password_confirmation) ? 'border-red-300' : passwordsMatch && data.password_confirmation && data.password ? 'border-green-300' : ''} pr-10`}
                                                 />
                                                 <button
                                                     type="button"
@@ -611,6 +617,12 @@ export default function Register() {
                                                 </button>
                                             </div>
                                             {errors.password_confirmation && <p className="text-sm text-red-500">{errors.password_confirmation}</p>}
+                                            {!passwordsMatch && data.password_confirmation && (
+                                                <p className="text-sm text-red-500">Passwords do not match</p>
+                                            )}
+                                            {passwordsMatch && data.password_confirmation && data.password && (
+                                                <p className="text-sm text-green-600">Passwords match ✓</p>
+                                            )}
                                         </div>
                                     </div>
 

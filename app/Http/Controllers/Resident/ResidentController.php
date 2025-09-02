@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Purok;
 
 
 class ResidentController extends Controller
@@ -67,10 +68,26 @@ class ResidentController extends Controller
         $events = Event::where('status', 'approved')
             ->where('start_date', '>=', now())
             ->where(function ($query) use ($user) {
+                // Show events that target all residents
                 $query->where('target_all_residents', true)
+                    // OR show events where user's purok is in the purok_ids array
                     ->orWhere(function ($q) use ($user) {
                         $q->where('target_all_residents', false)
-                            ->whereJsonContains('purok_ids', $user->purok_id);
+                            ->where(function ($subQ) use ($user) {
+                                $subQ->whereJsonContains('purok_ids', $user->purok_id)
+                                    // Also handle cases where purok_ids might be stored as string
+                                    ->orWhereJsonContains('purok_ids', (string)$user->purok_id);
+                            });
+                    })
+                    // OR show events where purok_ids is null/empty and target_all_residents is true
+                    ->orWhere(function ($q) {
+                        $q->whereNull('purok_ids')
+                            ->where('target_all_residents', true);
+                    })
+                    // OR show events where purok_ids is empty array and target_all_residents is true  
+                    ->orWhere(function ($q) {
+                        $q->where('purok_ids', '[]')
+                            ->where('target_all_residents', true);
                     });
             })
             ->orderBy('start_date', 'asc')
@@ -78,11 +95,20 @@ class ResidentController extends Controller
                 $query->where('user_id', $user->id);
             }])
             ->get()
-            ->map(function ($event) {
+            ->map(function ($event) use ($user) {
                 $userAttendance = $event->attendances->first();
                 $event->user_registered = $userAttendance ? true : false;
                 $event->registration_status = $userAttendance ? $userAttendance->status : null;
-                $event->current_attendees = $event->attendances()->where('status', 'confirmed')->count();
+                $event->current_attendees = Attendance::where('event_id', $event->id)->where('status', 'confirmed')->count();
+
+                // Add purok names for display
+                if ($event->target_all_residents || empty($event->purok_ids)) {
+                    $event->purok_names = 'All Residents';
+                } else {
+                    $purokNames = Purok::whereIn('id', $event->purok_ids ?? [])->pluck('name')->implode(', ');
+                    $event->purok_names = $purokNames ?: 'All Residents';
+                }
+
                 return $event;
             });
 

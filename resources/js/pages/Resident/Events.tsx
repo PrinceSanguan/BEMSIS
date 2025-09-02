@@ -22,6 +22,7 @@ interface Event {
     registration_status?: string;
     current_attendees: number;
     has_certificate: boolean;
+    image_path?: string;
 }
 
 interface Props {
@@ -469,6 +470,16 @@ export default function Events({ events }: Props) {
                         </DialogHeader>
 
                         <div className="space-y-4">
+                            {selectedEvent.image_path && (
+                                <div className="w-full">
+                                    <img
+                                        src={`/storage/${selectedEvent.image_path}`}
+                                        alt={selectedEvent.title}
+                                        className="h-48 w-full rounded-lg border object-cover"
+                                    />
+                                </div>
+                            )}
+
                             <div className="flex flex-wrap gap-2">
                                 {selectedEvent.user_registered && <Badge className="bg-blue-100 text-blue-800">Registered</Badge>}
                                 {selectedEvent.has_certificate && (

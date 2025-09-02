@@ -611,6 +611,16 @@ export default function Events({ events, puroks }: EventsProps) {
                         </DialogHeader>
 
                         <div className="space-y-4">
+                            {selectedEvent.image_path && (
+                                <div className="w-full">
+                                    <img
+                                        src={`/storage/${selectedEvent.image_path}`}
+                                        alt={selectedEvent.title}
+                                        className="h-48 w-full rounded-lg border object-cover"
+                                    />
+                                </div>
+                            )}
+
                             <div className="flex flex-wrap gap-2">
                                 <Badge className={getStatusColor(selectedEvent.status)}>
                                     {selectedEvent.status.charAt(0).toUpperCase() + selectedEvent.status.slice(1)}

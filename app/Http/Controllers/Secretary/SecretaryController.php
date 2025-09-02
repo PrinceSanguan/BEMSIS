@@ -87,7 +87,66 @@ class SecretaryController extends Controller
         $user = User::findOrFail($userId);
         $user->update(['status' => 'approved']);
 
+        // Send SMS notification to approved user
+        $this->sendSmsNotificationToUser($user);
+
         return back()->with('success', 'User approved successfully!');
+    }
+
+    /**
+     * Send SMS notification to specific user about approval
+     */
+    private function sendSmsNotificationToUser($user)
+    {
+        try {
+            if (!$user->phone) {
+                return;
+            }
+
+            $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
+            $message = sprintf(
+                "Hello %s, your account is already approved.",
+                $user->name
+            );
+
+            $data = [
+                'api_token' => env('SMS_API_KEY'),
+                'message' => $message,
+                'phone_number' => $user->phone,
+            ];
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/x-www-form-urlencoded'
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // Log SMS for record keeping
+            \App\Models\SmsLog::create([
+                'user_id' => $user->id,
+                'phone' => $user->phone,
+                'message' => $message,
+                'direction' => 'outgoing',
+            ]);
+
+            \Log::info('SMS sent successfully to approved user', [
+                'user_id' => $user->id,
+                'phone' => $user->phone,
+                'http_code' => $httpCode
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send SMS to approved user', [
+                'user_id' => $user->id,
+                'phone' => $user->phone,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function declineUser(Request $request, $userId)

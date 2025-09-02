@@ -81,7 +81,7 @@ class CaptainController extends Controller
 
         // Send SMS notifications to all residents
         // Commented out to avoid sending SMS notifications to residents
-        //$this->sendSmsNotificationToResidents($event);
+        $this->sendSmsNotificationToResidents($event);
 
         return back()->with('success', "Event '{$event->title}' has been approved successfully!");
     }
@@ -117,10 +117,9 @@ class CaptainController extends Controller
         try {
             $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
             $message = sprintf(
-                "Hi %s, Good news! The event '%s' scheduled for %s has been approved by the Captain. Stay tuned for more details!",
+                "Hi! %s, reminder: %s.",
                 explode(' ', $resident->name)[0], // First name
-                $event->title,
-                date('F j, Y', strtotime($event->start_date))
+                $event->title
             );
 
             $data = [

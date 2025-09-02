@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
@@ -166,6 +167,67 @@ export default function Dashboard({ stats }: Props) {
                                     </CardContent>
                                 </Card>
                             </div>
+                            {/* Quick Navigation Actions */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Users className="h-5 w-5 text-blue-600" />
+                                        Quick Navigation
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-6">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-orange-300 hover:bg-orange-50"
+                                            onClick={() => (window.location.href = '/secretary/users')}
+                                        >
+                                            <Users className="h-4 w-4 text-orange-600" />
+                                            Manage Users
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-blue-300 hover:bg-blue-50"
+                                            onClick={() => (window.location.href = '/secretary/events')}
+                                        >
+                                            <Calendar className="h-4 w-4 text-blue-600" />
+                                            Manage Events
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-green-300 hover:bg-green-50"
+                                            onClick={() => (window.location.href = '/secretary/attendance')}
+                                        >
+                                            <UserCheck className="h-4 w-4 text-green-600" />
+                                            View Attendance
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-purple-300 hover:bg-purple-50"
+                                            onClick={() => (window.location.href = '/secretary/announcements')}
+                                        >
+                                            <Users className="h-4 w-4 text-purple-600" />
+                                            Announcements
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-amber-300 hover:bg-amber-50"
+                                            onClick={() => (window.location.href = '/secretary/feedback')}
+                                        >
+                                            <Award className="h-4 w-4 text-amber-600" />
+                                            Feedback
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start gap-2 hover:border-indigo-300 hover:bg-indigo-50"
+                                            onClick={() => (window.location.href = '/secretary/content')}
+                                        >
+                                            <Calendar className="h-4 w-4 text-indigo-600" />
+                                            Content
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </main>
                 </div>

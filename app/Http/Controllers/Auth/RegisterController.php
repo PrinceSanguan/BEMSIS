@@ -22,103 +22,37 @@ class RegisterController extends Controller
     // Store registration data
     public function store(Request $request)
     {
-        // Complete Globe/TM valid prefixes
+        // Official Globe and TM prefixes (first 3 digits after removing 63)
         $globeTMPrefixes = [
-            // Globe prefixes
-            '275', // Added missing Globe prefix
-            '670',
-            '671',
-            '672',
-            '673',
-            '674',
-            '808',
-            '809',
-            '810',
-            '811',
-            '813',
-            '816',
             '817',
-            '900',
-            '901',
-            '902',
-            '903',
-            '904',
             '905',
             '906',
-            '907',
-            '908',
-            '912',
-            '913',
             '915',
             '916',
             '917',
-            '918',
-            '919',
-            '920',
-            '921',
-            '922',
-            '923',
-            '924',
-            '925',
             '926',
             '927',
-            '928',
-            '929',
-            '930',
-            '931',
-            '932',
-            '933',
-            '934',
             '935',
             '936',
-            '938',
-            '939',
+            '937',
             '945',
-            '946',
-            '947',
-            '948',
-            '949',
-            '950',
-            '951',
-            '952',
             '953',
             '954',
             '955',
             '956',
             '957',
-            '958',
-            '959',
             '965',
             '966',
             '967',
-            '968',
-            '969',
-            '970',
-            '973',
-            '974',
             '975',
             '976',
             '977',
             '978',
             '979',
-            '992',
-            '993',
             '994',
             '995',
             '996',
             '997',
-            '998',
-            // TM (Touch Mobile) prefixes  
-            '351',
-            '352',
-            '353',
-            '354',
-            '355',
-            '356',
-            '357',
-            '893',
-            '894',
-            '999'
         ];
 
         // Password policy validation rules
@@ -146,8 +80,8 @@ class RegisterController extends Controller
                 return;
             }
 
-            // Extract the mobile number part (remove 639 prefix)
-            $mobileNumber = substr($value, 3);
+            // Extract the mobile number part (remove 63 country code)
+            $mobileNumber = substr($value, 2);
             $prefix = substr($mobileNumber, 0, 3);
 
             if (!in_array($prefix, $globeTMPrefixes)) {

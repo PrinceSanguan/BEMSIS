@@ -81,7 +81,7 @@ class CaptainController extends Controller
 
         // Send SMS notifications to all residents
         // Commented out to avoid sending SMS notifications to residents
-        $this->sendSmsNotificationToResidents($event);
+        //$this->sendSmsNotificationToResidents($event);
 
         return back()->with('success', "Event '{$event->title}' has been approved successfully!");
     }

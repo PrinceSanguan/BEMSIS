@@ -386,7 +386,7 @@ export default function Register() {
                                             <Label htmlFor="phone">Phone Number * (Globe/TM only)</Label>
                                             <Input
                                                 id="phone"
-                                                placeholder="09123456789"
+                                                placeholder="639123456789"
                                                 value={data.phone}
                                                 onChange={(e) => setData('phone', e.target.value)}
                                                 className={errors.phone ? 'border-red-300' : ''}
@@ -433,7 +433,7 @@ export default function Register() {
                                             <Label htmlFor="agency_phone">Phone Number * (Globe/TM only)</Label>
                                             <Input
                                                 id="agency_phone"
-                                                placeholder="09123456789"
+                                                placeholder="639123456789"
                                                 value={data.agency_phone}
                                                 onChange={(e) => setData('agency_phone', e.target.value)}
                                                 className={errors.agency_phone ? 'border-red-300' : ''}

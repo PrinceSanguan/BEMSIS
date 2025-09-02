@@ -37,6 +37,7 @@ interface Event {
     start_date: string;
     end_date?: string;
     has_certificate: boolean;
+    image_path?: string;
     creator: User;
     purok?: Purok;
 }
@@ -156,6 +157,17 @@ export default function EventAttendees({ event, attendees }: Props) {
                                     <CardTitle>Event Information</CardTitle>
                                 </CardHeader>
                                 <CardContent>
+                                    {/* Event Image */}
+                                    {event.image_path && (
+                                        <div className="mb-4">
+                                            <img
+                                                src={`/storage/${event.image_path}`}
+                                                alt={event.title}
+                                                className="h-48 w-full rounded-lg border object-cover"
+                                            />
+                                        </div>
+                                    )}
+
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-gray-500" />

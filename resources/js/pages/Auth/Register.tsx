@@ -28,6 +28,25 @@ interface PageProps {
 export default function Register() {
     const { flash, puroks } = usePage<PageProps>().props;
     const [showPassword, setShowPassword] = useState(false);
+    const [passwordValidation, setPasswordValidation] = useState({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false,
+    });
+
+    const validatePassword = (password: string) => {
+        const validation = {
+            length: password.length >= 8 && password.length <= 12,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*]/.test(password),
+        };
+        setPasswordValidation(validation);
+        return validation;
+    };
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [registrationType, setRegistrationType] = useState<'resident' | 'partner_agency' | ''>('');
 
@@ -496,12 +515,47 @@ export default function Register() {
 
                                     <div className="rounded-lg bg-blue-50 p-4">
                                         <h4 className="mb-2 font-semibold text-blue-800">Password Requirements:</h4>
-                                        <ul className="space-y-1 text-sm text-blue-700">
-                                            <li>• 8-12 characters long</li>
-                                            <li>• At least 1 uppercase letter (A-Z)</li>
-                                            <li>• At least 1 lowercase letter (a-z)</li>
-                                            <li>• At least 1 number (0-9)</li>
-                                            <li>• At least 1 special character (!@#$%^&*)</li>
+                                        <ul className="space-y-1 text-sm">
+                                            <li
+                                                className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-600' : 'text-blue-700'}`}
+                                            >
+                                                <span className={`text-xs ${passwordValidation.length ? '✓' : '•'}`}>
+                                                    {passwordValidation.length ? '✓' : '•'}
+                                                </span>
+                                                8-12 characters long
+                                            </li>
+                                            <li
+                                                className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-600' : 'text-blue-700'}`}
+                                            >
+                                                <span className={`text-xs ${passwordValidation.uppercase ? '✓' : '•'}`}>
+                                                    {passwordValidation.uppercase ? '✓' : '•'}
+                                                </span>
+                                                At least 1 uppercase letter (A-Z)
+                                            </li>
+                                            <li
+                                                className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-600' : 'text-blue-700'}`}
+                                            >
+                                                <span className={`text-xs ${passwordValidation.lowercase ? '✓' : '•'}`}>
+                                                    {passwordValidation.lowercase ? '✓' : '•'}
+                                                </span>
+                                                At least 1 lowercase letter (a-z)
+                                            </li>
+                                            <li
+                                                className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-600' : 'text-blue-700'}`}
+                                            >
+                                                <span className={`text-xs ${passwordValidation.number ? '✓' : '•'}`}>
+                                                    {passwordValidation.number ? '✓' : '•'}
+                                                </span>
+                                                At least 1 number (0-9)
+                                            </li>
+                                            <li
+                                                className={`flex items-center gap-2 ${passwordValidation.special ? 'text-green-600' : 'text-blue-700'}`}
+                                            >
+                                                <span className={`text-xs ${passwordValidation.special ? '✓' : '•'}`}>
+                                                    {passwordValidation.special ? '✓' : '•'}
+                                                </span>
+                                                At least 1 special character (!@#$%^&*)
+                                            </li>
                                         </ul>
                                     </div>
 
@@ -513,7 +567,11 @@ export default function Register() {
                                                     id="password"
                                                     type={showPassword ? 'text' : 'password'}
                                                     value={data.password}
-                                                    onChange={(e) => setData('password', e.target.value)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setData('password', value);
+                                                        validatePassword(value);
+                                                    }}
                                                     className={errors.password ? 'border-red-300 pr-10' : 'pr-10'}
                                                 />
                                                 <button

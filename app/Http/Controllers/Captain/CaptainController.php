@@ -54,6 +54,23 @@ class CaptainController extends Controller
             ->get()
             ->map(function ($event) {
                 $event->creator_role = $event->creator->role;
+
+                // Handle purok information based on purok_ids
+                if ($event->target_all_residents || empty($event->purok_ids)) {
+                    $event->purok = null; // This will show "All Residents" in frontend
+                } else {
+                    // Get the first purok for display (or you can modify this logic)
+                    $puroks = \App\Models\Purok::whereIn('id', $event->purok_ids)->get();
+                    if ($puroks->count() === 1) {
+                        $event->purok = $puroks->first();
+                    } else {
+                        // For multiple puroks, create a combined display object
+                        $event->purok = (object) [
+                            'name' => $puroks->pluck('name')->join(', ')
+                        ];
+                    }
+                }
+
                 return $event;
             });
 

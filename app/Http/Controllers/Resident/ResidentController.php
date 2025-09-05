@@ -260,7 +260,8 @@ class ResidentController extends Controller
                     'status' => 'available',
                     'file_path' => $certificate->file_path,
                     'certificate_code' => $certificate->certificate_code,
-                    'view_url' => $certificate->certificate_code ? route('certificates.view.public', $certificate->certificate_code) : null
+                    'view_url' => $certificate->certificate_code ?
+                        route('resident.certificates.view', $certificate->certificate_code) : null,
                 ];
             });
 

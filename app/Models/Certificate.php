@@ -13,6 +13,7 @@ class Certificate extends Model
         'event_id',
         'user_id',
         'file_path',
+        'certificate_code',
     ];
 
     public function event()

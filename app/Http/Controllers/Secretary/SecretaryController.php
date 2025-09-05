@@ -370,23 +370,30 @@ class SecretaryController extends Controller
             'qr_code' => 'required|string',
         ]);
 
-        $attendance = Attendance::where('qr_code', $request->qr_code)->first();
+        $attendance = Attendance::where('qr_code', $request->qr_code)
+            ->with(['user', 'event'])
+            ->first();
 
         if (!$attendance) {
-            return response()->json(['error' => 'Invalid QR code'], 404);
+            return back()->withErrors(['message' => 'Invalid QR code']);
+        }
+
+        // Check if event has already ended
+        $eventEndTime = $attendance->event->end_date ?: $attendance->event->start_date;
+        if (new \DateTime($eventEndTime) < new \DateTime()) {
+            return back()->withErrors(['message' => 'The event is already expired']);
         }
 
         if ($attendance->scanned) {
-            return response()->json(['error' => 'QR code already scanned'], 400);
+            return back()->withErrors(['message' => 'It\'s already scanned']);
         }
 
-        $attendance->update(['scanned' => true]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance recorded successfully!',
-            'attendee' => $attendance->load('user', 'event')
+        $attendance->update([
+            'scanned' => true,
+            'scanned_at' => now()
         ]);
+
+        return back()->with('success', 'Congratulations, attendance recorded successfully for ' . $attendance->user->name . '!');
     }
 
     public function attendance()
@@ -503,13 +510,16 @@ class SecretaryController extends Controller
             return back()->withErrors(['target_puroks' => 'You can select up to 3 puroks only.']);
         }
 
-        Announcement::create([
+        $announcement = Announcement::create([
             'created_by' => Auth::id(),
             'title' => $request->title,
             'content' => $request->content,
             'target_puroks' => $request->target_all_puroks ? null : ($request->target_puroks ?? []),
             'target_all_puroks' => $request->target_all_puroks ?? false,
         ]);
+
+        // Send SMS notifications to targeted residents
+        //$this->sendAnnouncementSms($announcement);
 
         return back()->with('success', 'Announcement created successfully!');
     }
@@ -572,5 +582,104 @@ class SecretaryController extends Controller
         $user->update(['is_active' => false]);
 
         return redirect()->back()->with('success', 'User account has been deactivated successfully.');
+    }
+
+    /**
+     * Send SMS notification for announcement to targeted residents
+     */
+    private function sendAnnouncementSms($announcement)
+    {
+        try {
+            // Build query for residents based on announcement targeting
+            $residentsQuery = User::where('role', 'resident')
+                ->where('status', 'approved')
+                ->whereNotNull('phone');
+
+            // Apply purok filtering based on announcement settings
+            if ($announcement->target_all_puroks) {
+                // Send to all residents
+                $residents = $residentsQuery->get();
+            } else if (!empty($announcement->target_puroks)) {
+                // Send only to residents in specified puroks
+                $residents = $residentsQuery->whereIn('purok_id', $announcement->target_puroks)->get();
+            } else {
+                // If no specific targeting, send to all
+                $residents = $residentsQuery->get();
+            }
+
+            foreach ($residents as $resident) {
+                $this->sendAnnouncementSmsToResident($resident, $announcement);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send SMS notifications for announcement', [
+                'announcement_id' => $announcement->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Send individual announcement SMS to resident
+     */
+    private function sendAnnouncementSmsToResident($resident, $announcement)
+    {
+        try {
+            $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
+
+            // Format date
+            $date = \Carbon\Carbon::parse($announcement->created_at)->format('M d, Y');
+
+            // Build message
+            $message = sprintf(
+                "Hi %s! Announcement: %s. Date: %s. %s",
+                explode(' ', $resident->name)[0], // First name
+                $announcement->title,
+                $date,
+                $announcement->content
+            );
+
+            $data = [
+                'api_token' => env('SMS_API_KEY'),
+                'message' => $message,
+                'phone_number' => $resident->phone,
+            ];
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/x-www-form-urlencoded'
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // Log SMS
+            \App\Models\SmsLog::create([
+                'user_id' => $resident->id,
+                'phone' => $resident->phone,
+                'message' => $message,
+                'direction' => 'outgoing',
+            ]);
+
+            \Log::info('Announcement SMS sent successfully', [
+                'user_id' => $resident->id,
+                'announcement_id' => $announcement->id,
+                'http_code' => $httpCode
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send announcement SMS to resident', [
+                'user_id' => $resident->id,
+                'announcement_id' => $announcement->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function scanner()
+    {
+        return Inertia::render('Secretary/QRScanner');
     }
 }

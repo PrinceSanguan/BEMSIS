@@ -83,7 +83,7 @@ class CaptainController extends Controller
      * Approve an event request.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $eventId
+     * @param int $eventID
      * @return \Illuminate\Http\RedirectResponse
      */
     public function approveEvent(Request $request, $eventId)
@@ -98,7 +98,7 @@ class CaptainController extends Controller
 
         // Send SMS notifications to all residents
         // Commented out to avoid sending SMS notifications to residents
-        $this->sendSmsNotificationToResidents($event);
+        //$this->sendSmsNotificationToResidents($event);
 
         return back()->with('success', "Event '{$event->title}' has been approved successfully!");
     }

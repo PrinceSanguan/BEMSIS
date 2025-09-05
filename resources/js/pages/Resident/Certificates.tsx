@@ -14,6 +14,8 @@ interface Certificate {
     type: string;
     status: string;
     file_path?: string;
+    certificate_code?: string;
+    view_url?: string;
 }
 
 interface Props {
@@ -25,32 +27,27 @@ export default function Certificates({ certificates }: Props) {
     const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
     const handleDownload = async (certificate: Certificate) => {
-        if (certificate.file_path) {
-            setDownloadingId(certificate.id);
-            try {
-                const link = document.createElement('a');
-                link.href = `/storage/${certificate.file_path}`;
-                link.download = `Certificate_${certificate.event_name.replace(/\s+/g, '_')}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                console.error('Download error:', error);
-                alert('Failed to download certificate. Please try again.');
-            } finally {
-                setDownloadingId(null);
+        setDownloadingId(certificate.id);
+        try {
+            // Open the certificate view page and trigger print
+            const printWindow = window.open(certificate.view_url, '_blank');
+            if (printWindow) {
+                printWindow.onload = () => {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 500);
+                };
             }
-        } else {
-            alert('Certificate file not available');
+        } catch (error) {
+            console.error('Download error:', error);
+            alert('Failed to open certificate. Please try again.');
+        } finally {
+            setDownloadingId(null);
         }
     };
 
     const handleView = (certificate: Certificate) => {
-        if (certificate.file_path) {
-            window.open(`/storage/${certificate.file_path}`, '_blank');
-        } else {
-            alert('Certificate file not available');
-        }
+        window.open(certificate.view_url, '_blank');
     };
 
     const getStatusColor = (status: string) => {

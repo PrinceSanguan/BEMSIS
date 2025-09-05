@@ -2,11 +2,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { BarChart3, Calendar, CheckCircle, Clock, Eye, MapPin, TrendingDown, TrendingUp, UserCheck, Users, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { BarChart3, Calendar, CheckCircle, Clock, Eye, MapPin, Scan, TrendingDown, TrendingUp, UserCheck, Users, XCircle } from 'lucide-react';
+import QrScanner from 'qr-scanner';
+import { useEffect, useRef, useState } from 'react';
 
 interface Purok {
     id: number;
@@ -51,6 +53,144 @@ interface PageProps {
 export default function Attendance({ events, className }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
+    const [streaming, setStreaming] = useState(false);
+    const [scanResult, setScanResult] = useState<any>(null);
+    const [scanError, setScanError] = useState<string | null>(null);
+    const [manualQrCode, setManualQrCode] = useState('');
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const streamRef = useRef<MediaStream | null>(null);
+    const qrScannerRef = useRef<QrScanner | null>(null);
+
+    const startScanning = async () => {
+        console.log('Starting camera...');
+        try {
+            setScanError(null);
+
+            // Set scanning state first to show the video element
+            setIsScanning(true);
+
+            // Small delay to ensure video element is rendered
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            if (videoRef.current) {
+                const video = videoRef.current;
+
+                // Create QR Scanner instance
+                qrScannerRef.current = new QrScanner(
+                    video,
+                    (result) => {
+                        console.log('QR Code detected:', result.data);
+                        // Process the scanned QR code
+                        handleScannedQR(result.data);
+                    },
+                    {
+                        returnDetailedScanResult: true,
+                        highlightScanRegion: true,
+                        highlightCodeOutline: true,
+                    },
+                );
+
+                // Start the scanner
+                await qrScannerRef.current.start();
+                setStreaming(true);
+                console.log('QR Scanner started successfully');
+            } else {
+                console.error('Video element not found!');
+                setScanError('Video element not available');
+                setIsScanning(false);
+            }
+        } catch (err: any) {
+            console.error(`Camera error:`, err);
+            setScanError(`Camera error: ${err.message}`);
+            setIsScanning(false);
+        }
+    };
+
+    const handleScannedQR = (qrCode: string) => {
+        console.log('Processing QR code:', qrCode);
+
+        // Stop scanning temporarily to prevent multiple scans
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+        }
+
+        router.post(
+            '/secretary/scan-qr',
+            { qr_code: qrCode },
+            {
+                preserveState: true,
+                onSuccess: (page) => {
+                    setScanResult({ success: true, message: 'Congratulations, attendance recorded successfully!' });
+                    setTimeout(() => {
+                        setScanResult(null);
+                        setIsScannerOpen(false);
+                        stopScanning();
+                    }, 2000);
+                },
+                onError: (errors: any) => {
+                    const errorMessage = errors.message || errors.qr_code || 'Invalid QR code';
+                    setScanError(errorMessage);
+
+                    // Restart scanning after error
+                    setTimeout(() => {
+                        setScanError(null);
+                        if (qrScannerRef.current && isScanning) {
+                            qrScannerRef.current.start();
+                        }
+                    }, 3000);
+                },
+            },
+        );
+    };
+
+    const stopScanning = () => {
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+            qrScannerRef.current.destroy();
+            qrScannerRef.current = null;
+        }
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
+        }
+        setIsScanning(false);
+        setStreaming(false);
+    };
+
+    const handleManualScan = () => {
+        if (!manualQrCode.trim()) return;
+
+        router.post(
+            '/secretary/scan-qr',
+            { qr_code: manualQrCode },
+            {
+                preserveState: true,
+                onSuccess: (page) => {
+                    setScanResult({ success: true, message: 'Congratulations, attendance recorded successfully!' });
+                    setManualQrCode('');
+                    setTimeout(() => {
+                        setScanResult(null);
+                        setIsScannerOpen(false);
+                        stopScanning();
+                    }, 2000);
+                },
+                onError: (errors: any) => {
+                    const errorMessage = errors.message || errors.qr_code || 'Invalid QR code';
+                    setScanError(errorMessage);
+                    setTimeout(() => setScanError(null), 3000);
+                },
+            },
+        );
+    };
+
+    useEffect(() => {
+        return () => {
+            stopScanning();
+        };
+    }, []);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -109,9 +249,15 @@ export default function Attendance({ events, className }: Props) {
 
                     <main className={`flex-1 overflow-y-auto p-4 md:p-6 ${className || ''}`}>
                         <div className="mx-auto max-w-7xl space-y-6">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">Attendance Management</h1>
-                                <p className="mt-2 text-gray-600">Monitor and manage event attendance records</p>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-3xl font-bold text-gray-900">Attendance Management</h1>
+                                    <p className="mt-2 text-gray-600">Monitor and manage event attendance records</p>
+                                </div>
+                                <Button onClick={() => setIsScannerOpen(true)} className="gap-2">
+                                    <Scan className="h-4 w-4" />
+                                    Scan Barcode
+                                </Button>
                             </div>
 
                             {/* Flash Messages */}
@@ -305,6 +451,74 @@ export default function Attendance({ events, className }: Props) {
                     </main>
                 </div>
             </div>
+
+            {/* QR Scanner Dialog */}
+            <Dialog
+                open={isScannerOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        stopScanning();
+                        setScanError(null);
+                        setScanResult(null);
+                    }
+                    setIsScannerOpen(open);
+                }}
+            >
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Barcode Scanner</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        {scanError && (
+                            <Alert className="border-red-200 bg-red-50">
+                                <XCircle className="h-4 w-4 text-red-600" />
+                                <AlertDescription className="text-red-800">{scanError}</AlertDescription>
+                            </Alert>
+                        )}
+
+                        {scanResult && (
+                            <Alert className="border-green-200 bg-green-50">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                <AlertDescription className="text-green-800">{scanResult.message}</AlertDescription>
+                            </Alert>
+                        )}
+
+                        {!isScanning ? (
+                            <div className="py-8 text-center">
+                                <Scan className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                                <Button onClick={startScanning} size="lg">
+                                    Start Scan
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="relative overflow-hidden rounded-lg bg-black">
+                                    <video
+                                        ref={videoRef}
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                        className="w-full bg-black object-cover"
+                                        style={{ minHeight: '300px', maxHeight: '400px' }}
+                                    >
+                                        Video stream not available.
+                                    </video>
+
+                                    {/* Simple scanning indicator */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-pulse rounded-full bg-blue-500/90 px-4 py-2 text-sm font-medium text-white">
+                                        Point camera at QR code
+                                    </div>
+                                </div>
+
+                                <Button variant="destructive" onClick={stopScanning} className="w-full">
+                                    Stop Scanning
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

@@ -4,9 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Calendar, CheckCircle, Clock, MapPin, QrCode } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ConfirmedEvent {
     id: number;
@@ -15,10 +15,11 @@ interface ConfirmedEvent {
         title: string;
         start_date: string;
         end_date?: string;
-        purok?: { name: string };
+        purok_names?: string;
     };
     qr_code: string;
     has_qr: boolean;
+    scanned?: boolean;
 }
 
 interface AttendanceRecord {
@@ -42,6 +43,23 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
     const [selectedEvent, setSelectedEvent] = useState<ConfirmedEvent | null>(null);
     const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    // Auto-refresh functionality
+    const refreshAttendance = () => {
+        setIsRefreshing(true);
+        router.visit(route('resident.attendance'), {
+            preserveState: false,
+            preserveScroll: true,
+            onFinish: () => setIsRefreshing(false),
+        });
+    };
+
+    // Auto-refresh every 30 seconds to check for scan updates
+    useEffect(() => {
+        const interval = setInterval(refreshAttendance, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -107,9 +125,15 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
                         <div className="mx-auto max-w-4xl space-y-6">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900">My Attendance</h1>
-                                <p className="text-gray-600">Track your event attendance and generate QR codes.</p>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900">My Attendance</h1>
+                                    <p className="text-gray-600">Track your event attendance and generate QR codes.</p>
+                                </div>
+                                <Button variant="outline" onClick={refreshAttendance} disabled={isRefreshing} className="gap-2">
+                                    <Calendar className="h-4 w-4" />
+                                    {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                                </Button>
                             </div>
 
                             <Tabs defaultValue="confirmed" className="space-y-6">
@@ -143,15 +167,22 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <MapPin className="h-4 w-4" />
-                                                        {eventData.event.purok?.name || 'All Puroks'}
+                                                        {eventData.event.purok_names || 'All Puroks'}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex gap-2 pt-2">
-                                                    <Button size="sm" className="gap-2" onClick={() => showQRCode(eventData)}>
-                                                        <QrCode className="h-4 w-4" />
-                                                        Generate QR Code
-                                                    </Button>
+                                                    {eventData.scanned ? (
+                                                        <div className="flex items-center gap-2 rounded-md bg-green-100 px-3 py-2 text-sm text-green-700">
+                                                            <CheckCircle className="h-4 w-4" />
+                                                            Already Scanned
+                                                        </div>
+                                                    ) : (
+                                                        <Button size="sm" className="gap-2" onClick={() => showQRCode(eventData)}>
+                                                            <QrCode className="h-4 w-4" />
+                                                            Generate QR Code
+                                                        </Button>
+                                                    )}
                                                 </div>
                                             </CardContent>
                                         </Card>

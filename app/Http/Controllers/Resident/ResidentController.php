@@ -173,11 +173,21 @@ class ResidentController extends Controller
                     $attendance->save();
                 }
 
+                // Add purok names to event
+                $event = $attendance->event;
+                if ($event->target_all_residents || empty($event->purok_ids)) {
+                    $event->purok_names = 'All Residents';
+                } else {
+                    $purokNames = \App\Models\Purok::whereIn('id', $event->purok_ids ?? [])->pluck('name')->implode(', ');
+                    $event->purok_names = $purokNames ?: 'All Residents';
+                }
+
                 return [
                     'id' => $attendance->id,
-                    'event' => $attendance->event,
+                    'event' => $event,
                     'qr_code' => $attendance->qr_code,
-                    'has_qr' => true
+                    'has_qr' => true,
+                    'scanned' => $attendance->scanned
                 ];
             });
 
@@ -248,7 +258,9 @@ class ResidentController extends Controller
                     'date_earned' => $certificate->created_at->format('Y-m-d'),
                     'type' => 'Completion Certificate',
                     'status' => 'available',
-                    'file_path' => $certificate->file_path
+                    'file_path' => $certificate->file_path,
+                    'certificate_code' => $certificate->certificate_code,
+                    'view_url' => $certificate->certificate_code ? route('certificates.view.public', $certificate->certificate_code) : null
                 ];
             });
 
@@ -274,7 +286,8 @@ class ResidentController extends Controller
                     'id' => $attendance->event->id,
                     'event_name' => $attendance->event->title,
                     'date' => $attendance->event->start_date,
-                    'has_certificate' => $attendance->event->has_certificate
+                    'has_certificate' => $attendance->event->has_certificate,
+                    'attendance_id' => $attendance->id
                 ];
             });
 
@@ -307,12 +320,44 @@ class ResidentController extends Controller
             'comments' => 'required|string|max:1000',
         ]);
 
-        Feedback::create([
+        $user = Auth::user();
+        $event = Event::find($request->event_id);
+
+        // Create feedback
+        $feedback = Feedback::create([
             'event_id' => $request->event_id,
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'comments' => $request->comments,
         ]);
 
+        // Generate certificate if event has certificates
+        if ($event->has_certificate) {
+            $certificateCode = 'CERT_' . $event->id . '_USER_' . $user->id . '_' . time();
+
+            $certificate = Certificate::create([
+                'event_id' => $event->id,
+                'user_id' => $user->id,
+                'certificate_code' => $certificateCode,
+                'file_path' => 'certificates/' . $event->id . '_' . $user->id . '.pdf',
+            ]);
+
+            // Generate certificate QR code
+            $certificateQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
+                'size' => '300x300',
+                'data' => route('certificates.view.public', $certificateCode),
+                'color' => '000000',
+                'bgcolor' => 'FFFFFF',
+                'ecc' => 'M',
+                'margin' => '10'
+            ]);
+
+            return back()->with('success', 'Feedback submitted successfully! Your certificate is now available.')
+                ->with('certificate_data', [
+                    'code' => $certificateCode,
+                    'qr_url' => $certificateQrUrl,
+                    'view_url' => route('resident.certificates.view', $certificateCode)
+                ]);
+        }
         return back()->with('success', 'Feedback submitted successfully!');
     }
 
@@ -440,6 +485,31 @@ class ResidentController extends Controller
 
         return Inertia::render('Resident/Announcements', [
             'announcements' => $announcements
+        ]);
+    }
+
+    public function viewCertificate($certificateCode)
+    {
+        $certificate = Certificate::where('certificate_code', $certificateCode)
+            ->with(['user', 'event'])
+            ->firstOrFail();
+
+        // Allow public access to certificates via their unique code
+        // No authentication check needed since the code itself provides security
+
+        $event = $certificate->event;
+
+        // Calculate event duration
+        $startDate = \Carbon\Carbon::parse($event->start_date);
+        $endDate = $event->end_date ? \Carbon\Carbon::parse($event->end_date) : $startDate;
+        $duration = $startDate->diffInHours($endDate) . ' hours';
+
+        return Inertia::render('Resident/Certificate', [
+            'userName' => $certificate->user->name,
+            'eventTitle' => $event->title,
+            'eventDate' => $startDate->format('F d, Y'),
+            'eventDuration' => $duration,
+            'certificateCode' => $certificateCode
         ]);
     }
 }

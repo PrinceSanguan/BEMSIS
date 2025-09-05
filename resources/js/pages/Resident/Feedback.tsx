@@ -5,8 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
-import { Head, useForm } from '@inertiajs/react';
-import { Calendar, MessageSquare, Send, Star } from 'lucide-react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { Award, Calendar, Download, Eye, MessageSquare, Send, Star } from 'lucide-react';
 import { useState } from 'react';
 
 interface EventNeedingFeedback {
@@ -25,15 +25,33 @@ interface FeedbackHistory {
     rating: number;
 }
 
+interface CertificateData {
+    code: string;
+    qr_url: string;
+    view_url: string;
+}
+
+interface PageProps {
+    [key: string]: any;
+    flash?: {
+        success?: string;
+        error?: string;
+        certificate_data?: CertificateData;
+    };
+}
+
 interface Props {
     eventsNeedingFeedback: EventNeedingFeedback[];
     feedbackHistory: FeedbackHistory[];
 }
 
 export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Props) {
+    const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<EventNeedingFeedback | null>(null);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [showCertificateModal, setShowCertificateModal] = useState(false);
+    const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         event_id: 0,
@@ -53,6 +71,12 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
                 setShowFeedbackModal(false);
                 reset();
                 setSelectedEvent(null);
+
+                // Check if certificate was generated
+                if (flash?.certificate_data) {
+                    setCertificateData(flash.certificate_data);
+                    setShowCertificateModal(true);
+                }
             },
         });
     };
@@ -247,6 +271,54 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
                                     </Button>
                                 </div>
                             </form>
+                        )}
+                    </DialogContent>
+                </Dialog>
+
+                {/* Certificate Success Modal */}
+                <Dialog open={showCertificateModal} onOpenChange={setShowCertificateModal}>
+                    <DialogContent className="max-w-lg">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <Award className="h-5 w-5 text-yellow-600" />
+                                Certificate Generated!
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        {certificateData && (
+                            <div className="space-y-4">
+                                <p className="text-sm text-gray-600">
+                                    Congratulations! Your certificate has been generated and is ready for download.
+                                </p>
+
+                                <div className="flex flex-col items-center space-y-4">
+                                    <div className="rounded-lg border bg-white p-4">
+                                        <img src={certificateData.qr_url} alt="Certificate QR Code" className="h-32 w-32" />
+                                    </div>
+
+                                    <p className="text-center text-xs text-gray-500">
+                                        Scan this QR code or use the buttons below to access your certificate
+                                    </p>
+
+                                    <div className="flex w-full gap-2">
+                                        <Button className="flex-1 gap-2" onClick={() => window.open(certificateData.view_url, '_blank')}>
+                                            <Eye className="h-4 w-4" />
+                                            View
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="flex-1 gap-2"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(certificateData.view_url);
+                                                alert('Certificate link copied to clipboard!');
+                                            }}
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            Copy Link
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </DialogContent>
                 </Dialog>

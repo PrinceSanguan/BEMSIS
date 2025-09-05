@@ -112,7 +112,7 @@ export default function Profile({ user }: Props) {
     };
 
     const validatePhone = (phone: string) => {
-        const phoneRegex = /^09\d{9}$/;
+        const phoneRegex = /^639\d{9}$/;
         return phoneRegex.test(phone);
     };
 
@@ -212,14 +212,14 @@ export default function Profile({ user }: Props) {
                                                 <Input
                                                     id="phone"
                                                     type="tel"
-                                                    placeholder="09XXXXXXXXX"
+                                                    placeholder="639XXXXXXXXX"
                                                     value={profileData.phone}
                                                     onChange={(e) => setProfileData('phone', e.target.value)}
                                                     className={profileErrors.phone ? 'border-red-300' : ''}
                                                     required
                                                 />
                                                 {!validatePhone(profileData.phone) && profileData.phone.length > 0 && (
-                                                    <p className="text-sm text-amber-600">Phone number should start with 09 and be 11 digits long</p>
+                                                    <p className="text-sm text-amber-600">Phone number should start with 639 and be 12 digits long</p>
                                                 )}
                                                 {profileErrors.phone && <p className="text-sm text-red-500">{profileErrors.phone}</p>}
                                             </div>

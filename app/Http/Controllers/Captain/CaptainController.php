@@ -109,11 +109,22 @@ class CaptainController extends Controller
     private function sendSmsNotificationToResidents($event)
     {
         try {
-            // Get all users with role 'resident'
-            $residents = User::where('role', 'resident')
+            // Build the query for residents based on event targeting
+            $residentsQuery = User::where('role', 'resident')
                 ->where('status', 'approved')
-                ->whereNotNull('phone')
-                ->get();
+                ->whereNotNull('phone');
+
+            // Apply purok filtering based on event settings
+            if ($event->target_all_residents) {
+                // Send to all residents
+                $residents = $residentsQuery->get();
+            } else if (!empty($event->purok_ids)) {
+                // Send only to residents in specified puroks
+                $residents = $residentsQuery->whereIn('purok_id', $event->purok_ids)->get();
+            } else {
+                // If no specific targeting, send to all
+                $residents = $residentsQuery->get();
+            }
 
             foreach ($residents as $resident) {
                 $this->sendSms($resident, $event);
@@ -133,10 +144,19 @@ class CaptainController extends Controller
     {
         try {
             $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
+
+            // Format dates
+            $startDate = \Carbon\Carbon::parse($event->start_date)->format('M d, Y h:i A');
+            $endDate = $event->end_date ? ' to ' . \Carbon\Carbon::parse($event->end_date)->format('M d, Y h:i A') : '';
+
+            // Build comprehensive message
             $message = sprintf(
-                "Hi! %s, reminder: %s.",
+                "Hi %s! Event: %s. %s. When: %s%s",
                 explode(' ', $resident->name)[0], // First name
-                $event->title
+                $event->title,
+                $event->description,
+                $startDate,
+                $endDate
             );
 
             $data = [

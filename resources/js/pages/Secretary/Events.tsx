@@ -508,7 +508,10 @@ export default function Events({ events, puroks }: EventsProps) {
                                                     const isProcessingEvent = processing.has(event.id);
                                                     const isPast = isEventPast(event.start_date);
                                                     const canEdit = event.status === 'pending';
-                                                    const canDelete = event.status === 'pending' || event.status === 'declined';
+                                                    const canDelete =
+                                                        event.status === 'pending' ||
+                                                        event.status === 'declined' ||
+                                                        (event.status === 'approved' && isPast);
 
                                                     return (
                                                         <div

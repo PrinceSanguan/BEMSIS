@@ -88,7 +88,7 @@ class SecretaryController extends Controller
         $user->update(['status' => 'approved']);
 
         // Send SMS notification to approved user
-        $this->sendSmsNotificationToUser($user);
+        // $this->sendSmsNotificationToUser($user);
 
         return back()->with('success', 'User approved successfully!');
     }

@@ -191,7 +191,6 @@ Route::middleware(['session.activity', ResidentMiddleware::class])->group(functi
 
   // Certificate
   Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
-  Route::get('resident/certificates/view/{certificateCode}', [ResidentController::class, 'viewCertificate'])->name('resident.certificates.view');
 
   // Feedback
   Route::get('resident/feedback', [ResidentController::class, 'feedback'])->name('resident.feedback');
@@ -206,5 +205,4 @@ Route::middleware(['session.activity', ResidentMiddleware::class])->group(functi
   Route::post('resident/profile/password', [ResidentController::class, 'changePassword'])->name('resident.profile.password');
 });
 
-// Public certificate view (before the middleware groups)
-Route::get('certificates/view/{certificateCode}', [ResidentController::class, 'viewCertificate'])->name('certificates.view.public');
+Route::get('resident/certificates/view/{certificateCode}', [ResidentController::class, 'viewCertificate'])->name('resident.certificates.view');

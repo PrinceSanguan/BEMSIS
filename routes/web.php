@@ -191,7 +191,6 @@ Route::middleware(['session.activity', ResidentMiddleware::class])->group(functi
 
   // Certificate
   Route::get('resident/certificates', [ResidentController::class, 'certificates'])->name('resident.certificates');
-  Route::get('resident/certificates/{certificate}/download', [ResidentController::class, 'downloadCertificate'])->name('resident.certificates.download');
   Route::get('resident/certificates/view/{certificateCode}', [ResidentController::class, 'viewCertificate'])->name('resident.certificates.view');
 
   // Feedback

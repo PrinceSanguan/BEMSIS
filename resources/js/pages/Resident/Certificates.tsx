@@ -1,10 +1,9 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
-import { Award, Download, Eye, FileCheck } from 'lucide-react';
+import { Award, FileCheck, QrCode } from 'lucide-react';
 import { useState } from 'react';
 
 interface Certificate {
@@ -24,26 +23,18 @@ interface Props {
 
 export default function Certificates({ certificates }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [downloadingId, setDownloadingId] = useState<number | null>(null);
-
-    const handleDownload = async (certificate: Certificate) => {
-        setDownloadingId(certificate.id);
-        try {
-            // Open the certificate view page and trigger print
-            const printWindow = window.open(certificate.view_url, '_blank');
-            if (printWindow) {
-                printWindow.onload = () => {
-                    setTimeout(() => {
-                        printWindow.print();
-                    }, 500);
-                };
-            }
-        } catch (error) {
-            console.error('Download error:', error);
-            alert('Failed to open certificate. Please try again.');
-        } finally {
-            setDownloadingId(null);
-        }
+    const generateQRCodeUrl = (viewUrl: string) => {
+        return (
+            'https://api.qrserver.com/v1/create-qr-code/?' +
+            new URLSearchParams({
+                size: '200x200',
+                data: viewUrl,
+                color: '000000',
+                bgcolor: 'FFFFFF',
+                ecc: 'M',
+                margin: '10',
+            }).toString()
+        );
     };
 
     const handleView = (certificate: Certificate) => {
@@ -135,20 +126,20 @@ export default function Certificates({ certificates }: Props) {
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex gap-2 pt-2">
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={() => handleDownload(cert)}
-                                                                disabled={downloadingId === cert.id}
-                                                                className="gap-2"
-                                                            >
-                                                                <Download className="h-4 w-4" />
-                                                                {downloadingId === cert.id ? 'Downloading...' : 'Download'}
-                                                            </Button>
-                                                            <Button size="sm" variant="outline" onClick={() => handleView(cert)} className="gap-2">
-                                                                <Eye className="h-4 w-4" />
-                                                                Preview
-                                                            </Button>
+                                                        <div className="flex flex-col gap-3 pt-2">
+                                                            <div className="flex items-center gap-3">
+                                                                <QrCode className="h-5 w-5 text-gray-600" />
+                                                                <span className="text-sm font-medium text-gray-700">
+                                                                    Scan QR Code to View Certificate
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-center">
+                                                                <img
+                                                                    src={generateQRCodeUrl(cert.view_url!)}
+                                                                    alt={`QR Code for ${cert.event_name} Certificate`}
+                                                                    className="h-32 w-32 rounded-lg border shadow-sm"
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -249,25 +240,20 @@ export default function Certificates({ certificates }: Props) {
                                                         </div>
 
                                                         {cert.status === 'available' && (
-                                                            <div className="flex gap-2 pt-2">
-                                                                <Button
-                                                                    size="sm"
-                                                                    onClick={() => handleDownload(cert)}
-                                                                    disabled={downloadingId === cert.id}
-                                                                    className="gap-2"
-                                                                >
-                                                                    <Download className="h-4 w-4" />
-                                                                    {downloadingId === cert.id ? 'Downloading...' : 'Download'}
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() => handleView(cert)}
-                                                                    className="gap-2"
-                                                                >
-                                                                    <Eye className="h-4 w-4" />
-                                                                    Preview
-                                                                </Button>
+                                                            <div className="flex flex-col gap-3 pt-2">
+                                                                <div className="flex items-center gap-3">
+                                                                    <QrCode className="h-5 w-5 text-gray-600" />
+                                                                    <span className="text-sm font-medium text-gray-700">
+                                                                        Scan QR Code to View Certificate
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex justify-center">
+                                                                    <img
+                                                                        src={generateQRCodeUrl(cert.view_url!)}
+                                                                        alt={`QR Code for ${cert.event_name} Certificate`}
+                                                                        className="h-32 w-32 rounded-lg border shadow-sm"
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         )}
 

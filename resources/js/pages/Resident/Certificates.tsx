@@ -24,11 +24,12 @@ interface Props {
 export default function Certificates({ certificates }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const generateQRCodeUrl = (viewUrl: string) => {
+        const downloadUrl = `${viewUrl}?download=1`;
         return (
             'https://api.qrserver.com/v1/create-qr-code/?' +
             new URLSearchParams({
                 size: '200x200',
-                data: viewUrl,
+                data: downloadUrl,
                 color: '000000',
                 bgcolor: 'FFFFFF',
                 ecc: 'M',

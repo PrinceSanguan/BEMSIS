@@ -461,7 +461,7 @@ class ResidentController extends Controller
         ]);
     }
 
-    public function viewCertificate($certificateCode)
+    public function viewCertificate(Request $request, $certificateCode)
     {
         $certificate = Certificate::where('certificate_code', $certificateCode)
             ->with(['user', 'event'])
@@ -482,7 +482,8 @@ class ResidentController extends Controller
             'eventTitle' => $event->title,
             'eventDate' => $startDate->format('F d, Y'),
             'eventDuration' => $duration,
-            'certificateCode' => $certificateCode
+            'certificateCode' => $certificateCode,
+            'autoDownload' => $request->has('download')
         ]);
     }
 }

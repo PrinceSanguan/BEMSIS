@@ -1,8 +1,7 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Head } from '@inertiajs/react';
-import { Award, Download, Share } from 'lucide-react';
-import { useState } from 'react';
+import { Award } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Props {
     userName: string;
@@ -10,53 +9,32 @@ interface Props {
     eventDate: string;
     eventDuration: string;
     certificateCode: string;
+    autoDownload?: boolean;
 }
 
-export default function Certificate({ userName, eventTitle, eventDate, eventDuration, certificateCode }: Props) {
-    const [isDownloading, setIsDownloading] = useState(false);
+export default function Certificate({ userName, eventTitle, eventDate, eventDuration, certificateCode, autoDownload }: Props) {
+    const [hasAutoDownloaded, setHasAutoDownloaded] = useState(false);
 
-    const handleDownload = () => {
-        setIsDownloading(true);
-        // Create a downloadable version
-        window.print();
-        setIsDownloading(false);
-    };
-
-    const handleShare = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: 'My Certificate',
-                text: `I earned a certificate for completing ${eventTitle}`,
-                url: window.location.href,
-            });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            alert('Certificate link copied to clipboard!');
+    // Auto-download when accessed via QR code
+    React.useEffect(() => {
+        if (autoDownload && !hasAutoDownloaded) {
+            setTimeout(() => {
+                window.print();
+                setHasAutoDownloaded(true);
+            }, 1000); // Small delay to ensure page is fully loaded
         }
-    };
+    }, [autoDownload, hasAutoDownloaded]);
 
     return (
         <>
             <Head title={`Certificate - ${eventTitle}`} />
             <div className="min-h-screen bg-gray-50 p-4 md:p-6">
                 <div className="mx-auto max-w-6xl space-y-6">
-                    {/* Action Bar - Hidden in Print */}
-                    <div className="flex items-center justify-between print:hidden">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Certificate of Completion</h1>
-                            <p className="text-gray-600">Your achievement certificate</p>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={handleShare} className="gap-2">
-                                <Share className="h-4 w-4" />
-                                Share
-                            </Button>
-                            <Button onClick={handleDownload} disabled={isDownloading} className="gap-2">
-                                <Download className="h-4 w-4" />
-                                {isDownloading ? 'Downloading...' : 'Download'}
-                            </Button>
-                        </div>
+                    {/* Header - Hidden in Print */}
+                    <div className="text-center print:hidden">
+                        <h1 className="text-2xl font-bold text-gray-900">Certificate of Completion</h1>
+                        <p className="text-gray-600">Your achievement certificate</p>
+                        {autoDownload && <p className="mt-2 text-sm text-blue-600">Certificate will download automatically...</p>}
                     </div>
 
                     {/* Certificate - Landscape Layout */}
@@ -116,8 +94,13 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                                     {/* Footer */}
                                     <div className="absolute right-8 bottom-8 left-8 flex items-end justify-between">
                                         <div className="text-left">
-                                            <div className="mb-2 h-px w-32 bg-gray-400"></div>
-                                            <p className="text-sm font-medium text-gray-600">Barangay Official</p>
+                                            <div className="mb-2 flex flex-col items-center">
+                                                <div className="font-script mb-1 text-lg text-blue-800" style={{ fontFamily: 'cursive' }}>
+                                                    Captain Maria Santos
+                                                </div>
+                                                <div className="h-px w-32 bg-gray-400"></div>
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-600">Barangay Captain</p>
                                             <p className="text-xs text-gray-500">Authorized Signature</p>
                                         </div>
 
@@ -167,12 +150,15 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                     .print\\:bg-white {
                         background: white !important;
                     }
-                    @page {
+                   @page {
                         size: landscape;
                         margin: 0.5in;
                     }
                     .certificate-content {
                         padding: 2rem !important;
+                    }
+                    .font-script {
+                        font-family: 'Brush Script MT', cursive;
                     }
                 }
             `}

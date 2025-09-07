@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
@@ -21,6 +22,7 @@ import {
     List,
     MapPin,
     Plus,
+    Search,
     Trash2,
     Upload,
     Users,
@@ -59,6 +61,10 @@ interface Event {
 interface EventsProps {
     events: Event[];
     puroks: Purok[];
+    filters?: {
+        search?: string;
+        purok_id?: string;
+    };
 }
 
 interface PageProps {
@@ -69,7 +75,7 @@ interface PageProps {
     };
 }
 
-export default function Events({ events, puroks }: EventsProps) {
+export default function Events({ events, puroks, filters }: EventsProps) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -77,6 +83,8 @@ export default function Events({ events, puroks }: EventsProps) {
     const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [selectedPurok, setSelectedPurok] = useState(filters?.purok_id || 'all');
 
     // Add form state for create dialog
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -249,6 +257,36 @@ export default function Events({ events, puroks }: EventsProps) {
         }
 
         return cells;
+    };
+
+    const handleSearch = (search: string, purokId: string) => {
+        router.get(
+            route('secretary.events'),
+            {
+                search: search || undefined,
+                purok_id: purokId !== 'all' ? purokId : undefined,
+            },
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSearch(searchTerm, selectedPurok);
+    };
+
+    const handlePurokChange = (purokId: string) => {
+        setSelectedPurok(purokId);
+        handleSearch(searchTerm, purokId);
+    };
+
+    const clearFilters = () => {
+        setSearchTerm('');
+        setSelectedPurok('all');
+        handleSearch('', 'all');
     };
 
     const deleteEvent = (eventId: number) => {
@@ -492,6 +530,45 @@ export default function Events({ events, puroks }: EventsProps) {
                             {viewMode === 'list' && (
                                 <Card>
                                     <CardContent className="p-6">
+                                        {/* Search and Filter Controls */}
+                                        <div className="mb-6 space-y-4">
+                                            <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4 md:flex-row">
+                                                <div className="flex-1">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Search by event title, description..."
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="w-full"
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Select value={selectedPurok} onValueChange={handlePurokChange}>
+                                                        <SelectTrigger className="w-40">
+                                                            <SelectValue placeholder="Filter by Purok" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">All Puroks</SelectItem>
+                                                            {puroks.map((purok) => (
+                                                                <SelectItem key={purok.id} value={purok.id.toString()}>
+                                                                    {purok.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <Button type="submit" variant="outline">
+                                                        <Search className="mr-1 h-4 w-4" />
+                                                        Search
+                                                    </Button>
+                                                    {(searchTerm || selectedPurok !== 'all') && (
+                                                        <Button type="button" variant="outline" onClick={clearFilters}>
+                                                            Clear
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </form>
+                                        </div>
+
                                         {events.length === 0 ? (
                                             <div className="py-12 text-center">
                                                 <CalendarIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />

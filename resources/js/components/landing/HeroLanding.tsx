@@ -6,15 +6,6 @@ import { motion } from 'framer-motion';
 export default function HeroLanding() {
     return (
         <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center bg-white text-black dark:bg-black dark:text-white">
-            {/* Barangay Logo Background */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-60 dark:opacity-70">
-                <img
-                    src="/assets/images/Bemsis.jpg"
-                    alt="Barangay Logo Background"
-                    className="h-[600px] w-[600px] object-contain md:h-[800px] md:w-[800px] lg:h-[750px] lg:w-[1000px]"
-                />
-            </div>
-
             {/* Dark overlay for better text contrast */}
             <div className="absolute inset-0 bg-white/30 dark:bg-black/45"></div>
 
@@ -50,7 +41,9 @@ export default function HeroLanding() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: 'easeInOut' }}
                         className="mb-6"
-                    ></motion.div>
+                    >
+                        <img src="/assets/images/Bemsis.jpg" alt="Barangay Logo" className="mx-auto h-24 w-24 object-contain md:h-32 md:w-32" />
+                    </motion.div>
 
                     <h1 className="relative z-20 mx-auto max-w-4xl text-center text-2xl font-bold text-black md:text-4xl lg:text-7xl dark:text-white">
                         {'Barangay Event Management System with Integrated SMS and QR Code Technology'.split(' ').map((word, index) => (
@@ -115,6 +108,35 @@ export default function HeroLanding() {
                     >
                         <Link href={route('auth.register')}>Register</Link>
                     </Button>
+                </motion.div>
+                <motion.div
+                    initial={{
+                        opacity: 0,
+                        y: 10,
+                    }}
+                    animate={{
+                        opacity: 1,
+                        y: 0,
+                    }}
+                    transition={{
+                        duration: 0.3,
+                        delay: 1.2,
+                    }}
+                    className="relative z-20 mt-20 rounded-3xl border border-green-600 bg-white p-4 shadow-md dark:border-green-600 dark:bg-black"
+                >
+                    <div className="w-full overflow-hidden rounded-xl border border-green-600">
+                        <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-green-50 to-green-100 dark:from-black dark:to-green-900">
+                            <div className="p-8 text-center">
+                                <img
+                                    src="/assets/images/landing.png"
+                                    alt="Event Management Dashboard"
+                                    className="mx-auto mb-4 h-32 w-auto object-contain"
+                                />
+                                <h3 className="mb-2 text-2xl font-bold text-black dark:text-white">Event Management Dashboard</h3>
+                                <p className="text-green-800 dark:text-green-200">SMS • QR Codes • Real-time Updates</p>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
             </div>
         </div>

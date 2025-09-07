@@ -166,11 +166,32 @@ class SecretaryController extends Controller
         ]);
     }
 
-    public function events()
+    public function events(Request $request)
     {
         $puroks = Purok::all();
-        $events = Event::with(['creator', 'attendances'])
-            ->latest()
+
+        // Build query with search and filter
+        $eventsQuery = Event::with(['creator', 'attendances']);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $eventsQuery->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply purok filter
+        if ($request->filled('purok_id') && $request->get('purok_id') !== 'all') {
+            $purokId = $request->get('purok_id');
+            $eventsQuery->where(function ($query) use ($purokId) {
+                $query->whereJsonContains('purok_ids', (int)$purokId)
+                    ->orWhere('target_all_residents', true);
+            });
+        }
+
+        $events = $eventsQuery->latest()
             ->get()
             ->map(function ($event) {
                 $event->confirmed_attendees_count = $event->attendances()
@@ -180,7 +201,11 @@ class SecretaryController extends Controller
 
         return Inertia::render('Secretary/Events', [
             'events' => $events,
-            'puroks' => $puroks
+            'puroks' => $puroks,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'purok_id' => $request->get('purok_id', 'all')
+            ]
         ]);
     }
 

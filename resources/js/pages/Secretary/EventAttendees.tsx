@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, Clock, Mail, MapPin, Phone, QrCode, Users, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, Download, Mail, MapPin, Phone, QrCode, Users, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Purok {
@@ -99,6 +99,68 @@ export default function EventAttendees({ event, attendees }: Props) {
     const attendedCount = attendees.filter((a) => a.scanned).length;
     const attendanceRate = attendees.length > 0 ? Math.round((attendedCount / attendees.length) * 100) : 0;
 
+    const downloadAttendeesCSV = () => {
+        if (attendees.length === 0) {
+            alert('No attendees to download');
+            return;
+        }
+
+        // Define CSV headers
+        const headers = ['Name', 'Email', 'Phone', 'Purok', 'Status', 'QR Code', 'Scanned Date'];
+
+        // Convert attendees data to CSV rows
+        const csvData = attendees.map((attendee) => [
+            attendee.user.name,
+            attendee.user.email,
+            attendee.user.phone,
+            attendee.user.purok?.name || 'N/A',
+            attendee.scanned ? 'Attended' : 'Registered',
+            attendee.qr_code || 'N/A',
+            attendee.scanned && attendee.scanned_at ? formatDate(attendee.scanned_at) : 'N/A',
+        ]);
+
+        // Combine headers and data
+        const allRows = [headers, ...csvData];
+
+        // Convert to CSV string
+        const csvContent = allRows
+            .map((row) =>
+                row
+                    .map((cell) => {
+                        // Escape quotes and wrap in quotes if cell contains comma, quote, or newline
+                        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                            return `"${cell.replace(/"/g, '""')}"`;
+                        }
+                        return cell;
+                    })
+                    .join(','),
+            )
+            .join('\n');
+
+        // Create and download the file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+
+            // Create filename with event title and current date
+            const eventTitle = event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const currentDate = new Date().toISOString().split('T')[0];
+            const filename = `attendees_${eventTitle}_${currentDate}.csv`;
+
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Cleanup
+            URL.revokeObjectURL(url);
+        }
+    };
+
     return (
         <>
             <Head title={`Attendees - ${event.title}`} />
@@ -125,15 +187,21 @@ export default function EventAttendees({ event, attendees }: Props) {
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
                         <div className="mx-auto max-w-7xl space-y-6">
                             {/* Header */}
-                            <div className="flex items-center gap-4">
-                                <Button variant="outline" onClick={() => router.get('/secretary/events')} className="shrink-0">
-                                    <ArrowLeft className="mr-2 h-4 w-4" />
-                                    Back to Events
-                                </Button>
-                                <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
-                                    <p className="text-gray-600">Event Attendees</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <Button variant="outline" onClick={() => router.get('/secretary/events')} className="shrink-0">
+                                        <ArrowLeft className="mr-2 h-4 w-4" />
+                                        Back to Events
+                                    </Button>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
+                                        <p className="text-gray-600">Event Attendees</p>
+                                    </div>
                                 </div>
+                                <Button onClick={downloadAttendeesCSV} className="gap-2" disabled={attendees.length === 0}>
+                                    <Download className="h-4 w-4" />
+                                    Download CSV ({attendees.length})
+                                </Button>
                             </div>
 
                             {/* Flash Messages */}

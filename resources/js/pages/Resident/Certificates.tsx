@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
-import { Award, Camera, FileCheck, QrCode, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { Award, Camera, FileCheck, QrCode, Scan, X } from 'lucide-react';
+import QrScanner from 'qr-scanner';
+import { useEffect, useRef, useState } from 'react';
 
 interface Certificate {
     id: number;
@@ -28,7 +29,12 @@ export default function Certificates({ certificates }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
     const [scannerError, setScannerError] = useState<string | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
+    const [streaming, setStreaming] = useState(false);
+    const [scanResult, setScanResult] = useState<any>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const qrScannerRef = useRef<QrScanner | null>(null);
     const generateQRCodeUrl = (viewUrl: string) => {
         const downloadUrl = `${viewUrl}?download=1`;
         return (
@@ -48,37 +54,87 @@ export default function Certificates({ certificates }: Props) {
         window.open(certificate.view_url, '_blank');
     };
 
-    const handleQRCodeScan = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageData = e.target?.result as string;
-                // Create an image element to decode QR code
-                const img = new Image();
-                img.onload = () => {
-                    try {
-                        // For demo purposes, we'll simulate QR code reading
-                        // In a real implementation, you'd use a QR code library like jsQR
-                        setScannerError(null);
-                        // You would integrate with a QR code reading library here
-                        // For now, we'll show how it would work
-                        alert('QR Scanner feature would be implemented with a QR code reading library like jsQR');
-                    } catch (error) {
-                        setScannerError('Failed to read QR code. Please try again.');
-                    }
-                };
-                img.src = imageData;
-            };
-            reader.readAsDataURL(file);
+    const startScanning = async () => {
+        try {
+            setScannerError(null);
+            setIsScanning(true);
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            if (videoRef.current) {
+                const video = videoRef.current;
+
+                qrScannerRef.current = new QrScanner(
+                    video,
+                    (result) => {
+                        handleScannedQR(result.data);
+                    },
+                    {
+                        returnDetailedScanResult: true,
+                        highlightScanRegion: true,
+                        highlightCodeOutline: true,
+                    },
+                );
+
+                await qrScannerRef.current.start();
+                setStreaming(true);
+            } else {
+                setScannerError('Video element not available');
+                setIsScanning(false);
+            }
+        } catch (err: any) {
+            setScannerError(`Camera error: ${err.message}`);
+            setIsScanning(false);
         }
+    };
+
+    const handleScannedQR = (qrCode: string) => {
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+        }
+
+        try {
+            if (qrCode.includes('/resident/certificates/view/')) {
+                setScanResult({ success: true, message: 'Certificate QR code detected! Opening certificate...' });
+                setTimeout(() => {
+                    window.open(qrCode, '_blank');
+                    setScanResult(null);
+                    setShowScanner(false);
+                    stopScanning();
+                }, 1500);
+            } else {
+                setScannerError('Invalid certificate QR code');
+                setTimeout(() => {
+                    setScannerError(null);
+                    if (qrScannerRef.current && isScanning) {
+                        qrScannerRef.current.start();
+                    }
+                }, 3000);
+            }
+        } catch (error) {
+            setScannerError('Failed to process QR code');
+            setTimeout(() => {
+                setScannerError(null);
+                if (qrScannerRef.current && isScanning) {
+                    qrScannerRef.current.start();
+                }
+            }, 3000);
+        }
+    };
+
+    const stopScanning = () => {
+        if (qrScannerRef.current) {
+            qrScannerRef.current.stop();
+            qrScannerRef.current.destroy();
+            qrScannerRef.current = null;
+        }
+        setIsScanning(false);
+        setStreaming(false);
     };
 
     const handleManualQRInput = (qrData: string) => {
         try {
-            // Check if the QR data is a valid certificate URL
             if (qrData.includes('/resident/certificates/view/')) {
-                // Extract certificate code and redirect
                 window.open(qrData, '_blank');
                 setShowScanner(false);
                 setScannerError(null);
@@ -89,6 +145,12 @@ export default function Certificates({ certificates }: Props) {
             setScannerError('Failed to process QR code');
         }
     };
+
+    useEffect(() => {
+        return () => {
+            stopScanning();
+        };
+    }, []);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -343,7 +405,7 @@ export default function Certificates({ certificates }: Props) {
             {/* QR Scanner Dialog */}
             {showScanner && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+                    <div className="mx-4 w-full max-w-2xl rounded-lg bg-white p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <h3 className="text-lg font-semibold">Scan Certificate QR Code</h3>
                             <Button
@@ -351,7 +413,9 @@ export default function Certificates({ certificates }: Props) {
                                 size="sm"
                                 onClick={() => {
                                     setShowScanner(false);
+                                    stopScanning();
                                     setScannerError(null);
+                                    setScanResult(null);
                                 }}
                             >
                                 <X className="h-4 w-4" />
@@ -359,54 +423,82 @@ export default function Certificates({ certificates }: Props) {
                         </div>
 
                         <div className="space-y-4">
-                            <div className="text-sm text-gray-600">
-                                Upload an image containing a certificate QR code to view or download the certificate.
-                            </div>
-
-                            {/* File Upload for QR Code Image */}
-                            <div className="space-y-3">
-                                <Button onClick={() => fileInputRef.current?.click()} className="w-full gap-2" variant="outline">
-                                    <Camera className="h-4 w-4" />
-                                    Choose QR Code Image
-                                </Button>
-                                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleQRCodeScan} className="hidden" />
-                            </div>
-
-                            {/* Manual QR Data Input */}
-                            <div className="space-y-2">
-                                <Label htmlFor="qr-input">Or paste certificate URL:</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        id="qr-input"
-                                        placeholder="Paste certificate URL here..."
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleManualQRInput(e.currentTarget.value);
-                                            }
-                                        }}
-                                    />
-                                    <Button
-                                        onClick={(e) => {
-                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                            handleManualQRInput(input.value);
-                                        }}
-                                        size="sm"
-                                    >
-                                        Go
-                                    </Button>
-                                </div>
-                            </div>
-
                             {scannerError && (
                                 <div className="rounded-md bg-red-50 p-3">
                                     <p className="text-sm text-red-600">{scannerError}</p>
                                 </div>
                             )}
 
-                            <div className="text-xs text-gray-500">
-                                The QR code should contain a certificate URL like:
-                                <br />
-                                <code className="rounded bg-gray-100 px-1 text-xs">.../resident/certificates/view/CERT_...</code>
+                            {scanResult && (
+                                <div className="rounded-md bg-green-50 p-3">
+                                    <p className="text-sm text-green-600">{scanResult.message}</p>
+                                </div>
+                            )}
+
+                            {!isScanning ? (
+                                <div className="py-8 text-center">
+                                    <Scan className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                                    <p className="mb-4 text-sm text-gray-600">Use your camera to scan certificate QR codes</p>
+                                    <Button onClick={startScanning} size="lg" className="gap-2">
+                                        <Camera className="h-4 w-4" />
+                                        Start Camera
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="relative overflow-hidden rounded-lg bg-black">
+                                        <video
+                                            ref={videoRef}
+                                            autoPlay
+                                            playsInline
+                                            muted
+                                            className="w-full bg-black object-cover"
+                                            style={{ minHeight: '300px', maxHeight: '400px' }}
+                                        >
+                                            Video stream not available.
+                                        </video>
+
+                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-pulse rounded-full bg-blue-500/90 px-4 py-2 text-sm font-medium text-white">
+                                            Point camera at certificate QR code
+                                        </div>
+                                    </div>
+
+                                    <Button variant="destructive" onClick={stopScanning} className="w-full">
+                                        Stop Camera
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Manual QR Data Input */}
+                            <div className="border-t pt-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="qr-input">Or paste certificate URL manually:</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            id="qr-input"
+                                            placeholder="Paste certificate URL here..."
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleManualQRInput(e.currentTarget.value);
+                                                }
+                                            }}
+                                        />
+                                        <Button
+                                            onClick={(e) => {
+                                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                                handleManualQRInput(input.value);
+                                            }}
+                                            size="sm"
+                                        >
+                                            Go
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="mt-2 text-xs text-gray-500">
+                                    Expected format:
+                                    <code className="ml-1 rounded bg-gray-100 px-1">.../resident/certificates/view/CERT_...</code>
+                                </div>
                             </div>
                         </div>
                     </div>

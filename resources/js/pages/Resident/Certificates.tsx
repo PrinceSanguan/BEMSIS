@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
@@ -468,38 +466,6 @@ export default function Certificates({ certificates }: Props) {
                                     </Button>
                                 </div>
                             )}
-
-                            {/* Manual QR Data Input */}
-                            <div className="border-t pt-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="qr-input">Or paste certificate URL manually:</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            id="qr-input"
-                                            placeholder="Paste certificate URL here..."
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    handleManualQRInput(e.currentTarget.value);
-                                                }
-                                            }}
-                                        />
-                                        <Button
-                                            onClick={(e) => {
-                                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                                handleManualQRInput(input.value);
-                                            }}
-                                            size="sm"
-                                        >
-                                            Go
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className="mt-2 text-xs text-gray-500">
-                                    Expected format:
-                                    <code className="ml-1 rounded bg-gray-100 px-1">.../resident/certificates/view/CERT_...</code>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

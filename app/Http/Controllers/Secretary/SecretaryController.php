@@ -200,7 +200,7 @@ class SecretaryController extends Controller
             $purokId = $request->get('purok_id');
             $eventsQuery->where(function ($query) use ($purokId) {
                 $query->whereJsonContains('purok_ids', (int)$purokId)
-                    ->orWhere('target_all_residents', true);
+                    ->orWhereNull('purok_ids');
             });
         }
 
@@ -211,7 +211,7 @@ class SecretaryController extends Controller
                     ->where('status', 'confirmed')->count();
 
                 // Load purok information for display
-                if ($event->target_all_residents) {
+                if (is_null($event->purok_ids)) {
                     $event->purok_names = 'All Residents';
                     $event->puroks = collect();
                 } elseif (!empty($event->purok_ids)) {

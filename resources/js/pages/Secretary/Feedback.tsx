@@ -2,11 +2,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Calendar, CheckCircle, ChevronLeft, ChevronRight, MessageSquare, Search, User, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, ChevronLeft, ChevronRight, MessageSquare, User, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface User {
@@ -169,44 +168,6 @@ export default function Feedback({ feedbacks, className }: Props) {
                                     <CardContent>
                                         <div className="text-2xl font-bold text-gray-900">{feedbacks.total}</div>
                                         <p className="text-xs text-gray-500">All time submissions</p>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="lg:col-span-3">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Search className="h-5 w-5" />
-                                            Search Feedback
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex gap-4">
-                                            <div className="flex-1">
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Search by event name, user name, or comments..."
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            handleSearch(searchTerm);
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                            <Button onClick={() => handleSearch(searchTerm)}>Search</Button>
-                                            {searchTerm && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => {
-                                                        setSearchTerm('');
-                                                        handleSearch('');
-                                                    }}
-                                                >
-                                                    Clear
-                                                </Button>
-                                            )}
-                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>

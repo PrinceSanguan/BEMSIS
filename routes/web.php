@@ -133,6 +133,7 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
 
   // Feedback Review
   Route::get('secretary/feedback', [SecretaryController::class, 'feedback'])->name('secretary.feedback');
+  Route::get('secretary/feedback/event/{event}', [SecretaryController::class, 'getEventFeedback'])->name('secretary.feedback.event');
 
   // Content
   Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');

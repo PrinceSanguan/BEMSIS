@@ -2,10 +2,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
-import { Head, router, usePage } from '@inertiajs/react';
-import { Calendar, CheckCircle, ChevronLeft, ChevronRight, MessageSquare, User, XCircle } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { Calendar, CheckCircle, Eye, MessageSquare, User, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface User {
@@ -21,31 +22,20 @@ interface Event {
     start_date: string;
     end_date?: string;
     description: string;
+    creator: User;
+    feedbacks_count: number;
+    status: string;
 }
 
-interface Feedback {
+interface EventFeedback {
     id: number;
-    event_id: number;
-    user_id: number;
     comments: string;
     created_at: string;
-    updated_at: string;
-    event: Event;
     user: User;
 }
 
-interface PaginatedFeedback {
-    data: Feedback[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-}
-
 interface Props {
-    feedbacks: PaginatedFeedback;
+    events: Event[];
     className?: string;
 }
 
@@ -57,38 +47,13 @@ interface PageProps {
     };
 }
 
-export default function Feedback({ feedbacks, className }: Props) {
+export default function Feedback({ events, className }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const handleSearch = (search: string) => {
-        router.get(
-            route('secretary.feedback'),
-            {
-                search: search || undefined,
-                page: undefined, // Reset to first page on search
-            },
-            {
-                preserveState: true,
-                replace: true,
-            },
-        );
-    };
-
-    const handlePageChange = (page: number) => {
-        router.get(
-            route('secretary.feedback'),
-            {
-                page,
-                search: searchTerm || undefined,
-            },
-            {
-                preserveState: true,
-                replace: true,
-            },
-        );
-    };
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [eventFeedbacks, setEventFeedbacks] = useState<EventFeedback[]>([]);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [loadingFeedback, setLoadingFeedback] = useState(false);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -112,6 +77,44 @@ export default function Feedback({ feedbacks, className }: Props) {
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength) + '...';
     };
+
+    const handleViewFeedback = async (event: Event) => {
+        setSelectedEvent(event);
+        setLoadingFeedback(true);
+        setShowFeedbackModal(true);
+
+        try {
+            const response = await fetch(route('secretary.feedback.event', event.id));
+            const data = await response.json();
+            setEventFeedbacks(data.feedbacks);
+        } catch (error) {
+            console.error('Error loading feedback:', error);
+            setEventFeedbacks([]);
+        } finally {
+            setLoadingFeedback(false);
+        }
+    };
+
+    const closeFeedbackModal = () => {
+        setShowFeedbackModal(false);
+        setSelectedEvent(null);
+        setEventFeedbacks([]);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'approved':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'declined':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const totalFeedback = events.reduce((sum, event) => sum + event.feedbacks_count, 0);
 
     return (
         <>
@@ -159,86 +162,91 @@ export default function Feedback({ feedbacks, className }: Props) {
                                 </Alert>
                             )}
 
-                            {/* Stats and Search */}
-                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-                                <Card className="lg:col-span-1">
+                            {/* Stats */}
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                                <Card>
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-sm font-medium text-gray-600">Total Events with Feedback</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold text-gray-900">{events.length}</div>
+                                        <p className="text-xs text-gray-500">Events that received feedback</p>
+                                    </CardContent>
+                                </Card>
+                                <Card>
                                     <CardHeader className="pb-2">
                                         <CardTitle className="text-sm font-medium text-gray-600">Total Feedback</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-2xl font-bold text-gray-900">{feedbacks.total}</div>
-                                        <p className="text-xs text-gray-500">All time submissions</p>
+                                        <div className="text-2xl font-bold text-gray-900">{totalFeedback}</div>
+                                        <p className="text-xs text-gray-500">All feedback submissions</p>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-sm font-medium text-gray-600">Average per Event</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold text-gray-900">
+                                            {events.length > 0 ? (totalFeedback / events.length).toFixed(1) : '0'}
+                                        </div>
+                                        <p className="text-xs text-gray-500">Feedback per event</p>
                                     </CardContent>
                                 </Card>
                             </div>
 
-                            {/* Feedback List */}
+                            {/* Events with Feedback */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <MessageSquare className="h-5 w-5" />
-                                        Feedback Submissions
+                                        Events with Feedback
                                     </CardTitle>
                                     <p className="text-sm text-gray-600">
-                                        Showing {feedbacks.from || 0} to {feedbacks.to || 0} of {feedbacks.total} feedback submissions
+                                        Events that have received participant feedback. Click "View Feedback" to see all responses.
                                     </p>
                                 </CardHeader>
                                 <CardContent>
-                                    {feedbacks.data.length > 0 ? (
+                                    {events.length > 0 ? (
                                         <div className="space-y-4">
-                                            {feedbacks.data.map((feedback) => (
-                                                <Card key={feedback.id} className="border border-gray-200 transition-shadow hover:shadow-md">
+                                            {events.map((event) => (
+                                                <Card key={event.id} className="border border-gray-200 transition-shadow hover:shadow-md">
                                                     <CardContent className="p-6">
-                                                        <div className="space-y-4">
-                                                            {/* Header */}
-                                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                                                <div className="space-y-1">
-                                                                    <h3 className="text-lg font-semibold text-gray-900">{feedback.event.title}</h3>
-                                                                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                                                        <div className="flex items-center gap-1">
-                                                                            <Calendar className="h-4 w-4" />
-                                                                            <span>{formatDate(feedback.event.start_date)}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-1">
-                                                                            <User className="h-4 w-4" />
-                                                                            <span>{feedback.user.name}</span>
-                                                                        </div>
+                                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                                            <div className="flex-1 space-y-3">
+                                                                <div className="flex flex-wrap items-center gap-3">
+                                                                    <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                                                                    <Badge className={getStatusColor(event.status)}>
+                                                                        {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                                                    </Badge>
+                                                                </div>
+
+                                                                <p className="text-sm text-gray-600">{truncateText(event.description, 150)}</p>
+
+                                                                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <Calendar className="h-4 w-4" />
+                                                                        <span>{formatDate(event.start_date)}</span>
+                                                                        {event.end_date && <span> - {formatDate(event.end_date)}</span>}
                                                                     </div>
-                                                                </div>
-                                                                <div className="flex flex-col items-end gap-2">
-                                                                    <Badge className="bg-blue-100 text-blue-800">{feedback.user.role}</Badge>
-                                                                    <span className="text-xs text-gray-500">
-                                                                        Submitted {formatDateTime(feedback.created_at)}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Event Description */}
-                                                            {feedback.event.description && (
-                                                                <div className="rounded-md bg-gray-50 p-3">
-                                                                    <p className="mb-1 text-sm font-medium text-gray-700">Event Description:</p>
-                                                                    <p className="text-sm text-gray-600">
-                                                                        {truncateText(feedback.event.description, 150)}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Feedback Content */}
-                                                            <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
-                                                                <div className="flex items-start gap-2">
-                                                                    <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-                                                                    <div className="flex-1">
-                                                                        <p className="mb-2 text-sm font-medium text-amber-800">
-                                                                            Participant Feedback:
-                                                                        </p>
-                                                                        <p className="text-sm leading-relaxed text-amber-700">{feedback.comments}</p>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <User className="h-4 w-4" />
+                                                                        <span>Created by {event.creator.name}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <MessageSquare className="h-4 w-4" />
+                                                                        <span>
+                                                                            {event.feedbacks_count} feedback{event.feedbacks_count !== 1 ? 's' : ''}
+                                                                        </span>
                                                                     </div>
                                                                 </div>
                                                             </div>
 
-                                                            {/* User Contact Info */}
-                                                            <div className="border-t pt-3">
-                                                                <p className="text-xs text-gray-500">Contact: {feedback.user.email}</p>
+                                                            <div className="flex flex-col items-end gap-2">
+                                                                <Button onClick={() => handleViewFeedback(event)} className="gap-2" size="sm">
+                                                                    <Eye className="h-4 w-4" />
+                                                                    View Feedback ({event.feedbacks_count})
+                                                                </Button>
                                                             </div>
                                                         </div>
                                                     </CardContent>
@@ -250,71 +258,8 @@ export default function Feedback({ feedbacks, className }: Props) {
                                             <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                             <h3 className="mb-2 text-lg font-medium text-gray-900">No Feedback Found</h3>
                                             <p className="text-gray-600">
-                                                {searchTerm
-                                                    ? 'No feedback matches your search criteria.'
-                                                    : 'No feedback has been submitted yet. Check back later for participant responses.'}
+                                                No feedback has been submitted yet. Check back later for participant responses.
                                             </p>
-                                        </div>
-                                    )}
-
-                                    {/* Pagination */}
-                                    {feedbacks.last_page > 1 && (
-                                        <div className="mt-6 flex items-center justify-between border-t pt-6">
-                                            <div className="text-sm text-gray-600">
-                                                Showing {feedbacks.from || 0} to {feedbacks.to || 0} of {feedbacks.total} results
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handlePageChange(feedbacks.current_page - 1)}
-                                                    disabled={feedbacks.current_page === 1}
-                                                >
-                                                    <ChevronLeft className="h-4 w-4" />
-                                                    Previous
-                                                </Button>
-
-                                                <div className="flex items-center gap-1">
-                                                    {Array.from({ length: Math.min(5, feedbacks.last_page) }, (_, i) => {
-                                                        const page = i + 1;
-                                                        return (
-                                                            <Button
-                                                                key={page}
-                                                                variant={feedbacks.current_page === page ? 'default' : 'outline'}
-                                                                size="sm"
-                                                                onClick={() => handlePageChange(page)}
-                                                                className="h-8 w-10"
-                                                            >
-                                                                {page}
-                                                            </Button>
-                                                        );
-                                                    })}
-
-                                                    {feedbacks.last_page > 5 && (
-                                                        <>
-                                                            <span className="px-2 text-gray-500">...</span>
-                                                            <Button
-                                                                variant={feedbacks.current_page === feedbacks.last_page ? 'default' : 'outline'}
-                                                                size="sm"
-                                                                onClick={() => handlePageChange(feedbacks.last_page)}
-                                                                className="h-8 w-10"
-                                                            >
-                                                                {feedbacks.last_page}
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                </div>
-
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handlePageChange(feedbacks.current_page + 1)}
-                                                    disabled={feedbacks.current_page === feedbacks.last_page}
-                                                >
-                                                    Next
-                                                    <ChevronRight className="h-4 w-4" />
-                                                </Button>
-                                            </div>
                                         </div>
                                     )}
                                 </CardContent>
@@ -323,6 +268,71 @@ export default function Feedback({ feedbacks, className }: Props) {
                     </main>
                 </div>
             </div>
+
+            {/* Feedback Modal */}
+            {showFeedbackModal && selectedEvent && (
+                <Dialog open={showFeedbackModal} onOpenChange={closeFeedbackModal}>
+                    <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-semibold">Feedback for "{selectedEvent.title}"</h2>
+                                    <p className="mt-1 text-sm text-gray-600">
+                                        {formatDate(selectedEvent.start_date)} • {eventFeedbacks.length} feedback
+                                        {eventFeedbacks.length !== 1 ? 's' : ''}
+                                    </p>
+                                </div>
+                                <Button variant="ghost" size="sm" onClick={closeFeedbackModal}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </DialogTitle>
+                        </DialogHeader>
+
+                        <div className="space-y-4">
+                            {loadingFeedback ? (
+                                <div className="p-8 text-center">
+                                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+                                    <p className="text-gray-600">Loading feedback...</p>
+                                </div>
+                            ) : eventFeedbacks.length > 0 ? (
+                                eventFeedbacks.map((feedback) => (
+                                    <Card key={feedback.id} className="border border-gray-200">
+                                        <CardContent className="p-4">
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <User className="h-4 w-4 text-gray-500" />
+                                                        <span className="font-medium text-gray-900">{feedback.user.name}</span>
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {feedback.user.role}
+                                                        </Badge>
+                                                    </div>
+                                                    <span className="text-xs text-gray-500">{formatDateTime(feedback.created_at)}</span>
+                                                </div>
+
+                                                <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+                                                    <div className="flex items-start gap-2">
+                                                        <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+                                                        <p className="text-sm leading-relaxed text-amber-700">{feedback.comments}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-xs text-gray-500">Contact: {feedback.user.email}</div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            ) : (
+                                <div className="p-8 text-center">
+                                    <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                    <h3 className="mb-2 text-lg font-medium text-gray-900">No Feedback</h3>
+                                    <p className="text-gray-600">No feedback has been submitted for this event yet.</p>
+                                </div>
+                            )}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
         </>
     );
 }

@@ -481,11 +481,54 @@ class SecretaryController extends Controller
 
     public function feedback()
     {
-        $feedbacks = Feedback::with(['event', 'user'])
+        // Get events that have feedback, with feedback counts
+        $events = Event::whereHas('feedbacks')
+            ->with(['creator'])
+            ->withCount('feedbacks')
             ->latest()
-            ->paginate(20);
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'start_date' => $event->start_date,
+                    'end_date' => $event->end_date,
+                    'creator' => $event->creator,
+                    'feedbacks_count' => $event->feedbacks_count,
+                    'status' => $event->status,
+                ];
+            });
 
         return Inertia::render('Secretary/Feedback', [
+            'events' => $events
+        ]);
+    }
+
+    public function getEventFeedback($eventId)
+    {
+        $event = Event::with('creator')->findOrFail($eventId);
+
+        $feedbacks = Feedback::where('event_id', $eventId)
+            ->with(['user'])
+            ->latest()
+            ->get()
+            ->map(function ($feedback) {
+                return [
+                    'id' => $feedback->id,
+                    'comments' => $feedback->comments,
+                    'created_at' => $feedback->created_at,
+                    'user' => [
+                        'id' => $feedback->user->id,
+                        'name' => $feedback->user->name,
+                        'email' => $feedback->user->email,
+                        'role' => $feedback->user->role,
+                    ]
+                ];
+            });
+
+        return response()->json([
+            'event' => $event,
             'feedbacks' => $feedbacks
         ]);
     }

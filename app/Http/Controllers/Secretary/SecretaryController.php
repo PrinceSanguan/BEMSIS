@@ -71,7 +71,20 @@ class SecretaryController extends Controller
         $puroks = Purok::orderBy('name')->get();
 
         return Inertia::render('Secretary/Users', [
-            'pendingUsers' => $pendingUsers,
+            'pendingUsers' => $pendingUsers->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                    'is_active' => $user->is_active,
+                    'purok' => $user->purok,
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                ];
+            }),
             'approvedUsers' => $approvedUsers,
             'approvedPartners' => $approvedPartners,
             'puroks' => $puroks,

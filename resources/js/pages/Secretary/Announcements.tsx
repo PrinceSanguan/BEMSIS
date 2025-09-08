@@ -130,7 +130,7 @@ const AnnouncementForm = ({
                     {!formData.target_all_puroks && (
                         <div>
                             <p className="mb-2 text-sm text-gray-600">Select specific puroks (up to 3):</p>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                 {puroks.map((purok) => (
                                     <div key={purok.id} className="flex items-center space-x-2">
                                         <Checkbox
@@ -150,7 +150,7 @@ const AnnouncementForm = ({
                 {errors.target_puroks && <p className="mt-1 text-sm text-red-500">{errors.target_puroks}</p>}
             </div>
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:justify-end">
                 <Button type="button" variant="outline" onClick={onCancel}>
                     Cancel
                 </Button>
@@ -272,7 +272,7 @@ export default function Announcements({ announcements, puroks, flash }: Props) {
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
                         <div className="mx-auto max-w-7xl space-y-6">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h1 className="text-3xl font-bold text-gray-900">Announcements</h1>
                                     <p className="mt-2 text-gray-600">Manage community announcements</p>
@@ -336,7 +336,7 @@ export default function Announcements({ announcements, puroks, flash }: Props) {
                                 ) : (
                                     announcements.map((announcement) => (
                                         <Card key={announcement.id}>
-                                            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+                                            <CardHeader className="flex flex-col space-y-3 pb-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
                                                 <div className="flex-1">
                                                     <CardTitle className="text-xl">{announcement.title}</CardTitle>
                                                     <div className="mt-2 flex items-center gap-2">
@@ -345,7 +345,7 @@ export default function Announcements({ announcements, puroks, flash }: Props) {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                                                     <Button size="sm" variant="outline" onClick={() => openEditModal(announcement)}>
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
@@ -361,7 +361,7 @@ export default function Announcements({ announcements, puroks, flash }: Props) {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="mb-3 whitespace-pre-wrap text-gray-700">{announcement.content}</p>
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                                     <div>
                                                         <span className="text-sm font-medium text-gray-500">Target: </span>
                                                         {getTargetDisplay(announcement)}

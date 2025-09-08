@@ -187,8 +187,8 @@ export default function EventAttendees({ event, attendees }: Props) {
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
                         <div className="mx-auto max-w-7xl space-y-6">
                             {/* Header */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                                     <Button variant="outline" onClick={() => router.get('/secretary/events')} className="shrink-0">
                                         <ArrowLeft className="mr-2 h-4 w-4" />
                                         Back to Events
@@ -236,7 +236,7 @@ export default function EventAttendees({ event, attendees }: Props) {
                                         </div>
                                     )}
 
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                         <div className="flex items-center gap-2">
                                             <Clock className="h-4 w-4 text-gray-500" />
                                             <span className="text-sm">
@@ -310,7 +310,10 @@ export default function EventAttendees({ event, attendees }: Props) {
                                     ) : (
                                         <div className="space-y-4">
                                             {attendees.map((attendee) => (
-                                                <div key={attendee.id} className="flex items-center justify-between rounded-lg border p-4">
+                                                <div
+                                                    key={attendee.id}
+                                                    className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                                                >
                                                     <div className="flex-1">
                                                         <div className="mb-2 flex items-center gap-3">
                                                             <h3 className="font-medium text-gray-900">{attendee.user.name}</h3>
@@ -322,7 +325,7 @@ export default function EventAttendees({ event, attendees }: Props) {
                                                                 {attendee.scanned ? 'Attended' : 'Registered'}
                                                             </Badge>
                                                         </div>
-                                                        <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-3">
+                                                        <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-3">
                                                             <div className="flex items-center gap-2">
                                                                 <Mail className="h-4 w-4" />
                                                                 <span>{attendee.user.email}</span>
@@ -344,7 +347,7 @@ export default function EventAttendees({ event, attendees }: Props) {
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="ml-4">
+                                                    <div className="flex justify-end sm:ml-4">
                                                         {attendee.qr_code && (
                                                             <Button variant="outline" size="sm" onClick={() => showQRCode(attendee)}>
                                                                 <QrCode className="mr-2 h-4 w-4" />

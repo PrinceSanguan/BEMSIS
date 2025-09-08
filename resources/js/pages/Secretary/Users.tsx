@@ -231,7 +231,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     <Badge className={roleDisplay.color}>{roleDisplay.label}</Badge>
                                                                 </div>
 
-                                                                <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-3">
+                                                                <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-3">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -253,7 +253,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"
@@ -283,7 +283,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                 <CardContent>
                                     {/* Search and Filter Controls */}
                                     <div className="mb-6 space-y-4">
-                                        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4 md:flex-row">
+                                        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-4 sm:flex-row">
                                             <div className="flex-1">
                                                 <Input
                                                     type="text"
@@ -345,7 +345,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                         Approved
                                                                     </Badge>
                                                                 </div>
-                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
+                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-1 md:grid-cols-2">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -366,7 +366,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"
@@ -420,7 +420,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                         Approved
                                                                     </Badge>
                                                                 </div>
-                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-2">
+                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-1 md:grid-cols-2">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -435,7 +435,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"

@@ -187,7 +187,8 @@ class ResidentController extends Controller
                     'has_qr' => true,
                     'scanned' => $attendance->scanned
                 ];
-            });
+            })
+            ->values();
 
         // Get attendance history
         $attendanceHistory = Attendance::where('user_id', $user->id)
@@ -203,7 +204,8 @@ class ResidentController extends Controller
                     'status' => $attendance->scanned ? 'attended' : 'missed',
                     'scanned_at' => $attendance->updated_at
                 ];
-            });
+            })
+            ->values();
 
         return Inertia::render('Resident/Attendance', [
             'confirmedEvents' => $confirmedEvents,

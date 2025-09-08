@@ -702,9 +702,4 @@ class SecretaryController extends Controller
             ]);
         }
     }
-
-    public function scanner()
-    {
-        return Inertia::render('Secretary/QRScanner');
-    }
 }

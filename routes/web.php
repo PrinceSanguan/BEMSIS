@@ -128,9 +128,6 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
   Route::post('secretary/events/{event}/assign-qr', [SecretaryController::class, 'assignQrCodes'])->name('secretary.events.assign-qr');
   Route::post('secretary/events/{event}/assign-certificates', [SecretaryController::class, 'assignCertificates'])->name('secretary.events.assign-certificates');
 
-  // QR Code Scanning
-  Route::post('secretary/scan-qr', [SecretaryController::class, 'scanQrCode'])->name('secretary.scan-qr');
-
   // Attendance Management
   Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
 

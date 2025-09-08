@@ -93,13 +93,13 @@ export default function Certificates({ certificates }: Props) {
 
         try {
             if (qrCode.includes('/resident/certificates/view/')) {
-                setScanResult({ success: true, message: 'Certificate QR code detected! Opening certificate...' });
-                setTimeout(() => {
-                    window.open(qrCode, '_blank');
-                    setScanResult(null);
-                    setShowScanner(false);
-                    stopScanning();
-                }, 1500);
+                // Add download parameter to the URL
+                const downloadUrl = qrCode.includes('?') ? `${qrCode}&download=1` : `${qrCode}?download=1`;
+                setScanResult({
+                    success: true,
+                    message: 'Certificate QR code detected! Click the link below to download the certificate.',
+                    downloadUrl: downloadUrl,
+                });
             } else {
                 setScannerError('Invalid certificate QR code');
                 setTimeout(() => {
@@ -428,8 +428,29 @@ export default function Certificates({ certificates }: Props) {
                             )}
 
                             {scanResult && (
-                                <div className="rounded-md bg-green-50 p-3">
-                                    <p className="text-sm text-green-600">{scanResult.message}</p>
+                                <div className="rounded-md bg-green-50 p-4">
+                                    <p className="mb-3 text-sm text-green-600">{scanResult.message}</p>
+                                    {scanResult.downloadUrl && (
+                                        <div className="flex flex-col gap-2">
+                                            <Button
+                                                onClick={() => window.open(scanResult.downloadUrl, '_blank')}
+                                                className="w-full bg-green-600 hover:bg-green-700"
+                                            >
+                                                Download Certificate
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setScanResult(null);
+                                                    setShowScanner(false);
+                                                    stopScanning();
+                                                }}
+                                            >
+                                                Close Scanner
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

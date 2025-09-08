@@ -54,6 +54,8 @@ interface Event {
     image_path?: string;
     creator: Creator;
     purok?: Purok;
+    puroks?: Purok[];
+    purok_names?: string;
     created_at: string;
     confirmed_attendees_count: number;
 }
@@ -613,12 +615,13 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                                             <Clock className="h-4 w-4" />
                                                                             <span>{formatDate(event.start_date)}</span>
                                                                         </div>
-                                                                        {event.purok && (
+                                                                        {event.purok_names && event.purok_names !== 'No Purok Selected' && (
                                                                             <div className="flex items-center gap-2">
                                                                                 <MapPin className="h-4 w-4" />
-                                                                                <span>{event.purok.name}</span>
+                                                                                <span>{event.purok_names}</span>
                                                                             </div>
                                                                         )}
+
                                                                         <div className="flex items-center gap-2">
                                                                             <Users className="h-4 w-4" />
                                                                             <span>{event.confirmed_attendees_count} attendees</span>
@@ -716,10 +719,10 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                     <Clock className="h-4 w-4 text-gray-400" />
                                     <span>{formatDate(selectedEvent.start_date)}</span>
                                 </div>
-                                {selectedEvent.purok && (
+                                {selectedEvent.purok_names && selectedEvent.purok_names !== 'No Purok Selected' && (
                                     <div className="flex items-center gap-2 text-sm">
                                         <MapPin className="h-4 w-4 text-gray-400" />
-                                        <span>{selectedEvent.purok.name}</span>
+                                        <span>{selectedEvent.purok_names}</span>
                                     </div>
                                 )}
                                 <div className="flex items-center gap-2 text-sm">

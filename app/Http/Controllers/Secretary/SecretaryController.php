@@ -209,6 +209,20 @@ class SecretaryController extends Controller
             ->map(function ($event) {
                 $event->confirmed_attendees_count = $event->attendances()
                     ->where('status', 'confirmed')->count();
+
+                // Load purok information for display
+                if ($event->target_all_residents) {
+                    $event->purok_names = 'All Residents';
+                    $event->puroks = collect();
+                } elseif (!empty($event->purok_ids)) {
+                    $puroks = \App\Models\Purok::whereIn('id', $event->purok_ids)->get();
+                    $event->puroks = $puroks;
+                    $event->purok_names = $puroks->pluck('name')->join(', ');
+                } else {
+                    $event->purok_names = 'No Purok Selected';
+                    $event->puroks = collect();
+                }
+
                 return $event;
             });
 

@@ -61,11 +61,6 @@ interface PageProps {
 export default function Users({ pendingUsers, approvedUsers, approvedPartners, puroks, filters, className }: Props) {
     const { flash } = usePage<PageProps>().props;
 
-    // Debug logging - remove this after fixing
-    console.log('Pending Users:', pendingUsers);
-    console.log('Pending Users Length:', pendingUsers.length);
-    console.log('Resident Count:', pendingUsers.filter((user) => user.role === 'resident').length);
-    console.log('Partner Count:', pendingUsers.filter((user) => user.role === 'partner_agency').length);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters.search);
     const [selectedPurok, setSelectedPurok] = useState(filters.purok_id);
@@ -166,27 +161,13 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                             )}
 
                             {/* Statistics */}
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                 <Card>
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-600">Pending Users</p>
-                                                <p className="text-2xl font-bold text-gray-900">{pendingUsers.length}</p>
-                                            </div>
-                                            <UsersIcon className="h-8 w-8 text-orange-600" />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-600">Pending Residents</p>
-                                                <p className="text-2xl font-bold text-gray-900">
-                                                    {pendingUsers.filter((user) => user.role === 'resident').length}
-                                                </p>
+                                                <p className="text-sm font-medium text-gray-600">Total Residents</p>
+                                                <p className="text-2xl font-bold text-gray-900">{approvedUsers.total}</p>
                                             </div>
                                             <UserCheck className="h-8 w-8 text-blue-600" />
                                         </div>
@@ -197,10 +178,8 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-600">Pending Partners</p>
-                                                <p className="text-2xl font-bold text-gray-900">
-                                                    {pendingUsers.filter((user) => user.role === 'partner_agency').length}
-                                                </p>
+                                                <p className="text-sm font-medium text-gray-600">Total Partners</p>
+                                                <p className="text-2xl font-bold text-gray-900">{approvedPartners.total}</p>
                                             </div>
                                             <UserX className="h-8 w-8 text-green-600" />
                                         </div>
@@ -211,10 +190,10 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-600">Approved Users</p>
-                                                <p className="text-2xl font-bold text-gray-900">{approvedUsers.total + approvedPartners.total}</p>
+                                                <p className="text-sm font-medium text-gray-600">Pending Users</p>
+                                                <p className="text-2xl font-bold text-gray-900">{pendingUsers.length}</p>
                                             </div>
-                                            <CheckCircle className="h-8 w-8 text-green-600" />
+                                            <UsersIcon className="h-8 w-8 text-orange-600" />
                                         </div>
                                     </CardContent>
                                 </Card>

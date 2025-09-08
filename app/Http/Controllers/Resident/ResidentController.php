@@ -158,12 +158,10 @@ class ResidentController extends Controller
         // Get confirmed events (upcoming)
         $confirmedEvents = Attendance::where('user_id', $user->id)
             ->where('status', 'confirmed')
-            ->with(['event' => function ($query) {
-                $query->where('start_date', '>=', now());
-            }])
+            ->with('event')
             ->get()
             ->filter(function ($attendance) {
-                return $attendance->event !== null;
+                return $attendance->event !== null && $attendance->event->start_date >= now();
             })
             ->map(function ($attendance) {
                 // Generate QR code if not exists
@@ -193,12 +191,10 @@ class ResidentController extends Controller
 
         // Get attendance history
         $attendanceHistory = Attendance::where('user_id', $user->id)
-            ->with(['event' => function ($query) {
-                $query->where('start_date', '<', now());
-            }])
+            ->with('event')
             ->get()
             ->filter(function ($attendance) {
-                return $attendance->event !== null;
+                return $attendance->event !== null && $attendance->event->start_date < now();
             })
             ->map(function ($attendance) {
                 return [

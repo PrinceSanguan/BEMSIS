@@ -202,8 +202,11 @@ class SecretaryController extends Controller
                 $query->whereJsonContains('purok_ids', (int)$purokId)
                     ->orWhere(function ($q) {
                         // Include events that target all residents (null purok_ids AND target_all_residents = true)
-                        $q->whereNull('purok_ids')
-                            ->where('target_all_residents', true);
+                        $q->where('target_all_residents', true)
+                            ->where(function ($subQuery) {
+                                $subQuery->whereNull('purok_ids')
+                                    ->orWhereJsonLength('purok_ids', 0);
+                            });
                     });
             });
         }
@@ -264,7 +267,7 @@ class SecretaryController extends Controller
 
         $eventData = [
             'created_by' => Auth::id(),
-            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
+            'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
@@ -335,7 +338,7 @@ class SecretaryController extends Controller
         }
 
         $updateData = [
-            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
+            'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,

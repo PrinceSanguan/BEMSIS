@@ -342,15 +342,25 @@ export default function Events({ events, puroks, filters }: EventsProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
+        // Validate purok selection
+        if (!data.target_all_residents && data.purok_ids.length === 0) {
+            alert('Please select at least one purok or check "Target all residents"');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('description', data.description);
         formData.append('start_date', data.start_date);
         if (data.end_date) formData.append('end_date', data.end_date);
-        if (data.purok_ids.length > 0) {
+        // Only append purok_ids if not targeting all residents and puroks are selected
+        if (!data.target_all_residents && data.purok_ids.length > 0) {
             data.purok_ids.forEach((id, index) => {
                 formData.append(`purok_ids[${index}]`, id.toString());
             });
+        } else if (data.target_all_residents) {
+            // Explicitly send empty array when targeting all residents
+            formData.append('purok_ids', '[]');
         }
         formData.append('has_certificate', data.has_certificate ? '1' : '0');
         formData.append('target_all_residents', data.target_all_residents ? '1' : '0');

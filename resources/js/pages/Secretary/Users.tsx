@@ -138,7 +138,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                 <div className="flex flex-1 flex-col">
                     <Header onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className={`flex-1 overflow-y-auto p-4 md:p-6 ${className || ''}`}>
+                    <main className={`flex-1 overflow-auto p-4 lg:p-6 ${className || ''}`}>
                         <div className="mx-auto max-w-7xl space-y-6">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
@@ -224,14 +224,14 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                         key={user.id}
                                                         className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
                                                     >
-                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
                                                                 <div className="flex items-center gap-3">
                                                                     <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
                                                                     <Badge className={roleDisplay.color}>{roleDisplay.label}</Badge>
                                                                 </div>
 
-                                                                <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-3">
+                                                                <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -253,7 +253,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"
@@ -334,7 +334,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                         key={user.id}
                                                         className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
                                                     >
-                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
                                                                 <div className="flex items-center gap-3">
                                                                     <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
@@ -345,7 +345,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                         Approved
                                                                     </Badge>
                                                                 </div>
-                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-1 md:grid-cols-2">
+                                                                <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -366,7 +366,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"
@@ -409,7 +409,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                         key={user.id}
                                                         className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
                                                     >
-                                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
                                                                 <div className="flex items-center gap-3">
                                                                     <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
@@ -420,7 +420,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                         Approved
                                                                     </Badge>
                                                                 </div>
-                                                                <div className="grid gap-2 text-sm text-gray-600 sm:grid-cols-1 md:grid-cols-2">
+                                                                <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2">
                                                                     <div className="flex items-center gap-2">
                                                                         <Mail className="h-4 w-4" />
                                                                         <span>{user.email}</span>
@@ -435,7 +435,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                                                            <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
                                                                     className="bg-blue-600 text-white hover:bg-blue-700"

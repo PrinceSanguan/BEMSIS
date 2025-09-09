@@ -236,7 +236,7 @@ export default function UserDetail({ user, className }: Props) {
                 <div className="flex flex-1 flex-col">
                     <Header onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex-1 overflow-y-auto p-6">
+                    <main className="flex-1 overflow-auto p-4 lg:p-6">
                         <div className="mx-auto max-w-4xl space-y-6">
                             {/* Flash Messages */}
                             {flash?.success && (
@@ -264,7 +264,7 @@ export default function UserDetail({ user, className }: Props) {
                             {/* User Header */}
                             <Card>
                                 <CardHeader>
-                                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div>
                                             <div className="mb-2 flex items-center gap-3">
                                                 <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
@@ -282,7 +282,7 @@ export default function UserDetail({ user, className }: Props) {
                                         </div>
 
                                         {user.status === 'pending' && (
-                                            <div className="flex gap-3">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                 <Button
                                                     onClick={handleApproveUser}
                                                     disabled={processing}
@@ -299,7 +299,7 @@ export default function UserDetail({ user, className }: Props) {
                                         )}
 
                                         {user.status === 'approved' && (
-                                            <div className="flex gap-3">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                 {user.is_active ? (
                                                     <Button
                                                         onClick={handleDeactivateUser}

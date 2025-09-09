@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, usePage } from '@inertiajs/react';
-import { Calendar, CheckCircle, Eye, MessageSquare, User, X, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Eye, MessageSquare, User, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface User {
@@ -274,7 +274,7 @@ export default function Feedback({ events, className }: Props) {
                 <Dialog open={showFeedbackModal} onOpenChange={closeFeedbackModal}>
                     <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle className="flex items-center justify-between">
+                            <DialogTitle>
                                 <div>
                                     <h2 className="text-xl font-semibold">Feedback for "{selectedEvent.title}"</h2>
                                     <p className="mt-1 text-sm text-gray-600">
@@ -282,9 +282,6 @@ export default function Feedback({ events, className }: Props) {
                                         {eventFeedbacks.length !== 1 ? 's' : ''}
                                     </p>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={closeFeedbackModal}>
-                                    <X className="h-4 w-4" />
-                                </Button>
                             </DialogTitle>
                         </DialogHeader>
 

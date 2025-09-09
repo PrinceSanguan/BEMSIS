@@ -198,17 +198,8 @@ class SecretaryController extends Controller
         // Apply purok filter
         if ($request->filled('purok_id') && $request->get('purok_id') !== 'all') {
             $purokId = $request->get('purok_id');
-            $eventsQuery->where(function ($query) use ($purokId) {
-                $query->whereJsonContains('purok_ids', (int)$purokId)
-                    ->orWhere(function ($q) {
-                        // Include events that target all residents (null purok_ids AND target_all_residents = true)
-                        $q->where('target_all_residents', true)
-                            ->where(function ($subQuery) {
-                                $subQuery->whereNull('purok_ids')
-                                    ->orWhereJsonLength('purok_ids', 0);
-                            });
-                    });
-            });
+            // Only show events that specifically contain the selected purok
+            $eventsQuery->whereJsonContains('purok_ids', (int)$purokId);
         }
 
         $events = $eventsQuery->latest()

@@ -266,17 +266,21 @@ export default function UserDetail({ user, className }: Props) {
                                 <CardHeader>
                                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div>
-                                            <div className="mb-2 flex items-center gap-3">
-                                                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                                                <Badge className={`px-3 py-1 text-sm font-medium ${roleDisplay.color}`}>{roleDisplay.label}</Badge>
-                                                <Badge className={`px-3 py-1 text-sm font-medium ${statusDisplay.color}`}>
-                                                    <StatusIcon className="mr-1 h-3 w-3" />
-                                                    {statusDisplay.label}
-                                                </Badge>
-                                                <Badge className={`px-3 py-1 text-sm font-medium ${getOnlineStatus().color}`}>
-                                                    <span className="mr-1">{getOnlineStatus().icon}</span>
-                                                    {getOnlineStatus().label}
-                                                </Badge>
+                                            <div className="mb-2 space-y-2">
+                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{user.name}</h1>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${roleDisplay.color}`}>
+                                                        {roleDisplay.label}
+                                                    </Badge>
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${statusDisplay.color}`}>
+                                                        <StatusIcon className="mr-1 h-3 w-3" />
+                                                        {statusDisplay.label}
+                                                    </Badge>
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${getOnlineStatus().color}`}>
+                                                        <span className="mr-1">{getOnlineStatus().icon}</span>
+                                                        {getOnlineStatus().label}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                             <p className="text-gray-600">Registered on {formatDate(user.created_at)}</p>
                                         </div>
@@ -435,7 +439,7 @@ export default function UserDetail({ user, className }: Props) {
                                             <CardContent>
                                                 <div className="space-y-4">
                                                     <div className="rounded-lg border border-gray-200 p-4">
-                                                        <div className="flex items-center justify-between">
+                                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                                             <div className="flex items-center gap-3">
                                                                 <IdCard className="h-8 w-8 text-blue-600" />
                                                                 <div>
@@ -544,7 +548,7 @@ export default function UserDetail({ user, className }: Props) {
                                             <CardContent>
                                                 <div className="space-y-4">
                                                     <div className="rounded-lg border border-gray-200 p-4">
-                                                        <div className="flex items-center justify-between">
+                                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                                             <div className="flex items-center gap-3">
                                                                 <IdCard className="h-8 w-8 text-blue-600" />
                                                                 <div>

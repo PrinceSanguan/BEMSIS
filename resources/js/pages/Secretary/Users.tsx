@@ -141,8 +141,8 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                     <main className={`flex-1 overflow-auto p-4 lg:p-6 ${className || ''}`}>
                         <div className="mx-auto max-w-7xl space-y-6">
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-                                <p className="mt-2 text-gray-600">Review and approve pending user registrations</p>
+                                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">User Management</h1>
+                                <p className="mt-2 text-sm text-gray-600 sm:text-base">Review and approve pending user registrations</p>
                             </div>
 
                             {/* Flash Messages */}
@@ -226,9 +226,11 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                     >
                                                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
-                                                                <div className="flex items-center gap-3">
-                                                                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
-                                                                    <Badge className={roleDisplay.color}>{roleDisplay.label}</Badge>
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{user.name}</h3>
+                                                                    <Badge className={`px-2 py-1 text-xs font-medium ${roleDisplay.color}`}>
+                                                                        {roleDisplay.label}
+                                                                    </Badge>
                                                                 </div>
 
                                                                 <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2">
@@ -336,8 +338,8 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                     >
                                                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
-                                                                <div className="flex items-center gap-3">
-                                                                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{user.name}</h3>
                                                                     <Badge className={`px-2 py-1 text-xs font-medium ${roleDisplay.color}`}>
                                                                         {roleDisplay.label}
                                                                     </Badge>
@@ -411,8 +413,8 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                     >
                                                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                             <div className="flex-1 space-y-3">
-                                                                <div className="flex items-center gap-3">
-                                                                    <h3 className="text-lg font-semibold text-gray-900">{user.name}</h3>
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{user.name}</h3>
                                                                     <Badge className={`px-2 py-1 text-xs font-medium ${roleDisplay.color}`}>
                                                                         {roleDisplay.label}
                                                                     </Badge>

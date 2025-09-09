@@ -200,7 +200,11 @@ class SecretaryController extends Controller
             $purokId = $request->get('purok_id');
             $eventsQuery->where(function ($query) use ($purokId) {
                 $query->whereJsonContains('purok_ids', (int)$purokId)
-                    ->orWhereNull('purok_ids');
+                    ->orWhere(function ($q) {
+                        // Include events that target all residents (null purok_ids AND target_all_residents = true)
+                        $q->whereNull('purok_ids')
+                            ->where('target_all_residents', true);
+                    });
             });
         }
 

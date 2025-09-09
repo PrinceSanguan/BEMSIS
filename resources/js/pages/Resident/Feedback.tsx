@@ -202,14 +202,6 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
                                                             <div>Submitted: {new Date(feedback.submitted_date).toLocaleDateString()}</div>
                                                         </div>
 
-                                                        {/* Display rating if available */}
-                                                        {feedback.rating && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-sm font-medium">Rating:</span>
-                                                                <div className="flex gap-1">{renderStars(feedback.rating)}</div>
-                                                            </div>
-                                                        )}
-
                                                         <div>
                                                             <p className="mb-2 text-sm font-medium text-gray-700">Your Feedback:</p>
                                                             <p className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">{feedback.comment}</p>

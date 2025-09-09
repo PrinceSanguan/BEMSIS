@@ -172,7 +172,7 @@ export default function UserDetail({ user, className }: Props) {
                 <div className="flex flex-1 flex-col">
                     <Header userName="Captain" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex-1 overflow-auto bg-gray-50 p-6">
+                    <main className="flex-1 overflow-auto bg-gray-50 p-4 lg:p-6">
                         {/* Flash Messages */}
                         {flash?.success && (
                             <div className="mb-6">
@@ -204,19 +204,23 @@ export default function UserDetail({ user, className }: Props) {
                             {/* Header Card */}
                             <Card>
                                 <CardHeader>
-                                    <div className="flex items-start justify-between">
+                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                         <div className="space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                                                <Badge className={`px-3 py-1 ${roleDisplay.color}`}>{roleDisplay.label}</Badge>
-                                                <Badge className={`px-3 py-1 ${statusDisplay.color}`}>
-                                                    <StatusIcon className="mr-1 h-3 w-3" />
-                                                    {statusDisplay.label}
-                                                </Badge>
-                                                <Badge className={`px-3 py-1 text-sm font-medium ${getOnlineStatus().color}`}>
-                                                    <span className="mr-1">{getOnlineStatus().icon}</span>
-                                                    {getOnlineStatus().label}
-                                                </Badge>
+                                            <div className="space-y-2">
+                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{user.name}</h1>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${roleDisplay.color}`}>
+                                                        {roleDisplay.label}
+                                                    </Badge>
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${statusDisplay.color}`}>
+                                                        <StatusIcon className="mr-1 h-3 w-3" />
+                                                        {statusDisplay.label}
+                                                    </Badge>
+                                                    <Badge className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${getOnlineStatus().color}`}>
+                                                        <span className="mr-1">{getOnlineStatus().icon}</span>
+                                                        {getOnlineStatus().label}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                 <Calendar className="h-4 w-4" />
@@ -238,7 +242,7 @@ export default function UserDetail({ user, className }: Props) {
                                                     This account is currently {user.is_active ? 'active' : 'deactivated'}
                                                 </p>
                                             </div>
-                                            <div className="flex gap-3">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                                                 {user.is_active ? (
                                                     <Button
                                                         variant="outline"

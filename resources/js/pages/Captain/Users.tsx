@@ -232,8 +232,8 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                         )}
 
                         <div className="mb-6">
-                            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-                            <p className="text-gray-600">View and manage community members and partner agencies</p>
+                            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">User Management</h1>
+                            <p className="text-sm text-gray-600 sm:text-base">View and manage community members and partner agencies</p>
                         </div>
 
                         {/* Tab Navigation */}
@@ -325,11 +325,13 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                     key={user.id}
                                                     className="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
                                                 >
-                                                    <div className="flex items-start justify-between">
+                                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                                         <div className="flex-1">
-                                                            <div className="flex items-center gap-3">
-                                                                <h3 className="text-lg font-medium text-gray-900">{user.name}</h3>
-                                                                <Badge className={getRoleColor(user.role)}>Resident</Badge>
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <h3 className="text-base font-medium text-gray-900 sm:text-lg">{user.name}</h3>
+                                                                <Badge className={`px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}>
+                                                                    Resident
+                                                                </Badge>
                                                             </div>
                                                             <div className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
                                                                 <div className="flex items-center gap-2">
@@ -351,7 +353,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-4 flex flex-shrink-0 gap-2">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
@@ -416,9 +418,13 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                 >
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1">
-                                                            <div className="flex items-center gap-3">
-                                                                <h3 className="text-lg font-medium text-gray-900">{user.agency_name || user.name}</h3>
-                                                                <Badge className={getRoleColor(user.role)}>Partner Agency</Badge>
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <h3 className="text-base font-medium text-gray-900 sm:text-lg">
+                                                                    {user.agency_name || user.name}
+                                                                </h3>
+                                                                <Badge className={`px-2 py-1 text-xs font-medium ${getRoleColor(user.role)}`}>
+                                                                    Partner Agency
+                                                                </Badge>
                                                             </div>
                                                             <div className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2">
                                                                 <div className="flex items-center gap-2">
@@ -448,7 +454,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-4 flex flex-shrink-0 gap-2">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"

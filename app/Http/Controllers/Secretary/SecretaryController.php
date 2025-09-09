@@ -186,6 +186,9 @@ class SecretaryController extends Controller
         // Build query with search and filter
         $eventsQuery = Event::with(['creator', 'attendances']);
 
+        // Only show pending and approved events (exclude declined)
+        $eventsQuery->whereIn('status', ['pending', 'approved']);
+
         // Apply search filter
         if ($request->filled('search')) {
             $search = $request->get('search');

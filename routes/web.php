@@ -130,6 +130,7 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
 
   // Attendance Management
   Route::get('secretary/attendance', [SecretaryController::class, 'attendance'])->name('secretary.attendance');
+  Route::post('secretary/scan-qr', [SecretaryController::class, 'scanQrCode'])->name('secretary.scan-qr');
 
   // Feedback Review
   Route::get('secretary/feedback', [SecretaryController::class, 'feedback'])->name('secretary.feedback');

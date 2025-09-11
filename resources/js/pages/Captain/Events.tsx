@@ -148,9 +148,10 @@ export default function Events({ pendingEvents }: Props) {
                             </div>
                         )}
 
+                        {/* Header Section */}
                         <div className="mb-6">
-                            <h1 className="text-3xl font-bold text-gray-900">Event Approvals</h1>
-                            <p className="text-gray-600">Review and approve community event requests</p>
+                            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Event Approvals</h1>
+                            <p className="text-sm text-gray-600 sm:text-base">Review and approve community event requests</p>
                         </div>
 
                         {/* Events List */}
@@ -163,90 +164,109 @@ export default function Events({ pendingEvents }: Props) {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-4 md:space-y-6">
                                 {pendingEvents.map((event) => (
                                     <Card key={event.id} className="shadow-sm">
-                                        <CardHeader>
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex-1">
-                                                    <CardTitle className="text-xl">{event.title}</CardTitle>
-                                                    <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                                        <CardHeader className="pb-3">
+                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex-1 space-y-2">
+                                                    <CardTitle className="text-lg sm:text-xl">{event.title}</CardTitle>
+                                                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 sm:gap-4 sm:text-sm">
                                                         <div className="flex items-center gap-1">
-                                                            <User className="h-4 w-4" />
+                                                            <User className="h-3 w-3 sm:h-4 sm:w-4" />
                                                             <span>{getRoleLabel(event.creator_role)}</span>
                                                         </div>
                                                         <div className="flex items-center gap-1">
-                                                            <Calendar className="h-4 w-4" />
-                                                            <span>{formatDate(event.start_date)}</span>
+                                                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                            <span className="hidden sm:inline">{formatDate(event.start_date)}</span>
+                                                            <span className="sm:hidden">
+                                                                {new Date(event.start_date).toLocaleDateString('en-US', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                })}
+                                                            </span>
                                                         </div>
                                                         {event.purok && (
                                                             <div className="flex items-center gap-1">
-                                                                <MapPin className="h-4 w-4" />
+                                                                <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                                                                 <span>{event.purok.name}</span>
                                                             </div>
                                                         )}
                                                         {event.has_certificate && (
                                                             <div className="flex items-center gap-1">
-                                                                <Award className="h-4 w-4" />
-                                                                <span>Has Certificate</span>
+                                                                <Award className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                                <span className="hidden sm:inline">Has Certificate</span>
+                                                                <span className="sm:hidden">Cert</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <Badge className={getRoleColor(event.creator_role)}>{getRoleLabel(event.creator_role)}</Badge>
+                                                <div className="flex shrink-0">
+                                                    <Badge
+                                                        className={`px-2 py-1 text-xs font-medium sm:px-3 sm:text-sm ${getRoleColor(event.creator_role)}`}
+                                                    >
+                                                        {getRoleLabel(event.creator_role)}
+                                                    </Badge>
+                                                </div>
                                             </div>
                                         </CardHeader>
-                                        <CardContent>
+                                        <CardContent className="space-y-4">
+                                            {/* Event Image */}
                                             {event.image_path && (
                                                 <div className="mb-4">
                                                     <img
                                                         src={`/storage/${event.image_path}`}
                                                         alt={event.title}
-                                                        className="h-48 w-full rounded-lg border object-cover"
+                                                        className="h-32 w-full rounded-lg border object-cover sm:h-48"
                                                     />
                                                 </div>
                                             )}
-                                            <p className="mb-4 text-gray-700">{event.description}</p>
 
-                                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <Calendar className="h-4 w-4" />
-                                                    <span>{formatDate(event.start_date)}</span>
+                                            {/* Event Description */}
+                                            <p className="text-sm text-gray-700 sm:text-base">{event.description}</p>
+
+                                            {/* Event Details Grid */}
+                                            <div className="grid grid-cols-1 gap-2 text-xs text-gray-600 sm:grid-cols-2 sm:gap-3 sm:text-sm lg:grid-cols-4">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                    <span className="truncate">{formatDate(event.start_date)}</span>
                                                 </div>
 
                                                 {event.end_date && (
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <Clock className="h-4 w-4" />
-                                                        <span>Ends: {formatDate(event.end_date)}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                        <span className="truncate">Ends: {formatDate(event.end_date)}</span>
                                                     </div>
                                                 )}
 
-                                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <User className="h-4 w-4" />
-                                                    <span>{event.creator.name}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                    <span className="truncate">{event.creator.name}</span>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <MapPin className="h-4 w-4" />
-                                                    <span>{event.purok ? event.purok.name : 'All Residents'}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                    <span className="truncate">{event.purok ? event.purok.name : 'All Residents'}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-3 border-t pt-4">
+                                            {/* Action Buttons */}
+                                            <div className="flex flex-col gap-2 border-t pt-4 sm:flex-row sm:gap-3">
                                                 <Button
                                                     onClick={() => handleEventAction(event.id, 'approve')}
                                                     disabled={processing === event.id}
-                                                    className="bg-green-600 hover:bg-green-700"
+                                                    className="w-full bg-green-600 hover:bg-green-700 sm:w-auto"
+                                                    size="sm"
                                                 >
                                                     {processing === event.id ? (
                                                         <>
-                                                            <Clock className="mr-2 h-4 w-4 animate-spin" />
-                                                            Processing...
+                                                            <Clock className="mr-2 h-3 w-3 animate-spin sm:h-4 sm:w-4" />
+                                                            <span className="text-xs sm:text-sm">Processing...</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <CheckCircle className="mr-2 h-4 w-4" />
-                                                            Approve Event
+                                                            <CheckCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                                            <span className="text-xs sm:text-sm">Approve Event</span>
                                                         </>
                                                     )}
                                                 </Button>
@@ -255,16 +275,18 @@ export default function Events({ pendingEvents }: Props) {
                                                     variant="destructive"
                                                     onClick={() => handleEventAction(event.id, 'decline')}
                                                     disabled={processing === event.id}
+                                                    className="w-full sm:w-auto"
+                                                    size="sm"
                                                 >
                                                     {processing === event.id ? (
                                                         <>
-                                                            <Clock className="mr-2 h-4 w-4 animate-spin" />
-                                                            Processing...
+                                                            <Clock className="mr-2 h-3 w-3 animate-spin sm:h-4 sm:w-4" />
+                                                            <span className="text-xs sm:text-sm">Processing...</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <AlertCircle className="mr-2 h-4 w-4" />
-                                                            Decline Event
+                                                            <AlertCircle className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                                            <span className="text-xs sm:text-sm">Decline Event</span>
                                                         </>
                                                     )}
                                                 </Button>

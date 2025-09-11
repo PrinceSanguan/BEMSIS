@@ -315,7 +315,7 @@ class ResidentController extends Controller
             // Generate certificate QR code
             $certificateQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?' . http_build_query([
                 'size' => '300x300',
-                'data' => route('certificates.view.public', $certificateCode),
+                'data' => route('resident.certificates.view', $certificateCode),
                 'color' => '000000',
                 'bgcolor' => 'FFFFFF',
                 'ecc' => 'M',

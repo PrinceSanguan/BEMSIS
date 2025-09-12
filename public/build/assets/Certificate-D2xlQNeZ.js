@@ -1,69 +1,4 @@
-import { Head } from '@inertiajs/react';
-import React, { useState } from 'react';
-
-interface Props {
-    userName: string;
-    eventTitle: string;
-    eventDate: string;
-    eventDuration: string;
-    certificateCode: string;
-    autoDownload?: boolean;
-}
-
-export default function Certificate({ userName, eventTitle, eventDate, eventDuration, certificateCode, autoDownload }: Props) {
-    const [hasAutoDownloaded, setHasAutoDownloaded] = useState(false);
-
-    // Auto-download when accessed via QR code
-    React.useEffect(() => {
-        if (autoDownload && !hasAutoDownloaded) {
-            setTimeout(() => {
-                window.print();
-                setHasAutoDownloaded(true);
-            }, 1000);
-        }
-    }, [autoDownload, hasAutoDownloaded]);
-
-    return (
-        <>
-            <Head title={`Certificate - ${eventTitle}`} />
-
-            <div className="certificate-page">
-                <div className="certificate-container">
-                    <div className="certificate-border">
-                        {/* Barangay Logo - Top Center */}
-                        <div className="header-section">
-                            <img src="/assets/images/Bemsis.jpg" alt="Barangay Logo" className="barangay-logo" />
-                            <h1 className="system-title">BARANGAY EVENT MANAGEMENT SYSTEM</h1>
-                            <h2 className="certificate-title">CERTIFICATE OF COMPLETION</h2>
-                        </div>
-
-                        {/* Main Content */}
-                        <div className="content-section">
-                            <p className="certify-text">This is to certify that</p>
-
-                            <div className="recipient-name">{userName}</div>
-                            <div className="name-underline"></div>
-
-                            <p className="completion-text">has successfully completed the community event</p>
-
-                            <div className="event-name">"{eventTitle}"</div>
-                        </div>
-
-                        {/* Signature Area - Bottom Left */}
-                        <div className="signature-section">
-                            <div className="signature-placeholder">
-                                {/* Signature Image Placeholder */}
-                                <img src="/assets/images/signature.jpg" alt="Captain's Signature" className="signature-image" />
-                            </div>
-                            <div className="signature-line"></div>
-                            <p className="captain-name">Hon. Maristela Ubalde</p>
-                            <p className="captain-title">Barangay Captain</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <style jsx>{`
+import{r as s,R as o,j as e,L as c}from"./app-D8ikeobe.js";function m({userName:n,eventTitle:t,eventDate:l,eventDuration:d,certificateCode:x,autoDownload:i}){const[a,r]=s.useState(!1);return o.useEffect(()=>{i&&!a&&setTimeout(()=>{window.print(),r(!0)},1e3)},[i,a]),e.jsxs(e.Fragment,{children:[e.jsx(c,{title:`Certificate - ${t}`}),e.jsx("div",{className:"certificate-page",children:e.jsx("div",{className:"certificate-container",children:e.jsxs("div",{className:"certificate-border",children:[e.jsxs("div",{className:"header-section",children:[e.jsx("img",{src:"/assets/images/Bemsis.jpg",alt:"Barangay Logo",className:"barangay-logo"}),e.jsx("h1",{className:"system-title",children:"BARANGAY EVENT MANAGEMENT SYSTEM"}),e.jsx("h2",{className:"certificate-title",children:"CERTIFICATE OF COMPLETION"})]}),e.jsxs("div",{className:"content-section",children:[e.jsx("p",{className:"certify-text",children:"This is to certify that"}),e.jsx("div",{className:"recipient-name",children:n}),e.jsx("div",{className:"name-underline"}),e.jsx("p",{className:"completion-text",children:"has successfully completed the community event"}),e.jsxs("div",{className:"event-name",children:['"',t,'"']})]}),e.jsxs("div",{className:"signature-section",children:[e.jsx("div",{className:"signature-placeholder",children:e.jsx("img",{src:"/assets/images/signature.jpg",alt:"Captain's Signature",className:"signature-image"})}),e.jsx("div",{className:"signature-line"}),e.jsx("p",{className:"captain-name",children:"Hon. Maristela Ubalde"}),e.jsx("p",{className:"captain-title",children:"Barangay Captain"})]})]})})}),e.jsx("style",{jsx:!0,children:`
                 .certificate-page {
                     width: 100vw;
                     height: 100vh;
@@ -277,7 +212,4 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                         transform: scale(0.6);
                     }
                 }
-            `}</style>
-        </>
-    );
-}
+            `})]})}export{m as default};

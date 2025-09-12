@@ -115,7 +115,8 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                     object-fit: contain;
                     border-radius: 50%;
                     border: 3px solid #1e40af;
-                    margin-bottom: 30px;
+                    margin: 0 auto 30px auto;
+                    display: block;
                 }
 
                 .system-title {

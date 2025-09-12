@@ -386,7 +386,7 @@ export default function Events({ events }: Props) {
                                                 <p className="text-gray-600">There are no upcoming events at this time.</p>
                                             </div>
                                         ) : (
-                                            <div className="space-y-4">
+                                            <div className="space-y-4 pb-4">
                                                 {events.map((event) => (
                                                     <div
                                                         key={event.id}
@@ -463,13 +463,13 @@ export default function Events({ events }: Props) {
             {/* Event Details Dialog */}
             {selectedEvent && (
                 <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-4 sm:max-h-[80vh] sm:p-6">
                         <DialogHeader>
                             <DialogTitle>{selectedEvent.title}</DialogTitle>
                             <DialogDescription>Event details and information</DialogDescription>
                         </DialogHeader>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 pb-4">
                             {selectedEvent.image_path && (
                                 <div className="w-full">
                                     <img

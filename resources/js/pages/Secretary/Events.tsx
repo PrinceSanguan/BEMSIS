@@ -697,7 +697,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
             {/* Event Details Dialog */}
             {selectedEvent && (
                 <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>{selectedEvent.title}</DialogTitle>
                             <DialogDescription>Event details and information</DialogDescription>

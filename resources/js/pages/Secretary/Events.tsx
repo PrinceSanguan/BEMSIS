@@ -592,7 +592,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <div className="space-y-4">
+                                            <div className="space-y-4 pb-4">
                                                 {events.map((event) => {
                                                     const isProcessingEvent = processing.has(event.id);
                                                     const isPast = isEventPast(event.start_date);
@@ -697,13 +697,13 @@ export default function Events({ events, puroks, filters }: EventsProps) {
             {/* Event Details Dialog */}
             {selectedEvent && (
                 <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                    <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-4 sm:max-h-[80vh] sm:p-6">
                         <DialogHeader>
                             <DialogTitle>{selectedEvent.title}</DialogTitle>
                             <DialogDescription>Event details and information</DialogDescription>
                         </DialogHeader>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 pb-4">
                             {selectedEvent.image_path && (
                                 <div className="w-full">
                                     <img
@@ -774,7 +774,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
 
             {/* Create Event Dialog */}
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+                <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-4 sm:max-h-[80vh] sm:p-6">
                     <DialogHeader>
                         <DialogTitle>Create New Event</DialogTitle>
                         <DialogDescription>

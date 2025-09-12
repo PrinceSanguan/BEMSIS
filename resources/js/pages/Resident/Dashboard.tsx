@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
@@ -86,31 +86,6 @@ export default function Dashboard({ stats, upcomingEvents }: Props) {
                                 </Card>
                             ))}
                         </div>
-
-                        {/* Upcoming Events */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Upcoming Events</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {upcomingEvents.map((event) => (
-                                        <div key={event.id} className="flex items-center justify-between rounded-lg border p-4">
-                                            <div>
-                                                <h4 className="font-medium text-gray-900">{event.title}</h4>
-                                                <p className="text-sm text-gray-500">{new Date(event.start_date).toLocaleDateString()}</p>
-                                            </div>
-                                            <span
-                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(event.registration_status)}`}
-                                            >
-                                                {event.registration_status?.charAt(0).toUpperCase() + event.registration_status?.slice(1) ||
-                                                    'Available'}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
                     </main>
                 </div>
             </div>

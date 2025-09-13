@@ -17,7 +17,14 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
     return (
         <div className={cn('flex h-full w-64 flex-col border-r bg-white', className)}>
             <div className="p-6">
-                <h2 className="text-lg font-semibold text-gray-800">Admin Panel</h2>
+                <div className="flex flex-col items-center space-y-3">
+                    <img
+                        src="/assets/images/Bemsis.jpg"
+                        alt="Barangay Logo"
+                        className="h-16 w-16 rounded-full border-2 border-gray-200 object-cover"
+                    />
+                    <h2 className="text-lg font-semibold text-gray-800">Admin Panel</h2>
+                </div>
             </div>
 
             <nav className="flex-1 space-y-2 p-4">

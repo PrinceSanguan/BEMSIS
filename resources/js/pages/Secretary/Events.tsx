@@ -358,10 +358,8 @@ export default function Events({ events, puroks, filters }: EventsProps) {
             data.purok_ids.forEach((id, index) => {
                 formData.append(`purok_ids[${index}]`, id.toString());
             });
-        } else if (data.target_all_residents) {
-            // Explicitly send empty array when targeting all residents
-            formData.append('purok_ids', '[]');
         }
+        // When targeting all residents, don't send purok_ids at all
         formData.append('has_certificate', data.has_certificate ? '1' : '0');
         formData.append('target_all_residents', data.target_all_residents ? '1' : '0');
         if (data.image) formData.append('image', data.image);

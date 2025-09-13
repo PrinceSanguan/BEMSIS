@@ -880,12 +880,23 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                             ? new Date(new Date(data.start_date).getTime() + 60 * 60 * 1000).toISOString().slice(0, 16)
                                             : undefined
                                     }
-                                    onChange={(e) => setData('end_date', e.target.value)}
+                                    onChange={(e) => {
+                                        const selectedEndTime = new Date(e.target.value).getTime();
+                                        const requiredMinTime = new Date(data.start_date).getTime() + 60 * 60 * 1000;
+
+                                        if (selectedEndTime < requiredMinTime) {
+                                            alert('End date must be at least 1 hour after start date');
+                                            return;
+                                        }
+
+                                        setData('end_date', e.target.value);
+                                    }}
                                     className={errors.end_date ? 'border-red-500' : ''}
                                     disabled={!data.start_date}
                                 />
                                 {errors.end_date && <p className="mt-1 text-sm text-red-500">{errors.end_date}</p>}
                                 {!data.start_date && <p className="mt-1 text-sm text-gray-500">Please select a start date first</p>}
+                                {data.start_date && <p className="mt-1 text-sm text-gray-500">Must be at least 1 hour after start date</p>}
                             </div>
                         </div>
 

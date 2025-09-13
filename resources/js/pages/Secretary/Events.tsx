@@ -766,6 +766,25 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                     <Eye className="mr-1 h-4 w-4" />
                                     View Details
                                 </Button>
+
+                                {(selectedEvent.status === 'pending' ||
+                                    selectedEvent.status === 'declined' ||
+                                    (selectedEvent.status === 'approved' && isEventPast(selectedEvent.start_date))) && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+                                                deleteEvent(selectedEvent.id);
+                                                setSelectedEvent(null);
+                                            }
+                                        }}
+                                        className="text-red-600 hover:text-red-700"
+                                    >
+                                        <Trash2 className="mr-1 h-4 w-4" />
+                                        Delete
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </DialogContent>

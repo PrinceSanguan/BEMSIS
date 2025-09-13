@@ -3,15 +3,12 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use App\Models\UserDevice;
 
-class LoginNotificationEmail extends Mailable implements ShouldQueue
+class LoginNotificationEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -19,6 +16,9 @@ class LoginNotificationEmail extends Mailable implements ShouldQueue
     public $device;
     public $verificationUrl;
 
+    /**
+     * Create a new message instance.
+     */
     public function __construct(User $user, UserDevice $device, string $verificationToken)
     {
         $this->user = $user;
@@ -29,23 +29,13 @@ class LoginNotificationEmail extends Mailable implements ShouldQueue
         ]);
     }
 
-    public function envelope()
+    /**
+     * Build the message.
+     */
+    public function build()
     {
-        return new Envelope(
-            subject: 'New Device Login Detected - Security Alert',
-            from: config('mail.from.address'),
-        );
-    }
-
-    public function content()
-    {
-        return new Content(
-            view: 'emails.login-notification',
-        );
-    }
-
-    public function attachments()
-    {
-        return [];
+        return $this->subject('New Device Login Detected - Security Alert - ' . config('app.name'))
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->view('emails.login-notification');
     }
 }

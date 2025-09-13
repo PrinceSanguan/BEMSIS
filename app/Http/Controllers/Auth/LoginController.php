@@ -243,8 +243,8 @@ class LoginController extends Controller
         try {
             $verificationToken = $device->generateVerificationToken();
 
-            // Queue the email for better reliability
-            Mail::to($user->email)->queue(new LoginNotificationEmail($user, $device, $verificationToken));
+            // Send the email immediately (same as OTP)
+            Mail::to($user->email)->send(new LoginNotificationEmail($user, $device, $verificationToken));
 
             Log::info('Login notification queued successfully', [
                 'user_id' => $user->id,

@@ -367,9 +367,7 @@ class SecretaryController extends Controller
 
     public function deleteEvent($eventId)
     {
-        $event = Event::where('id', $eventId)
-            ->where('created_by', Auth::id())
-            ->firstOrFail();
+        $event = Event::findOrFail($eventId);
 
         // Check deletion permissions based on status and date
         if ($event->status === 'approved') {
@@ -380,11 +378,23 @@ class SecretaryController extends Controller
             }
         }
 
+        // Delete all related records first to avoid foreign key constraint violations
+
+        // Delete all attendances for this event
+        Attendance::where('event_id', $eventId)->delete();
+
+        // Delete all feedbacks for this event
+        Feedback::where('event_id', $eventId)->delete();
+
+        // Delete all certificates for this event
+        Certificate::where('event_id', $eventId)->delete();
+
         // Delete associated image if exists
         if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
             Storage::disk('public')->delete($event->image_path);
         }
 
+        // Now delete the event itself
         $event->delete();
 
         return back()->with('success', 'Event deleted successfully!');

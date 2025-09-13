@@ -855,9 +855,13 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                     min={new Date().toISOString().slice(0, 16)}
                                     onChange={(e) => {
                                         setData('start_date', e.target.value);
-                                        // Reset end date if it's before the new start date
-                                        if (data.end_date && e.target.value >= data.end_date) {
-                                            setData('end_date', '');
+                                        // Reset end date if it's too close to the new start date
+                                        if (data.end_date && e.target.value) {
+                                            const startTime = new Date(e.target.value).getTime();
+                                            const endTime = new Date(data.end_date).getTime();
+                                            if (endTime <= startTime + 60 * 60 * 1000) {
+                                                setData('end_date', '');
+                                            }
                                         }
                                     }}
                                     className={errors.start_date ? 'border-red-500' : ''}

@@ -34,9 +34,16 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withCommands([
         \App\Console\Commands\MarkUsersOffline::class,
+        \App\Console\Commands\SendEventReminders::class,
     ])
     ->withSchedule(function ($schedule) {
         // Mark users offline every minute
         $schedule->command('users:mark-offline --minutes=5')->everyMinute();
+
+        // Send event reminders daily at 9:00 AM
+        $schedule->command('events:send-reminders')
+            ->dailyAt('09:00')
+            ->withoutOverlapping()
+            ->runInBackground();
     })
     ->create();

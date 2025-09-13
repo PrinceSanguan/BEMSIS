@@ -94,7 +94,11 @@ class CaptainController extends Controller
             return back()->with('error', 'Event has already been processed.');
         }
 
-        $event->update(['status' => 'approved']);
+        $event->update([
+            'status' => 'approved',
+            'reminder_sent' => false,
+            'reminder_sent_at' => null
+        ]);
 
         // Send SMS notifications to all residents
         // Commented out to avoid sending SMS notifications to residents

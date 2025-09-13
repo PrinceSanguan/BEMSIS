@@ -167,11 +167,25 @@ class LoginController extends Controller
             ->first();
 
         if ($device) {
-            // Device exists - update last used time
-            $device->update(['last_used_at' => now()]);
+            // Device exists - update last used time and IP (might change)
+            $device->update([
+                'last_used_at' => now(),
+                'ip_address' => $ipAddress // Update IP in case it changed
+            ]);
+
+            Log::info('Existing device login', [
+                'user_id' => $user->id,
+                'device_id' => $device->id,
+                'is_trusted' => $device->is_trusted,
+                'device_name' => $device->device_name
+            ]);
 
             // If device is not trusted, send notification again
             if (!$device->is_trusted) {
+                Log::info('Sending notification for untrusted device', [
+                    'user_id' => $user->id,
+                    'device_id' => $device->id
+                ]);
                 $this->sendLoginNotification($user, $device);
             }
         } else {
@@ -192,11 +206,23 @@ class LoginController extends Controller
                 'last_used_at' => now(),
             ]);
 
+            Log::info('New device detected', [
+                'user_id' => $user->id,
+                'device_id' => $device->id,
+                'device_name' => $device->device_name,
+                'device_hash' => $deviceHash
+            ]);
+
             // Check if user has any trusted devices
             $hasTrustedDevices = $user->trustedDevices()->exists();
 
             if ($hasTrustedDevices) {
                 // User has trusted devices, so this is a new device - send notification
+                Log::info('Sending notification for new device (user has trusted devices)', [
+                    'user_id' => $user->id,
+                    'device_id' => $device->id,
+                    'trusted_devices_count' => $user->trustedDevices()->count()
+                ]);
                 $this->sendLoginNotification($user, $device);
             } else {
                 // First device - automatically trust it
@@ -217,19 +243,26 @@ class LoginController extends Controller
         try {
             $verificationToken = $device->generateVerificationToken();
 
-            Mail::to($user->email)->send(new LoginNotificationEmail($user, $device, $verificationToken));
+            // Queue the email for better reliability
+            Mail::to($user->email)->queue(new LoginNotificationEmail($user, $device, $verificationToken));
 
-            Log::info('Login notification sent', [
+            Log::info('Login notification queued successfully', [
                 'user_id' => $user->id,
                 'device_id' => $device->id,
-                'email' => $user->email
+                'email' => $user->email,
+                'device_hash' => $device->device_hash,
+                'is_trusted' => $device->is_trusted
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send login notification', [
+            Log::error('Failed to queue login notification', [
                 'user_id' => $user->id,
                 'device_id' => $device->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
+
+            // Still throw exception to handle in calling method if needed
+            throw $e;
         }
     }
 

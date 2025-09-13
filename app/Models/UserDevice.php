@@ -43,8 +43,13 @@ class UserDevice extends Model
      */
     public static function generateDeviceHash(string $userAgent, string $ipAddress, int $userId): string
     {
-        // Create a more sophisticated fingerprint that includes user context
-        $fingerprint = $userAgent . '|' . self::extractBrowserFingerprint($userAgent) . '|' . $userId;
+        // Create a more stable fingerprint that doesn't rely on IP changes
+        $browserFingerprint = self::extractBrowserFingerprint($userAgent);
+        $platformInfo = self::parseUserAgent($userAgent);
+
+        // Use browser + platform info for more stable identification
+        $fingerprint = $platformInfo['platform'] . '|' . $platformInfo['browser'] . '|' . $browserFingerprint . '|' . $userId;
+
         return hash('sha256', $fingerprint);
     }
 

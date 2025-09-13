@@ -366,11 +366,6 @@ export default function Attendance({ events, className }: Props) {
                                                                     <Badge variant="outline" className={getAttendanceBadge(event.attendance_rate)}>
                                                                         {event.attendance_rate}% attendance
                                                                     </Badge>
-                                                                    {!isPast && (
-                                                                        <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
-                                                                            Ongoing
-                                                                        </Badge>
-                                                                    )}
                                                                     {event.has_certificate && (
                                                                         <Badge
                                                                             variant="outline"

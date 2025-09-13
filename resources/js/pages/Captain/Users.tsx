@@ -416,7 +416,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                     key={user.id}
                                                     className="rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
                                                 >
-                                                    <div className="flex items-start justify-between">
+                                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                                         <div className="flex-1">
                                                             <div className="flex flex-wrap items-center gap-2">
                                                                 <h3 className="text-base font-medium text-gray-900 sm:text-lg">

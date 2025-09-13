@@ -102,7 +102,7 @@ class PartnerController extends Controller
 
         $eventData = [
             'created_by' => Auth::id(),
-            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
+            'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
@@ -173,7 +173,7 @@ class PartnerController extends Controller
         }
 
         $updateData = [
-            'purok_ids' => $targetAllResidents ? null : ($request->purok_ids ?? []),
+            'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,

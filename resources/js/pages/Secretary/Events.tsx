@@ -873,7 +873,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                     value={data.end_date}
                                     min={
                                         data.start_date
-                                            ? new Date(new Date(data.start_date).getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)
+                                            ? new Date(new Date(data.start_date).getTime() + 60 * 60 * 1000).toISOString().slice(0, 16)
                                             : undefined
                                     }
                                     onChange={(e) => setData('end_date', e.target.value)}

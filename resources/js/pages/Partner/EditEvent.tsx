@@ -242,7 +242,17 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                     id="start_date"
                                                     type="datetime-local"
                                                     value={data.start_date}
-                                                    onChange={(e) => setData('start_date', e.target.value)}
+                                                    onChange={(e) => {
+                                                        setData('start_date', e.target.value);
+                                                        // Reset end date if it's too close to the new start date
+                                                        if (data.end_date && e.target.value) {
+                                                            const startTime = new Date(e.target.value).getTime();
+                                                            const endTime = new Date(data.end_date).getTime();
+                                                            if (endTime <= startTime + 60 * 60 * 1000) {
+                                                                setData('end_date', '');
+                                                            }
+                                                        }
+                                                    }}
                                                     className={errors.start_date ? 'border-red-500' : ''}
                                                 />
                                                 {errors.start_date && <p className="mt-1 text-sm text-red-500">{errors.start_date}</p>}
@@ -255,6 +265,13 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                     type="datetime-local"
                                                     value={data.end_date}
                                                     onChange={(e) => setData('end_date', e.target.value)}
+                                                    min={
+                                                        data.start_date
+                                                            ? new Date(new Date(data.start_date).getTime() + 60 * 60 * 1000)
+                                                                  .toISOString()
+                                                                  .slice(0, 16)
+                                                            : undefined
+                                                    }
                                                     className={errors.end_date ? 'border-red-500' : ''}
                                                 />
                                                 {errors.end_date && <p className="mt-1 text-sm text-red-500">{errors.end_date}</p>}

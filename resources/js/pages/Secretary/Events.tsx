@@ -594,7 +594,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                 {events.map((event) => {
                                                     const isProcessingEvent = processing.has(event.id);
                                                     const isPast = isEventPast(event.start_date);
-                                                    const canEdit = event.status === 'pending';
+                                                    const canEdit = event.status === 'pending' && event.creator.role === 'secretary';
                                                     const canDelete =
                                                         event.status === 'pending' ||
                                                         event.status === 'declined' ||
@@ -740,7 +740,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                             </div>
 
                             <div className="flex flex-wrap gap-2 pt-4">
-                                {selectedEvent.status === 'pending' && (
+                                {selectedEvent.status === 'pending' && selectedEvent.creator.role === 'secretary' && (
                                     <Button
                                         size="sm"
                                         onClick={() => {

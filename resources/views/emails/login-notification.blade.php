@@ -145,7 +145,6 @@
 <body>
     <div class="email-wrapper">
         <div class="email-header">
-            <div class="security-icon">🔒</div>
             <h1>Security Alert</h1>
             <p>New device login detected</p>
         </div>

@@ -371,9 +371,13 @@ class SecretaryController extends Controller
             ->where('created_by', Auth::id())
             ->firstOrFail();
 
-        // Prevent deleting approved events
+        // Check deletion permissions based on status and date
         if ($event->status === 'approved') {
-            return back()->with('error', 'Cannot delete approved events.');
+            // For approved events, only allow deletion if event has ended
+            $eventEndTime = $event->end_date ?: $event->start_date;
+            if (new \DateTime($eventEndTime) >= new \DateTime()) {
+                return back()->with('error', 'Cannot delete approved events that are still ongoing or upcoming.');
+            }
         }
 
         // Delete associated image if exists
@@ -484,7 +488,9 @@ class SecretaryController extends Controller
 
     public function assignCertificates($eventId)
     {
-        $event = Event::findOrFail($eventId);
+        $event = Event::where('id', $eventId)
+            ->where('created_by', Auth::id())
+            ->firstOrFail();
 
         if (!$event->has_certificate) {
             return back()->with('error', 'This event does not offer certificates.');

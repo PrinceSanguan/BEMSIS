@@ -22,7 +22,7 @@ interface FeedbackHistory {
     date: string;
     comment: string;
     submitted_date: string;
-    rating: number;
+    rating: number | null;
 }
 
 interface CertificateData {

@@ -45,6 +45,7 @@ interface Event {
     id: number;
     title: string;
     description: string;
+    venue?: string;
     start_date: string;
     end_date?: string;
     status: 'pending' | 'approved' | 'declined';
@@ -102,6 +103,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
     } = useForm({
         title: '',
         description: '',
+        venue: '',
         start_date: '',
         end_date: '',
         purok_ids: [] as number[],
@@ -351,6 +353,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('description', data.description);
+        if (data.venue) formData.append('venue', data.venue);
         formData.append('start_date', data.start_date);
         if (data.end_date) formData.append('end_date', data.end_date);
         // Only append purok_ids if not targeting all residents and puroks are selected
@@ -825,6 +828,19 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                 className={errors.description ? 'border-red-500' : ''}
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+                        </div>
+
+                        {/* Venue */}
+                        <div>
+                            <Label htmlFor="venue">Venue (Optional)</Label>
+                            <Input
+                                id="venue"
+                                value={data.venue}
+                                onChange={(e) => setData('venue', e.target.value)}
+                                placeholder="Enter event venue"
+                                className={errors.venue ? 'border-red-500' : ''}
+                            />
+                            {errors.venue && <p className="mt-1 text-sm text-red-500">{errors.venue}</p>}
                         </div>
 
                         {/* Image Upload */}

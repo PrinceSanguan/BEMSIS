@@ -14,6 +14,7 @@ class Event extends Model
         'purok_ids',
         'title',
         'description',
+        'venue',
         'image_path',
         'start_date',
         'end_date',

@@ -20,6 +20,7 @@ interface Event {
     id: number;
     title: string;
     description: string;
+    venue?: string;
     start_date: string;
     end_date?: string;
     status: 'pending' | 'approved' | 'declined';
@@ -51,6 +52,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
     const { data, setData, processing, errors, reset } = useForm({
         title: event.title,
         description: event.description,
+        venue: event.venue || '',
         start_date: event.start_date ? new Date(event.start_date).toISOString().slice(0, 16) : '',
         end_date: event.end_date ? new Date(event.end_date).toISOString().slice(0, 16) : '',
         purok_ids: event.purok_ids || [],
@@ -65,6 +67,9 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('description', data.description);
+        if (data.venue) formData.append('venue', data.venue);
+        formData.append('start_date', data.start_date);
+        if (data.venue) formData.append('venue', data.venue);
         formData.append('start_date', data.start_date);
         if (data.end_date) formData.append('end_date', data.end_date);
         if (data.purok_ids.length > 0) {
@@ -187,6 +192,19 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                 className={errors.description ? 'border-red-500' : ''}
                                             />
                                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+                                        </div>
+
+                                        {/* Venue */}
+                                        <div>
+                                            <Label htmlFor="venue">Venue (Optional)</Label>
+                                            <Input
+                                                id="venue"
+                                                value={data.venue}
+                                                onChange={(e) => setData('venue', e.target.value)}
+                                                placeholder="Enter event venue"
+                                                className={errors.venue ? 'border-red-500' : ''}
+                                            />
+                                            {errors.venue && <p className="mt-1 text-sm text-red-500">{errors.venue}</p>}
                                         </div>
 
                                         {/* Event Image */}

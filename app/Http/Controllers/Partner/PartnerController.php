@@ -84,6 +84,7 @@ class PartnerController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'venue' => 'nullable|string|max:255',
             'start_date' => 'required|date|after:now',
             'end_date' => 'nullable|date|after:start_date',
             'purok_ids' => 'nullable|array|max:3',
@@ -105,6 +106,7 @@ class PartnerController extends Controller
             'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
+            'venue' => $request->venue,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,
@@ -156,6 +158,7 @@ class PartnerController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'venue' => 'nullable|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
             'purok_ids' => 'nullable|array|max:3',
@@ -176,6 +179,7 @@ class PartnerController extends Controller
             'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
+            'venue' => $request->venue,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,

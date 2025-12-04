@@ -69,8 +69,6 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
         formData.append('description', data.description);
         if (data.venue) formData.append('venue', data.venue);
         formData.append('start_date', data.start_date);
-        if (data.venue) formData.append('venue', data.venue);
-        formData.append('start_date', data.start_date);
         if (data.end_date) formData.append('end_date', data.end_date);
         if (data.purok_ids.length > 0) {
             data.purok_ids.forEach((id, index) => {

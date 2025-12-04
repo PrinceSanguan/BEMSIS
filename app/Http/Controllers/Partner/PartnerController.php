@@ -101,6 +101,41 @@ class PartnerController extends Controller
             return back()->withErrors(['purok_ids' => 'You can select up to 3 puroks only.']);
         }
 
+        // Check for duplicate events (same venue, date/time, and participant type)
+        $duplicateQuery = Event::where('start_date', $request->start_date)
+            ->where('status', '!=', 'declined'); // Exclude declined events
+
+        // Check venue match (handle nullable)
+        if ($request->venue) {
+            $duplicateQuery->where('venue', $request->venue);
+        } else {
+            $duplicateQuery->whereNull('venue');
+        }
+
+        // Check end_date match
+        if ($request->end_date) {
+            $duplicateQuery->where('end_date', $request->end_date);
+        } else {
+            $duplicateQuery->whereNull('end_date');
+        }
+
+        // Check participant type match
+        if ($targetAllResidents) {
+            $duplicateQuery->where('target_all_residents', true);
+        } else {
+            $duplicateQuery->where('target_all_residents', false)
+                ->where(function ($query) use ($request) {
+                    $purokIds = $request->purok_ids ?? [];
+                    sort($purokIds);
+                    $purokIdsJson = json_encode($purokIds);
+                    $query->whereRaw('JSON_EXTRACT(purok_ids, "$") = ?', [$purokIdsJson]);
+                });
+        }
+
+        if ($duplicateQuery->exists()) {
+            return back()->withErrors(['duplicate' => 'An event with the same venue, date, time, and participant type already exists. Please modify the event details.']);
+        }
+
         $eventData = [
             'created_by' => Auth::id(),
             'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),

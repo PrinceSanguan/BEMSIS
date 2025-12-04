@@ -123,14 +123,18 @@ class SendEventReminders extends Command
             $startDate = Carbon::parse($event->start_date)->format('M d, Y h:i A');
             $endDate = $event->end_date ? ' to ' . Carbon::parse($event->end_date)->format('M d, Y h:i A') : '';
 
-            // Build reminder message
+            // Build reminder message with full 5Ws
+            $venue = $event->venue ? " Where: {$event->venue}." : "";
+            $description = $event->description ? " Why: {$event->description}." : "";
+
             $message = sprintf(
-                "🔔 REMINDER: Hi %s! Event '%s' is TOMORROW (%s%s). %s Don't miss it!",
-                explode(' ', $resident->name)[0], // First name
-                $event->title,
-                $startDate,
+                "🔔 REMINDER: Hi %s! What: %s. When: %s%s.%s%s Approved by Hon. Maristela T. Ubalde.",
+                explode(' ', $resident->name)[0], // Who (First name)
+                $event->title, // What
+                $startDate, // When
                 $endDate,
-                $event->description ? $event->description . '. ' : ''
+                $venue, // Where
+                $description // Why
             );
 
             $data = [

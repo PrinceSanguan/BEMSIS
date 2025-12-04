@@ -153,14 +153,18 @@ class CaptainController extends Controller
             $startDate = \Carbon\Carbon::parse($event->start_date)->format('M d, Y h:i A');
             $endDate = $event->end_date ? ' to ' . \Carbon\Carbon::parse($event->end_date)->format('M d, Y h:i A') : '';
 
-            // Build comprehensive message
+            // Build comprehensive message with full 5Ws
+            $venue = $event->venue ? " Where: {$event->venue}." : "";
+            $description = $event->description ? " Why: {$event->description}." : "";
+
             $message = sprintf(
-                "Hi %s! Event: %s. %s. When: %s%s",
-                explode(' ', $resident->name)[0], // First name
-                $event->title,
-                $event->description,
-                $startDate,
-                $endDate
+                "Hi %s! What: %s. When: %s%s.%s%s Approved by Hon. Maristela T. Ubalde.",
+                explode(' ', $resident->name)[0], // Who (First name)
+                $event->title, // What
+                $startDate, // When
+                $endDate,
+                $venue, // Where
+                $description // Why
             );
 
             $data = [

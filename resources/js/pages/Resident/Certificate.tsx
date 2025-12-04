@@ -30,34 +30,65 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
             <div className="certificate-page">
                 <div className="certificate-container">
                     <div className="certificate-border">
-                        {/* Barangay Logo - Top Center */}
+                        {/* Header with Two Logos */}
                         <div className="header-section">
-                            <img src="/assets/images/Bemsis.jpg" alt="Barangay Logo" className="barangay-logo" />
-                            <h1 className="system-title">BARANGAY EVENT MANAGEMENT SYSTEM</h1>
-                            <h2 className="certificate-title">CERTIFICATE OF COMPLETION</h2>
-                        </div>
-
-                        {/* Main Content */}
-                        <div className="content-section">
-                            <p className="certify-text">This is to certify that</p>
-
-                            <div className="recipient-name">{userName}</div>
-                            <div className="name-underline"></div>
-
-                            <p className="completion-text">has successfully completed the community event</p>
-
-                            <div className="event-name">"{eventTitle}"</div>
-                        </div>
-
-                        {/* Signature Area - Bottom Left */}
-                        <div className="signature-section">
-                            <div className="signature-placeholder">
-                                {/* Signature Image Placeholder */}
-                                <img src="/assets/images/signature.jpg" alt="Captain's Signature" className="signature-image" />
+                            <div className="logo-left">
+                                <img src="/assets/images/virac-logo.png" alt="Virac Logo" className="header-logo" />
                             </div>
-                            <div className="signature-line"></div>
-                            <p className="captain-name">Hon. Maristela Ubalde</p>
-                            <p className="captain-title">Barangay Captain</p>
+                            <div className="header-text">
+                                <p className="gov-header">REPUBLIC OF THE PHILIPPINES</p>
+                                <p className="province-header">PROVINCE OF CATANDUANES</p>
+                                <p className="municipality-header">MUNICIPALITY OF VIRAC</p>
+                                <h1 className="barangay-header">BARANGAY CALATAGAN TIBANG</h1>
+                            </div>
+                            <div className="logo-right">
+                                <img src="/assets/images/barangay-logo.jpg" alt="Barangay Logo" className="header-logo" />
+                            </div>
+                        </div>
+
+                        {/* Certificate Title */}
+                        <h2 className="certificate-title">Certificate of Completion</h2>
+                        <p className="certificate-subtitle">This Certificate is Proudly Presented To</p>
+
+                        {/* Recipient Name */}
+                        <div className="recipient-section">
+                            <div className="recipient-name">({userName.toUpperCase()})</div>
+                            <div className="name-underline"></div>
+                        </div>
+
+                        {/* Completion Text */}
+                        <p className="completion-text">Has Successfully Completed the Community Event</p>
+
+                        {/* Event Title */}
+                        <div className="event-title">({eventTitle.toUpperCase()})</div>
+
+                        {/* Bottom Section */}
+                        <div className="bottom-section">
+                            {/* Left: System Note */}
+                            <div className="system-note">
+                                <p className="note-italic">This certificate is system-generated and</p>
+                                <p className="note-italic">includes authorized e-signatures from</p>
+                                <p className="note-italic">Barangay Calatagan Tibang.</p>
+                            </div>
+
+                            {/* Center: Signature */}
+                            <div className="signature-section">
+                                <div className="signature-placeholder">
+                                    {/* Signature Image Placeholder */}
+                                    <img src="/assets/images/signature.png" alt="Captain's Signature" className="signature-image" />
+                                </div>
+                                <div className="signature-line"></div>
+                                <p className="captain-name">MARISTELA T. UBALDE</p>
+                                <p className="captain-title">PUNONG BARANGAY</p>
+                            </div>
+
+                            {/* Right: Certificate Info */}
+                            <div className="certificate-info">
+                                <p className="cert-id">Certificate ID:{certificateCode}</p>
+                                <p className="date-issued">
+                                    Date Issued: {new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -68,18 +99,21 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                     width: 100vw;
                     height: 100vh;
                     margin: 0;
-                    padding: 20px;
+                    padding: 0;
                     background: #f8fafc;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     box-sizing: border-box;
                     font-family: 'Georgia', 'Times New Roman', serif;
+                    overflow: hidden;
                 }
 
                 .certificate-container {
-                    width: 297mm;
-                    height: 210mm;
+                    width: 90vw;
+                    height: 90vh;
+                    max-width: 1200px;
+                    max-height: 850px;
                     background: white;
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                     border-radius: 8px;
@@ -90,142 +124,194 @@ export default function Certificate({ userName, eventTitle, eventDate, eventDura
                 .certificate-border {
                     width: 100%;
                     height: 100%;
-                    border: 8px solid #1e40af;
+                    border: 12px solid #0f4c81;
                     box-sizing: border-box;
-                    padding: 60px;
+                    padding: 40px 60px;
                     display: flex;
                     flex-direction: column;
                     position: relative;
                 }
 
                 .header-section {
-                    text-align: center;
-                    margin-bottom: 60px;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 20px;
+                    margin-bottom: 30px;
                 }
 
-                .barangay-logo {
-                    width: 120px;
-                    height: 120px;
+                .logo-left,
+                .logo-right {
+                    flex-shrink: 0;
+                }
+
+                .header-logo {
+                    width: 100px;
+                    height: 100px;
                     object-fit: contain;
-                    border-radius: 50%;
-                    border: 3px solid #1e40af;
-                    margin: 0 auto 30px auto;
-                    display: block;
                 }
 
-                .system-title {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: #1e40af;
-                    margin: 0 0 20px 0;
-                    letter-spacing: 1px;
+                .header-text {
+                    flex: 1;
+                    text-align: center;
                 }
 
-                .certificate-title {
-                    font-size: 32px;
-                    font-weight: bold;
-                    color: #1e40af;
+                .gov-header,
+                .province-header,
+                .municipality-header {
                     margin: 0;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #000;
+                    letter-spacing: 1px;
+                    line-height: 1.4;
+                }
+
+                .barangay-header {
+                    margin: 5px 0 0 0;
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #000;
                     letter-spacing: 2px;
                 }
 
-                .content-section {
+                .certificate-title {
                     text-align: center;
-                    flex-grow: 1;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    gap: 30px;
+                    font-size: 38px;
+                    font-weight: 700;
+                    color: #0f4c81;
+                    margin: 15px 0 8px 0;
+                    letter-spacing: 2px;
                 }
 
-                .certify-text,
-                .completion-text {
-                    font-size: 20px;
-                    color: #374151;
-                    margin: 0;
+                .certificate-subtitle {
+                    text-align: center;
+                    font-size: 16px;
+                    color: #000;
+                    margin: 0 0 20px 0;
                     font-weight: 400;
                 }
 
+                .recipient-section {
+                    text-align: center;
+                    margin: 15px 0;
+                }
+
                 .recipient-name {
-                    font-size: 48px;
-                    font-weight: bold;
-                    color: #1e40af;
-                    margin: 20px 0 10px 0;
+                    font-size: 36px;
+                    font-weight: 700;
+                    color: #0f4c81;
+                    margin: 0 0 5px 0;
                     font-family: 'Georgia', serif;
                 }
 
                 .name-underline {
-                    width: 400px;
-                    height: 2px;
-                    background: #1e40af;
-                    margin: 0 auto 20px auto;
+                    width: 600px;
+                    height: 3px;
+                    background: #000;
+                    margin: 0 auto;
                 }
 
-                .event-name {
-                    font-size: 32px;
-                    font-weight: 600;
-                    color: #1d4ed8;
-                    margin: 20px 0;
-                    font-style: italic;
+                .completion-text {
+                    text-align: center;
+                    font-size: 16px;
+                    color: #000;
+                    margin: 20px 0 15px 0;
+                    font-weight: 400;
                 }
 
-                .signature-section {
+                .event-title {
+                    text-align: center;
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: #0f4c81;
+                    margin: 15px 0 20px 0;
+                    font-family: 'Georgia', serif;
+                }
+
+                .bottom-section {
                     position: absolute;
                     bottom: 30px;
                     left: 60px;
+                    right: 60px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    gap: 20px;
+                }
+
+                .system-note {
+                    flex: 1;
+                    text-align: left;
+                }
+
+                .note-italic {
+                    font-size: 11px;
+                    color: #000;
+                    margin: 2px 0;
+                    font-style: italic;
+                    line-height: 1.4;
+                }
+
+                .signature-section {
+                    flex: 1;
                     text-align: center;
-                    width: 220px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: flex-end;
+                    margin-bottom: -20px;
                 }
 
                 .signature-placeholder {
-                    width: 200px;
-                    height: 70px;
-                    margin: 0 auto 10px auto;
+                    width: 280px;
+                    height: 90px;
+                    margin-bottom: 3px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: transparent;
                 }
 
                 .signature-image {
-                    max-width: 180px;
-                    max-height: 60px;
+                    max-width: 100%;
+                    max-height: 100%;
                     object-fit: contain;
+                    margin-bottom: -50px;
                 }
 
                 .signature-line {
-                    width: 200px;
-                    height: 1px;
-                    background: #374151;
-                    margin: 0 auto 15px auto;
+                    width: 240px;
+                    height: 2px;
+                    background: #000;
+                    margin: 3px 0;
                 }
 
                 .captain-name {
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #1e40af;
-                    margin: 0 0 5px 0;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #000;
+                    margin: 5px 0 2px 0;
+                    letter-spacing: 1px;
                 }
 
                 .captain-title {
-                    font-size: 14px;
-                    color: #6b7280;
+                    font-size: 12px;
+                    color: #000;
                     margin: 0;
                     font-weight: 600;
                 }
 
-                .certificate-footer {
-                    position: absolute;
-                    bottom: 30px;
-                    right: 60px;
+                .certificate-info {
+                    flex: 1;
                     text-align: right;
-                    font-size: 12px;
-                    color: #6b7280;
                 }
 
                 .cert-id,
                 .date-issued {
-                    margin: 5px 0;
+                    font-size: 11px;
+                    color: #000;
+                    margin: 2px 0;
+                    line-height: 1.4;
                 }
 
                 @media print {

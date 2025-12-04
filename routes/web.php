@@ -205,3 +205,4 @@ Route::middleware(['session.activity', ResidentMiddleware::class])->group(functi
 });
 
 Route::get('resident/certificates/view/{certificateCode}', [ResidentController::class, 'viewCertificate'])->name('resident.certificates.view');
+Route::get('resident/certificates/preview', [ResidentController::class, 'previewCertificate'])->name('resident.certificates.preview');

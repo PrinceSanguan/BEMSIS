@@ -467,6 +467,18 @@ class ResidentController extends Controller
         ]);
     }
 
+    public function previewCertificate()
+    {
+        return Inertia::render('Resident/Certificate', [
+            'userName' => 'Juan Dela Cruz',
+            'eventTitle' => 'Sample Community Event',
+            'eventDate' => now()->format('F d, Y'),
+            'eventDuration' => '4 hours',
+            'certificateCode' => 'CERT-CT-2025-00001',
+            'autoDownload' => false
+        ]);
+    }
+
     public function viewCertificate(Request $request, $certificateCode)
     {
         $certificate = Certificate::where('certificate_code', $certificateCode)

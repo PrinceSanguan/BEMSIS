@@ -56,6 +56,7 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
     const { data, setData, post, processing, errors, reset } = useForm({
         event_id: 0,
         comments: '',
+        rating: 0,
     });
 
     const handleSubmitFeedback = (event: EventNeedingFeedback) => {
@@ -204,6 +205,12 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
 
                                                         <div>
                                                             <p className="mb-2 text-sm font-medium text-gray-700">Your Feedback:</p>
+                                                            {feedback.rating && (
+                                                                <div className="mb-2 flex items-center gap-1">
+                                                                    {renderStars(feedback.rating)}
+                                                                    <span className="ml-2 text-sm text-gray-600">({feedback.rating}/5)</span>
+                                                                </div>
+                                                            )}
                                                             <p className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">{feedback.comment}</p>
                                                         </div>
                                                     </CardContent>
@@ -237,6 +244,29 @@ export default function Feedback({ eventsNeedingFeedback, feedbackHistory }: Pro
                                 <div>
                                     <h3 className="mb-2 font-medium text-gray-900">{selectedEvent.event_name}</h3>
                                     <p className="text-sm text-gray-600">Event Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Rating (Optional)</label>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setData('rating', star)}
+                                                className="transition-transform hover:scale-110"
+                                            >
+                                                <Star
+                                                    className={`h-8 w-8 ${star <= data.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                                                />
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {data.rating > 0 && (
+                                        <p className="text-sm text-gray-600">
+                                            You rated this event {data.rating} star{data.rating !== 1 ? 's' : ''}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">

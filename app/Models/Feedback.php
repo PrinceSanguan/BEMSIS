@@ -13,6 +13,7 @@ class Feedback extends Model
         'event_id',
         'user_id',
         'comments',
+        'rating',
     ];
 
     public function event()

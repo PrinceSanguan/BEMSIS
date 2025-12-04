@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, usePage } from '@inertiajs/react';
-import { Calendar, CheckCircle, Eye, MessageSquare, User, XCircle } from 'lucide-react';
+import { Calendar, CheckCircle, Eye, MessageSquare, Star, User, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface User {
@@ -30,6 +30,7 @@ interface Event {
 interface EventFeedback {
     id: number;
     comments: string;
+    rating: number | null;
     created_at: string;
     user: User;
 }
@@ -307,6 +308,19 @@ export default function Feedback({ events, className }: Props) {
                                                     <span className="text-xs text-gray-500">{formatDateTime(feedback.created_at)}</span>
                                                 </div>
 
+                                                {feedback.rating && (
+                                                    <div className="flex items-center gap-1">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <Star
+                                                                key={star}
+                                                                className={`h-4 w-4 ${
+                                                                    star <= feedback.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                                                                }`}
+                                                            />
+                                                        ))}
+                                                        <span className="ml-2 text-sm text-gray-600">({feedback.rating}/5)</span>
+                                                    </div>
+                                                )}
                                                 <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
                                                     <div className="flex items-start gap-2">
                                                         <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />

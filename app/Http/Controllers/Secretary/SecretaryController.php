@@ -644,6 +644,7 @@ class SecretaryController extends Controller
                 return [
                     'id' => $feedback->id,
                     'comments' => $feedback->comments,
+                    'rating' => $feedback->rating ?? null,
                     'created_at' => $feedback->created_at,
                     'user' => [
                         'id' => $feedback->user->id,

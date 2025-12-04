@@ -280,7 +280,7 @@ class ResidentController extends Controller
                     'date' => $feedback->event->start_date,
                     'comment' => $feedback->comments,
                     'submitted_date' => $feedback->created_at->format('Y-m-d'),
-                    'rating' => 5 // Add rating field to feedback table if needed
+                    'rating' => $feedback->rating ?? null
                 ];
             });
 
@@ -295,6 +295,7 @@ class ResidentController extends Controller
         $request->validate([
             'event_id' => 'required|exists:events,id',
             'comments' => 'required|string|max:1000',
+            'rating' => 'nullable|integer|min:1|max:5',
         ]);
 
         $user = Auth::user();
@@ -305,6 +306,7 @@ class ResidentController extends Controller
             'event_id' => $request->event_id,
             'user_id' => $user->id,
             'comments' => $request->comments,
+            'rating' => $request->rating,
         ]);
 
         // Generate certificate if event has certificates

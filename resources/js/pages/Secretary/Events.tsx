@@ -967,7 +967,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                         );
                                                     }
                                                 }}
-                                                disabled={!data.purok_ids.includes(purok.id) && data.purok_ids.length >= 3}
+                                                disabled={false}
                                             />
                                             <Label htmlFor={`purok_${purok.id}`} className="text-sm">
                                                 {purok.name}

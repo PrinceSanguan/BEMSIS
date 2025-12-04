@@ -350,7 +350,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                                                 );
                                                                             }
                                                                         }}
-                                                                        disabled={!data.purok_ids.includes(purok.id) && data.purok_ids.length >= 3}
+                                                                        disabled={false}
                                                                     />
                                                                     <Label htmlFor={`purok_${purok.id}`} className="text-sm">
                                                                         {purok.name}
@@ -358,9 +358,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                                 </div>
                                                             ))}
                                                         </div>
-                                                        {data.purok_ids.length >= 3 && (
-                                                            <p className="mt-1 text-sm text-amber-600">Maximum of 3 puroks can be selected</p>
-                                                        )}
+
                                                         {errors.purok_ids && <p className="text-sm text-red-600">{errors.purok_ids}</p>}
                                                     </div>
                                                 )}

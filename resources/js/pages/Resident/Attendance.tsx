@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head, router } from '@inertiajs/react';
-import { Calendar, CheckCircle, Clock, MapPin, QrCode } from 'lucide-react';
+import { Badge, Calendar, CheckCircle, Clock, MapPin, QrCode } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ConfirmedEvent {
@@ -19,7 +19,10 @@ interface ConfirmedEvent {
     };
     qr_code: string;
     has_qr: boolean;
-    scanned?: boolean;
+    time_in: string | null;
+    time_in_label: 'On-Time' | 'Late' | null;
+    time_out: string | null;
+    time_out_label: 'Completed' | 'Not Completed' | null;
 }
 
 interface AttendanceRecord {
@@ -172,15 +175,27 @@ export default function Attendance({ confirmedEvents, attendanceHistory }: Props
                                                 </div>
 
                                                 <div className="flex gap-2 pt-2">
-                                                    {eventData.scanned ? (
-                                                        <div className="flex items-center gap-2 rounded-md bg-green-100 px-3 py-2 text-sm text-green-700">
-                                                            <CheckCircle className="h-4 w-4" />
-                                                            Already Scanned
+                                                    {eventData.time_in && eventData.time_out ? (
+                                                        <div className="flex flex-col gap-2">
+                                                            <Badge className="bg-green-100 text-green-800">✅ Fully Attended</Badge>
+                                                            <span className="text-xs text-gray-600">
+                                                                Time-In: {eventData.time_in_label} | Time-Out: {eventData.time_out_label}
+                                                            </span>
+                                                        </div>
+                                                    ) : eventData.time_in ? (
+                                                        <div className="flex flex-col gap-2">
+                                                            <Badge className="bg-blue-100 text-blue-800">
+                                                                ⏰ Time-In Recorded - Awaiting Time-Out
+                                                            </Badge>
+                                                            <Button size="sm" className="gap-2" onClick={() => showQRCode(eventData)}>
+                                                                <QrCode className="h-4 w-4" />
+                                                                Scan for Time-Out
+                                                            </Button>
                                                         </div>
                                                     ) : (
                                                         <Button size="sm" className="gap-2" onClick={() => showQRCode(eventData)}>
                                                             <QrCode className="h-4 w-4" />
-                                                            Generate QR Code
+                                                            Scan for Time-In
                                                         </Button>
                                                     )}
                                                 </div>

@@ -26,8 +26,10 @@ interface Attendee {
     id: number;
     user: User;
     qr_code: string;
-    scanned: boolean;
-    scanned_at: string;
+    time_in: string | null;
+    time_in_label: 'On-Time' | 'Late' | null;
+    time_out: string | null;
+    time_out_label: 'Completed' | 'Not Completed' | null;
 }
 
 interface Event {
@@ -96,7 +98,8 @@ export default function EventAttendees({ event, attendees }: Props) {
         setShowQRModal(true);
     };
 
-    const attendedCount = attendees.filter((a) => a.scanned).length;
+    const attendedCount = attendees.filter((a) => a.time_in).length;
+    const completedCount = attendees.filter((a) => a.time_out_label === 'Completed').length;
     const attendanceRate = attendees.length > 0 ? Math.round((attendedCount / attendees.length) * 100) : 0;
 
     const downloadAttendeesCSV = () => {
@@ -353,6 +356,30 @@ export default function EventAttendees({ event, attendees }: Props) {
                                                                 <QrCode className="mr-2 h-4 w-4" />
                                                                 View QR
                                                             </Button>
+                                                        )}
+                                                    </div>
+                                                    <div className="mt-2 flex flex-wrap gap-2">
+                                                        {attendee.time_in && (
+                                                            <Badge
+                                                                className={
+                                                                    attendee.time_in_label === 'On-Time'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : 'bg-yellow-100 text-yellow-800'
+                                                                }
+                                                            >
+                                                                Time-In: {attendee.time_in_label}
+                                                            </Badge>
+                                                        )}
+                                                        {attendee.time_out && (
+                                                            <Badge
+                                                                className={
+                                                                    attendee.time_out_label === 'Completed'
+                                                                        ? 'bg-blue-100 text-blue-800'
+                                                                        : 'bg-orange-100 text-orange-800'
+                                                                }
+                                                            >
+                                                                Time-Out: {attendee.time_out_label}
+                                                            </Badge>
                                                         )}
                                                     </div>
                                                 </div>

@@ -417,8 +417,10 @@ class SecretaryController extends Controller
                     'id' => $attendance->id,
                     'user' => $attendance->user,
                     'qr_code' => $attendance->qr_code,
-                    'scanned' => $attendance->scanned,
-                    'scanned_at' => $attendance->updated_at,
+                    'time_in' => $attendance->time_in,
+                    'time_in_label' => $attendance->time_in_label,
+                    'time_out' => $attendance->time_out,
+                    'time_out_label' => $attendance->time_out_label,
                 ];
             });
 
@@ -457,22 +459,55 @@ class SecretaryController extends Controller
             return back()->withErrors(['message' => 'Invalid QR code']);
         }
 
+        $event = $attendance->event;
+        $now = now();
+
         // Check if event has already ended
-        $eventEndTime = $attendance->event->end_date ?: $attendance->event->start_date;
+        $eventEndTime = $event->end_date ?: $event->start_date;
         if (new \DateTime($eventEndTime) < new \DateTime()) {
             return back()->withErrors(['message' => 'The event is already expired']);
         }
 
-        if ($attendance->scanned) {
-            return back()->withErrors(['message' => 'It\'s already scanned']);
+        // Determine if this is time-in or time-out
+        if (!$attendance->time_in) {
+            // TIME-IN LOGIC
+            $startTime = new \DateTime($event->start_date);
+            $minutesAfterStart = ($now->getTimestamp() - $startTime->getTimestamp()) / 60;
+
+            // Label: On-Time (within 30 min) or Late (>30 min after start)
+            $timeInLabel = $minutesAfterStart <= 30 ? 'On-Time' : 'Late';
+
+            $attendance->update([
+                'time_in' => $now,
+                'time_in_label' => $timeInLabel
+            ]);
+
+            $message = $timeInLabel === 'On-Time'
+                ? "✅ Time-In recorded for {$attendance->user->name} - On-Time!"
+                : "⏰ Time-In recorded for {$attendance->user->name} - Late arrival";
+
+            return back()->with('success', $message);
+        } elseif (!$attendance->time_out) {
+            // TIME-OUT LOGIC
+            $endTime = new \DateTime($eventEndTime);
+            $minutesBeforeEnd = ($endTime->getTimestamp() - $now->getTimestamp()) / 60;
+
+            // Label: Completed (last 30 min or up to end time) or Not Completed (before last 30 min)
+            $timeOutLabel = $minutesBeforeEnd <= 30 && $minutesBeforeEnd >= 0 ? 'Completed' : 'Not Completed';
+
+            $attendance->update([
+                'time_out' => $now,
+                'time_out_label' => $timeOutLabel
+            ]);
+
+            $message = $timeOutLabel === 'Completed'
+                ? "✅ Time-Out recorded for {$attendance->user->name} - Event Completed!"
+                : "📤 Time-Out recorded for {$attendance->user->name} - Early departure";
+
+            return back()->with('success', $message);
+        } else {
+            return back()->withErrors(['message' => 'Attendance already fully recorded (Time-In & Time-Out)']);
         }
-
-        $attendance->update([
-            'scanned' => true,
-            'scanned_at' => now()
-        ]);
-
-        return back()->with('success', 'Congratulations, attendance recorded successfully for ' . $attendance->user->name . '!');
     }
 
     public function attendance()
@@ -488,7 +523,8 @@ class SecretaryController extends Controller
             ->get()
             ->map(function ($event) {
                 $event->total_confirmed = $event->attendances->count();
-                $event->total_scanned = $event->attendances->where('scanned', true)->count();
+                $event->total_scanned = $event->attendances->whereNotNull('time_in')->count();
+                $event->completed_count = $event->attendances->where('time_out_label', 'Completed')->count();
                 $event->attendance_rate = $event->total_confirmed > 0
                     ? round(($event->total_scanned / $event->total_confirmed) * 100, 2)
                     : 0;

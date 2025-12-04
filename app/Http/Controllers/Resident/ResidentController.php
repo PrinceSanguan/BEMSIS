@@ -185,7 +185,10 @@ class ResidentController extends Controller
                     'event' => $event,
                     'qr_code' => $attendance->qr_code,
                     'has_qr' => true,
-                    'scanned' => $attendance->scanned
+                    'time_in' => $attendance->time_in,
+                    'time_in_label' => $attendance->time_in_label,
+                    'time_out' => $attendance->time_out,
+                    'time_out_label' => $attendance->time_out_label,
                 ];
             })
             ->values();
@@ -201,8 +204,11 @@ class ResidentController extends Controller
                 return [
                     'id' => $attendance->id,
                     'event' => $attendance->event,
-                    'status' => $attendance->scanned ? 'attended' : 'missed',
-                    'scanned_at' => $attendance->updated_at
+                    'status' => $attendance->time_in ? 'attended' : 'missed',
+                    'time_in' => $attendance->time_in,
+                    'time_in_label' => $attendance->time_in_label,
+                    'time_out' => $attendance->time_out,
+                    'time_out_label' => $attendance->time_out_label,
                 ];
             })
             ->values();

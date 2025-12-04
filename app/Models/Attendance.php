@@ -14,7 +14,15 @@ class Attendance extends Model
         'user_id',
         'status',
         'qr_code',
-        'scanned',
+        'time_in',
+        'time_in_label',
+        'time_out',
+        'time_out_label',
+    ];
+
+    protected $casts = [
+        'time_in' => 'datetime',
+        'time_out' => 'datetime',
     ];
 
     public function event()

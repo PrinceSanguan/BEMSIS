@@ -55,9 +55,26 @@ class ResidentController extends Controller
                 return $event;
             });
 
+        // Get recent certificates (last 3)
+        $recentCertificates = Certificate::where('user_id', $user->id)
+            ->with('event')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function ($certificate) {
+                return [
+                    'id' => $certificate->id,
+                    'event_name' => $certificate->event->title,
+                    'date_earned' => $certificate->created_at->format('M d, Y'),
+                    'certificate_code' => $certificate->certificate_code,
+                    'view_url' => $certificate->certificate_code ? route('resident.certificates.view', $certificate->certificate_code) : null,
+                ];
+            });
+
         return Inertia::render('Resident/Dashboard', [
             'stats' => $stats,
-            'upcomingEvents' => $upcomingEvents
+            'upcomingEvents' => $upcomingEvents,
+            'recentCertificates' => $recentCertificates
         ]);
     }
 

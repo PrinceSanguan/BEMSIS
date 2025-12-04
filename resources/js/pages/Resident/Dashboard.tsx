@@ -1,9 +1,10 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
 import { Award, Calendar, MessageSquare, QrCode } from 'lucide-react';
 import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 interface Props {
     stats: {
@@ -18,9 +19,16 @@ interface Props {
         start_date: string;
         registration_status: string;
     }>;
+    recentCertificates: Array<{
+        id: number;
+        event_name: string;
+        date_earned: string;
+        certificate_code: string;
+        view_url: string | null;
+    }>;
 }
 
-export default function Dashboard({ stats, upcomingEvents }: Props) {
+export default function Dashboard({ stats, upcomingEvents, recentCertificates }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const dashboardStats = [
@@ -86,6 +94,47 @@ export default function Dashboard({ stats, upcomingEvents }: Props) {
                                 </Card>
                             ))}
                         </div>
+                        {/* Recent Certificates Section */}
+                        {recentCertificates.length > 0 && (
+                            <Card className="mb-6">
+                                <CardHeader className="flex flex-row items-center justify-between">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Award className="h-5 w-5 text-purple-600" />
+                                        Recent Certificates
+                                    </CardTitle>
+                                    <a href={route('resident.certificates')} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                        View All
+                                    </a>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        {recentCertificates.map((cert) => (
+                                            <div key={cert.id} className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="rounded-full bg-purple-100 p-2">
+                                                        <Award className="h-5 w-5 text-purple-600" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{cert.event_name}</p>
+                                                        <p className="text-sm text-gray-600">Earned on {cert.date_earned}</p>
+                                                    </div>
+                                                </div>
+                                                {cert.view_url && (
+                                                    <a
+                                                        href={cert.view_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-purple-700"
+                                                    >
+                                                        View
+                                                    </a>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
                     </main>
                 </div>
             </div>

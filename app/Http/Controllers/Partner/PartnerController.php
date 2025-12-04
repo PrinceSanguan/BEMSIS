@@ -87,7 +87,7 @@ class PartnerController extends Controller
             'venue' => 'nullable|string|max:255',
             'start_date' => 'required|date|after:now',
             'end_date' => 'nullable|date|after:start_date',
-            'purok_ids' => 'nullable|array|max:3',
+            'purok_ids' => 'nullable|array',
             'purok_ids.*' => 'exists:puroks,id',
             'has_certificate' => 'boolean',
             'target_all_residents' => 'boolean',
@@ -95,11 +95,6 @@ class PartnerController extends Controller
         ]);
 
         $targetAllResidents = $request->input('target_all_residents', false);
-
-        // Ensure only up to 3 puroks can be selected
-        if (!$targetAllResidents && count($request->purok_ids ?? []) > 3) {
-            return back()->withErrors(['purok_ids' => 'You can select up to 3 puroks only.']);
-        }
 
         // Check for duplicate events (same venue, date/time, and participant type)
         $duplicateQuery = Event::where('start_date', $request->start_date)
@@ -196,7 +191,7 @@ class PartnerController extends Controller
             'venue' => 'nullable|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after:start_date',
-            'purok_ids' => 'nullable|array|max:3',
+            'purok_ids' => 'nullable|array',
             'purok_ids.*' => 'exists:puroks,id',
             'has_certificate' => 'boolean',
             'target_all_residents' => 'boolean',
@@ -204,11 +199,6 @@ class PartnerController extends Controller
         ]);
 
         $targetAllResidents = $request->input('target_all_residents', false);
-
-        // Ensure only up to 3 puroks can be selected
-        if (!$targetAllResidents && count($request->purok_ids ?? []) > 3) {
-            return back()->withErrors(['purok_ids' => 'You can select up to 3 puroks only.']);
-        }
 
         $updateData = [
             'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),

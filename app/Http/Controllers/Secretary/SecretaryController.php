@@ -549,7 +549,7 @@ class SecretaryController extends Controller
         // Get attendees who attended and don't have certificates yet
         $attendees = Attendance::where('event_id', $eventId)
             ->where('status', 'confirmed')
-            ->where('scanned', true)
+            ->whereNotNull('time_in')
             ->whereDoesntHave('user.certificates', function ($query) use ($eventId) {
                 $query->where('event_id', $eventId);
             })

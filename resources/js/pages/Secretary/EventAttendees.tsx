@@ -109,7 +109,7 @@ export default function EventAttendees({ event, attendees }: Props) {
         }
 
         // Define CSV headers
-        const headers = ['Name', 'Email', 'Phone', 'Purok', 'Status', 'QR Code', 'Scanned Date'];
+        const headers = ['Name', 'Email', 'Phone', 'Purok', 'Time-In Status', 'Time-In Label', 'Time-Out Label', 'QR Code', 'Time-In Date'];
 
         // Convert attendees data to CSV rows
         const csvData = attendees.map((attendee) => [
@@ -117,9 +117,11 @@ export default function EventAttendees({ event, attendees }: Props) {
             attendee.user.email,
             attendee.user.phone,
             attendee.user.purok?.name || 'N/A',
-            attendee.scanned ? 'Attended' : 'Registered',
+            attendee.time_in ? 'Attended' : 'Registered',
+            attendee.time_in_label || 'N/A',
+            attendee.time_out_label || 'N/A',
             attendee.qr_code || 'N/A',
-            attendee.scanned && attendee.scanned_at ? formatDate(attendee.scanned_at) : 'N/A',
+            attendee.time_in ? formatDate(attendee.time_in) : 'N/A',
         ]);
 
         // Combine headers and data
@@ -322,10 +324,10 @@ export default function EventAttendees({ event, attendees }: Props) {
                                                             <h3 className="font-medium text-gray-900">{attendee.user.name}</h3>
                                                             <Badge
                                                                 className={
-                                                                    attendee.scanned ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                                                    attendee.time_in ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                                                                 }
                                                             >
-                                                                {attendee.scanned ? 'Attended' : 'Registered'}
+                                                                {attendee.time_in ? 'Attended' : 'Registered'}
                                                             </Badge>
                                                         </div>
                                                         <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-3">
@@ -344,9 +346,14 @@ export default function EventAttendees({ event, attendees }: Props) {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        {attendee.scanned && attendee.scanned_at && (
+                                                        {attendee.time_in && (
                                                             <div className="mt-2 text-xs text-green-600">
-                                                                Attended: {formatDate(attendee.scanned_at)}
+                                                                Time-In: {formatDate(attendee.time_in)} ({attendee.time_in_label})
+                                                            </div>
+                                                        )}
+                                                        {attendee.time_out && (
+                                                            <div className="mt-2 text-xs text-blue-600">
+                                                                Time-Out: {formatDate(attendee.time_out)} ({attendee.time_out_label})
                                                             </div>
                                                         )}
                                                     </div>

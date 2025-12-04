@@ -25,7 +25,7 @@ class ResidentController extends Controller
         // Get dashboard stats
         $stats = [
             'eventsAttended' => Attendance::where('user_id', $user->id)
-                ->where('scanned', true)->count(),
+                ->whereNotNull('time_in')->count(),
             'qrCodesGenerated' => Attendance::where('user_id', $user->id)
                 ->where('status', 'confirmed')
                 ->whereNotNull('qr_code')->count(),
@@ -252,7 +252,7 @@ class ResidentController extends Controller
 
         // Events that need feedback (attended but no feedback yet)
         $eventsNeedingFeedback = Attendance::where('user_id', $user->id)
-            ->where('scanned', true)
+            ->whereNotNull('time_in')
             ->whereDoesntHave('event.feedbacks', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })

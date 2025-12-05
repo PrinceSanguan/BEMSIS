@@ -338,7 +338,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
 
                                                 {!data.target_all_residents && (
                                                     <div className="space-y-2">
-                                                        <Label>Select Puroks (up to 3)</Label>
+                                                        <Label>Select Puroks</Label>
                                                         <div className="grid grid-cols-2 gap-2">
                                                             {puroks.map((purok) => (
                                                                 <div key={purok.id} className="flex items-center space-x-2">
@@ -347,9 +347,7 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                                         checked={data.purok_ids.includes(purok.id)}
                                                                         onCheckedChange={(checked) => {
                                                                             if (checked) {
-                                                                                if (data.purok_ids.length < 3) {
-                                                                                    setData('purok_ids', [...data.purok_ids, purok.id]);
-                                                                                }
+                                                                                setData('purok_ids', [...data.purok_ids, purok.id]);
                                                                             } else {
                                                                                 setData(
                                                                                     'purok_ids',
@@ -357,7 +355,6 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                                                                 );
                                                                             }
                                                                         }}
-                                                                        disabled={false}
                                                                     />
                                                                     <Label htmlFor={`purok_${purok.id}`} className="text-sm">
                                                                         {purok.name}

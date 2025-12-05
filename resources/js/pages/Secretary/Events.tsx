@@ -948,7 +948,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                         {/* Purok Selection */}
                         {!data.target_all_residents && (
                             <div>
-                                <Label>Select Puroks (up to 3)</Label>
+                                <Label>Select Puroks</Label>
                                 <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                                     {puroks.map((purok) => (
                                         <div key={purok.id} className="flex items-center space-x-2">
@@ -957,9 +957,7 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                 checked={data.purok_ids.includes(purok.id)}
                                                 onCheckedChange={(checked) => {
                                                     if (checked) {
-                                                        if (data.purok_ids.length < 3) {
-                                                            setData('purok_ids', [...data.purok_ids, purok.id]);
-                                                        }
+                                                        setData('purok_ids', [...data.purok_ids, purok.id]);
                                                     } else {
                                                         setData(
                                                             'purok_ids',
@@ -967,7 +965,6 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                         );
                                                     }
                                                 }}
-                                                disabled={false}
                                             />
                                             <Label htmlFor={`purok_${purok.id}`} className="text-sm">
                                                 {purok.name}

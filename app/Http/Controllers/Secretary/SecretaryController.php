@@ -695,15 +695,10 @@ class SecretaryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'target_puroks' => 'nullable|array|max:3',
+            'target_puroks' => 'nullable|array',
             'target_puroks.*' => 'exists:puroks,id',
             'target_all_puroks' => 'boolean',
         ]);
-
-        // Ensure only up to 3 puroks can be selected
-        if (!$request->target_all_puroks && count($request->target_puroks ?? []) > 3) {
-            return back()->withErrors(['target_puroks' => 'You can select up to 3 puroks only.']);
-        }
 
         $announcement = Announcement::create([
             'created_by' => Auth::id(),
@@ -737,15 +732,10 @@ class SecretaryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'target_puroks' => 'nullable|array|max:3',
+            'target_puroks' => 'nullable|array',
             'target_puroks.*' => 'exists:puroks,id',
             'target_all_puroks' => 'boolean',
         ]);
-
-        // Ensure only up to 3 puroks can be selected
-        if (!$request->target_all_puroks && count($request->target_puroks ?? []) > 3) {
-            return back()->withErrors(['target_puroks' => 'You can select up to 3 puroks only.']);
-        }
 
         $announcement->update([
             'title' => $request->title,

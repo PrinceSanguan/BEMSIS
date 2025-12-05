@@ -75,11 +75,6 @@ const AnnouncementForm = ({
                 ? prev.target_puroks.filter((id) => id !== purokId)
                 : [...prev.target_puroks, purokId];
 
-            // Limit to 3 puroks maximum
-            if (newTargetPuroks.length > 3) {
-                return prev;
-            }
-
             return { ...prev, target_puroks: newTargetPuroks };
         });
     };
@@ -129,7 +124,7 @@ const AnnouncementForm = ({
 
                     {!formData.target_all_puroks && (
                         <div>
-                            <p className="mb-2 text-sm text-gray-600">Select specific puroks (up to 3):</p>
+                            <p className="mb-2 text-sm text-gray-600">Select specific puroks:</p>
                             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                 {puroks.map((purok) => (
                                     <div key={purok.id} className="flex items-center space-x-2">
@@ -137,13 +132,11 @@ const AnnouncementForm = ({
                                             id={`purok_${purok.id}`}
                                             checked={formData.target_puroks.includes(purok.id)}
                                             onCheckedChange={() => handlePurokToggle(purok.id)}
-                                            disabled={!formData.target_puroks.includes(purok.id) && formData.target_puroks.length >= 3}
                                         />
                                         <Label htmlFor={`purok_${purok.id}`}>{purok.name}</Label>
                                     </div>
                                 ))}
                             </div>
-                            {formData.target_puroks.length >= 3 && <p className="mt-1 text-sm text-amber-600">Maximum of 3 puroks can be selected</p>}
                         </div>
                     )}
                 </div>

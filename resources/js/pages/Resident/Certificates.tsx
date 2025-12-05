@@ -224,11 +224,13 @@ export default function Certificates({ certificates }: Props) {
                                                                 <Award className="h-5 w-5 text-yellow-600" />
                                                                 {cert.event_name}
                                                             </CardTitle>
-                                                            <span
-                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
-                                                            >
-                                                                {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                            </span>
+                                                            {cert.status !== 'processing' && (
+                                                                <span
+                                                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                                >
+                                                                    {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </CardHeader>
 
@@ -286,11 +288,6 @@ export default function Certificates({ certificates }: Props) {
                                                                 <FileCheck className="h-5 w-5 text-yellow-600" />
                                                                 {cert.event_name}
                                                             </CardTitle>
-                                                            <span
-                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
-                                                            >
-                                                                Processing
-                                                            </span>
                                                         </div>
                                                     </CardHeader>
 
@@ -337,11 +334,13 @@ export default function Certificates({ certificates }: Props) {
                                                                 <Award className="h-5 w-5 text-yellow-600" />
                                                                 {cert.event_name}
                                                             </CardTitle>
-                                                            <span
-                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
-                                                            >
-                                                                {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                            </span>
+                                                            {cert.status !== 'processing' && (
+                                                                <span
+                                                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                                >
+                                                                    {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </CardHeader>
 

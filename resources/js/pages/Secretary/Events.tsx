@@ -616,7 +616,6 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                                                             {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                                                                         </Badge>
                                                                         {event.has_certificate && <Badge variant="outline">Has Certificate</Badge>}
-                                                                        {isPast && <Badge variant="secondary">Past Event</Badge>}
                                                                     </div>
 
                                                                     <p className="line-clamp-2 text-gray-600">{event.description}</p>
@@ -720,7 +719,6 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                                     {selectedEvent.status.charAt(0).toUpperCase() + selectedEvent.status.slice(1)}
                                 </Badge>
                                 {selectedEvent.has_certificate && <Badge variant="outline">Has Certificate</Badge>}
-                                {isEventPast(selectedEvent.start_date) && <Badge variant="secondary">Past Event</Badge>}
                             </div>
 
                             <p className="text-gray-600">{selectedEvent.description}</p>

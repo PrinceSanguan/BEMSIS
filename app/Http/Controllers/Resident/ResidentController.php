@@ -267,9 +267,11 @@ class ResidentController extends Controller
     {
         $user = Auth::user();
 
-        // Events that need feedback (attended but no feedback yet)
+        // Events that need feedback (completed attendance but no feedback yet)
         $eventsNeedingFeedback = Attendance::where('user_id', $user->id)
             ->whereNotNull('time_in')
+            ->whereNotNull('time_out')
+            ->where('time_out_label', 'Completed')
             ->whereDoesntHave('event.feedbacks', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })

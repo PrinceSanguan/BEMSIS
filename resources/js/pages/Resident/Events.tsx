@@ -13,6 +13,7 @@ interface Event {
     id: number;
     title: string;
     description: string;
+    venue?: string;
     start_date: string;
     end_date?: string;
     creator: { name: string };
@@ -409,6 +410,12 @@ export default function Events({ events }: Props) {
                                                                         <Clock className="h-4 w-4" />
                                                                         <span>{formatDateTime(event.start_date)}</span>
                                                                     </div>
+                                                                    {event.venue && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <MapPin className="h-4 w-4" />
+                                                                            <span>{event.venue}</span>
+                                                                        </div>
+                                                                    )}
                                                                     <div className="flex items-center gap-2">
                                                                         <MapPin className="h-4 w-4" />
                                                                         <span>{event.purok_names || 'All Residents'}</span>
@@ -499,8 +506,14 @@ export default function Events({ events }: Props) {
                                         {formatDate(selectedEvent.start_date)} at {formatTime(selectedEvent.start_date)}
                                     </p>
                                 </div>
+                                {selectedEvent.venue && (
+                                    <div>
+                                        <p className="font-medium text-gray-900">Venue</p>
+                                        <p className="text-sm text-gray-600">{selectedEvent.venue}</p>
+                                    </div>
+                                )}
                                 <div>
-                                    <p className="font-medium text-gray-900">Location</p>
+                                    <p className="font-medium text-gray-900">Target Residents</p>
                                     <p className="text-sm text-gray-600">{selectedEvent.purok_names || 'All Residents'}</p>
                                 </div>
                                 <div>

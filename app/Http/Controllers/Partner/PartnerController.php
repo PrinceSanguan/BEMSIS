@@ -117,18 +117,27 @@ class PartnerController extends Controller
         // Check participant type match
         if ($targetAllResidents) {
             $duplicateQuery->where('target_all_residents', true);
-        } else {
-            $duplicateQuery->where('target_all_residents', false)
-                ->where(function ($query) use ($request) {
-                    $purokIds = $request->purok_ids ?? [];
-                    sort($purokIds);
-                    $purokIdsJson = json_encode($purokIds);
-                    $query->whereRaw('JSON_EXTRACT(purok_ids, "$") = ?', [$purokIdsJson]);
-                });
-        }
 
-        if ($duplicateQuery->exists()) {
-            return back()->withErrors(['duplicate' => 'An event with the same venue, date, time, and participant type already exists. Please modify the event details.']);
+            if ($duplicateQuery->exists()) {
+                return back()->withErrors(['duplicate' => 'An event with the same venue, date, time, and participant type already exists. Please modify the event details.']);
+            }
+        } else {
+            // For specific puroks, get all potential duplicates and check in PHP
+            $duplicateQuery->where('target_all_residents', false);
+            $potentialDuplicates = $duplicateQuery->get();
+
+            $requestPurokIds = $request->purok_ids ?? [];
+            sort($requestPurokIds);
+
+            foreach ($potentialDuplicates as $existingEvent) {
+                $existingPurokIds = $existingEvent->purok_ids ?? [];
+                sort($existingPurokIds);
+
+                // Check if purok arrays match exactly
+                if ($requestPurokIds == $existingPurokIds) {
+                    return back()->withErrors(['duplicate' => 'An event with the same venue, date, time, and participant type already exists. Please modify the event details.']);
+                }
+            }
         }
 
         $eventData = [

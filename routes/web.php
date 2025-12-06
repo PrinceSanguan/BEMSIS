@@ -139,6 +139,10 @@ Route::middleware(['session.activity', SecretaryMiddleware::class])->group(funct
   // Content
   Route::get('secretary/content', [SecretaryController::class, 'content'])->name('secretary.content');
 
+  Route::post('secretary/events/{event}/upload-partner-resources', [SecretaryController::class, 'uploadPartnerResources'])->name('secretary.events.upload-partner-resources');
+  Route::delete('secretary/events/{event}/remove-partner-feedback', [SecretaryController::class, 'removePartnerFeedbackLink'])->name('secretary.events.remove-partner-feedback');
+  Route::delete('secretary/events/{event}/remove-partner-certificate', [SecretaryController::class, 'removePartnerCertificate'])->name('secretary.events.remove-partner-certificate');
+
   // Announcements Management
   Route::get('secretary/announcements', [SecretaryController::class, 'announcements'])->name('secretary.announcements');
   Route::post('secretary/announcements', [SecretaryController::class, 'createAnnouncement'])->name('secretary.announcements.create');

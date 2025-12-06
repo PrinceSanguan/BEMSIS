@@ -1,3 +1,4 @@
+import PartnerResourcesUpload from '@/components/PartnerResourcesUpload';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -399,6 +400,9 @@ export default function EventAttendees({ event, attendees }: Props) {
                     </main>
                 </div>
             </div>
+
+            {/* Partner Resources Upload */}
+            <PartnerResourcesUpload event={event} eligibleCount={eligibleForPartnerResources} />
 
             {/* QR Code Modal */}
             <Dialog open={showQRModal} onOpenChange={setShowQRModal}>

@@ -245,6 +245,19 @@ class ResidentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($certificate) {
+                // Check if user has completed attendance and submitted feedback
+                $hasCompletedAttendance = Attendance::where('event_id', $certificate->event_id)
+                    ->where('user_id', $certificate->user_id)
+                    ->whereNotNull('time_out')
+                    ->where('time_out_label', 'Completed')
+                    ->exists();
+
+                $hasSubmittedFeedback = Feedback::where('event_id', $certificate->event_id)
+                    ->where('user_id', $certificate->user_id)
+                    ->exists();
+
+                $canAccessPartnerResources = $hasCompletedAttendance && $hasSubmittedFeedback;
+
                 return [
                     'id' => $certificate->id,
                     'event_name' => $certificate->event->title,
@@ -255,6 +268,8 @@ class ResidentController extends Controller
                     'certificate_code' => $certificate->certificate_code,
                     'view_url' => $certificate->certificate_code ?
                         route('resident.certificates.view', $certificate->certificate_code) : null,
+                    'partner_feedback_link' => $canAccessPartnerResources ? $certificate->event->partner_feedback_link : null,
+                    'partner_certificate_path' => $canAccessPartnerResources ? $certificate->event->partner_certificate_path : null,
                 ];
             });
 

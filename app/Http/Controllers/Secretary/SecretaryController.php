@@ -467,9 +467,20 @@ class SecretaryController extends Controller
                 ];
             });
 
+        // Get eligible residents count (completed attendance + submitted feedback)
+        $eligibleCount = Attendance::where('event_id', $eventId)
+            ->where('status', 'confirmed')
+            ->whereNotNull('time_out')
+            ->where('time_out_label', 'Completed')
+            ->whereHas('user.feedbacks', function ($query) use ($eventId) {
+                $query->where('event_id', $eventId);
+            })
+            ->count();
+
         return Inertia::render('Secretary/EventAttendees', [
             'event' => $event,
-            'attendees' => $attendees
+            'attendees' => $attendees,
+            'eligibleForPartnerResources' => $eligibleCount
         ]);
     }
 
@@ -870,5 +881,62 @@ class SecretaryController extends Controller
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function uploadPartnerResources(Request $request, $eventId)
+    {
+        $event = Event::findOrFail($eventId);
+
+        $request->validate([
+            'partner_feedback_link' => 'nullable|url|max:500',
+            'partner_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        $updateData = [];
+
+        // Update feedback link if provided
+        if ($request->filled('partner_feedback_link')) {
+            $updateData['partner_feedback_link'] = $request->partner_feedback_link;
+        }
+
+        // Handle certificate file upload
+        if ($request->hasFile('partner_certificate')) {
+            // Delete old certificate if exists
+            if ($event->partner_certificate_path && Storage::disk('public')->exists($event->partner_certificate_path)) {
+                Storage::disk('public')->delete($event->partner_certificate_path);
+            }
+
+            $certificatePath = $request->file('partner_certificate')->store('partner_certificates', 'public');
+            $updateData['partner_certificate_path'] = $certificatePath;
+        }
+
+        if (!empty($updateData)) {
+            $event->update($updateData);
+            return back()->with('success', 'Partner resources updated successfully!');
+        }
+
+        return back()->with('error', 'No resources were provided to update.');
+    }
+
+    public function removePartnerFeedbackLink($eventId)
+    {
+        $event = Event::findOrFail($eventId);
+        $event->update(['partner_feedback_link' => null]);
+
+        return back()->with('success', 'Partner feedback link removed successfully!');
+    }
+
+    public function removePartnerCertificate($eventId)
+    {
+        $event = Event::findOrFail($eventId);
+
+        // Delete file if exists
+        if ($event->partner_certificate_path && Storage::disk('public')->exists($event->partner_certificate_path)) {
+            Storage::disk('public')->delete($event->partner_certificate_path);
+        }
+
+        $event->update(['partner_certificate_path' => null]);
+
+        return back()->with('success', 'Partner certificate removed successfully!');
     }
 }

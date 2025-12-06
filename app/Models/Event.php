@@ -19,6 +19,8 @@ class Event extends Model
         'start_date',
         'end_date',
         'has_certificate',
+        'partner_feedback_link',
+        'partner_certificate_path',
         'status',
         'target_all_residents',
     ];

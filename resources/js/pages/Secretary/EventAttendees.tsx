@@ -48,6 +48,7 @@ interface Event {
 interface Props {
     event: Event;
     attendees: Attendee[];
+    eligibleForPartnerResources: number;
 }
 
 interface PageProps {
@@ -58,7 +59,7 @@ interface PageProps {
     };
 }
 
-export default function EventAttendees({ event, attendees }: Props) {
+export default function EventAttendees({ event, attendees, eligibleForPartnerResources }: Props) {
     const { flash } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [selectedAttendee, setSelectedAttendee] = useState<Attendee | null>(null);

@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/pages/Resident/Header';
 import Sidebar from '@/pages/Resident/Sidebar';
 import { Head } from '@inertiajs/react';
-import { Award, Camera, FileCheck, QrCode, Scan, X } from 'lucide-react';
+import { Award, Camera, FileCheck, FileUp, Link, QrCode, Scan, X } from 'lucide-react';
 import QrScanner from 'qr-scanner';
 import { useEffect, useRef, useState } from 'react';
 
@@ -17,6 +17,8 @@ interface Certificate {
     file_path?: string;
     certificate_code?: string;
     view_url?: string;
+    partner_feedback_link?: string;
+    partner_certificate_path?: string;
 }
 
 interface Props {
@@ -33,6 +35,7 @@ export default function Certificates({ certificates }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const qrScannerRef = useRef<QrScanner | null>(null);
+
     const generateQRCodeUrl = (viewUrl: string) => {
         const downloadUrl = `${viewUrl}?download=1`;
         return (
@@ -93,7 +96,6 @@ export default function Certificates({ certificates }: Props) {
 
         try {
             if (qrCode.includes('/resident/certificates/view/')) {
-                // Add download parameter to the URL
                 const downloadUrl = qrCode.includes('?') ? `${qrCode}&download=1` : `${qrCode}?download=1`;
                 setScanResult({
                     success: true,
@@ -186,11 +188,11 @@ export default function Certificates({ certificates }: Props) {
                 )}
 
                 {/* Main Content */}
-                <div className="flex flex-1 flex-col">
-                    <Header onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+                <div className="flex flex-1 flex-col overflow-hidden">
+                    <Header userName="Resident" onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-6">
-                        <div className="mx-auto max-w-4xl space-y-6">
+                        <div className="mx-auto max-w-7xl space-y-6">
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900">My Certificates</h1>
@@ -224,13 +226,11 @@ export default function Certificates({ certificates }: Props) {
                                                                 <Award className="h-5 w-5 text-yellow-600" />
                                                                 {cert.event_name}
                                                             </CardTitle>
-                                                            {cert.status !== 'processing' && (
-                                                                <span
-                                                                    className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
-                                                                >
-                                                                    {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
-                                                                </span>
-                                                            )}
+                                                            <span
+                                                                className={`rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(cert.status)}`}
+                                                            >
+                                                                {cert.status.charAt(0).toUpperCase() + cert.status.slice(1)}
+                                                            </span>
                                                         </div>
                                                     </CardHeader>
 
@@ -261,6 +261,39 @@ export default function Certificates({ certificates }: Props) {
                                                                 />
                                                             </div>
                                                         </div>
+
+                                                        {/* Partner Resources */}
+                                                        {(cert.partner_feedback_link || cert.partner_certificate_path) && (
+                                                            <div className="mt-4 border-t pt-4">
+                                                                <p className="mb-2 text-sm font-medium text-gray-700">Partner Agency Resources</p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {cert.partner_feedback_link && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="gap-2"
+                                                                            onClick={() => window.open(cert.partner_feedback_link, '_blank')}
+                                                                        >
+                                                                            <Link className="h-4 w-4" />
+                                                                            Partner Feedback Form
+                                                                        </Button>
+                                                                    )}
+                                                                    {cert.partner_certificate_path && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="gap-2"
+                                                                            onClick={() =>
+                                                                                window.open(`/storage/${cert.partner_certificate_path}`, '_blank')
+                                                                            }
+                                                                        >
+                                                                            <FileUp className="h-4 w-4" />
+                                                                            Partner Certificate
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </CardContent>
                                                 </Card>
                                             ))}
@@ -356,18 +389,51 @@ export default function Certificates({ certificates }: Props) {
                                                             </div>
                                                         </div>
 
-                                                        {cert.status === 'available' && (
-                                                            <div className="flex flex-col gap-3 pt-2">
-                                                                <div className="flex items-center gap-3">
-                                                                    <QrCode className="h-5 w-5 text-gray-600" />
-                                                                    <span className="text-sm font-medium text-gray-700">Scan it to download it</span>
-                                                                </div>
-                                                                <div className="flex justify-center">
-                                                                    <img
-                                                                        src={generateQRCodeUrl(cert.view_url!)}
-                                                                        alt={`QR Code for ${cert.event_name} Certificate`}
-                                                                        className="h-32 w-32 rounded-lg border shadow-sm"
-                                                                    />
+                                                        <div className="flex flex-col gap-3 pt-2">
+                                                            <div className="flex items-center gap-3">
+                                                                <QrCode className="h-5 w-5 text-gray-600" />
+                                                                <span className="text-sm font-medium text-gray-700">
+                                                                    Scan QR Code to View Certificate
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-center">
+                                                                <img
+                                                                    src={generateQRCodeUrl(cert.view_url!)}
+                                                                    alt={`QR Code for ${cert.event_name} Certificate`}
+                                                                    className="h-32 w-32 rounded-lg border shadow-sm"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Partner Resources */}
+                                                        {(cert.partner_feedback_link || cert.partner_certificate_path) && (
+                                                            <div className="mt-4 border-t pt-4">
+                                                                <p className="mb-2 text-sm font-medium text-gray-700">Partner Agency Resources</p>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {cert.partner_feedback_link && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="gap-2"
+                                                                            onClick={() => window.open(cert.partner_feedback_link, '_blank')}
+                                                                        >
+                                                                            <Link className="h-4 w-4" />
+                                                                            Partner Feedback Form
+                                                                        </Button>
+                                                                    )}
+                                                                    {cert.partner_certificate_path && (
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="gap-2"
+                                                                            onClick={() =>
+                                                                                window.open(`/storage/${cert.partner_certificate_path}`, '_blank')
+                                                                            }
+                                                                        >
+                                                                            <FileUp className="h-4 w-4" />
+                                                                            Partner Certificate
+                                                                        </Button>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         )}
@@ -441,38 +507,30 @@ export default function Certificates({ certificates }: Props) {
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => {
-                                                    setScanResult(null);
                                                     setShowScanner(false);
-                                                    stopScanning();
+                                                    setScanResult(null);
                                                 }}
                                             >
-                                                Close Scanner
+                                                Close
                                             </Button>
                                         </div>
                                     )}
                                 </div>
                             )}
 
-                            {!isScanning ? (
-                                <div className="py-8 text-center">
-                                    <Scan className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-                                    <p className="mb-4 text-sm text-gray-600">Use your camera to scan certificate QR codes</p>
-                                    <Button onClick={startScanning} size="lg" className="gap-2">
-                                        <Camera className="h-4 w-4" />
+                            {!isScanning && !scanResult && (
+                                <div className="space-y-3">
+                                    <Button onClick={startScanning} className="w-full gap-2">
+                                        <Scan className="h-4 w-4" />
                                         Start Camera
                                     </Button>
                                 </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="relative overflow-hidden rounded-lg bg-black">
-                                        <video
-                                            ref={videoRef}
-                                            autoPlay
-                                            playsInline
-                                            muted
-                                            className="w-full bg-black object-cover"
-                                            style={{ minHeight: '300px', maxHeight: '400px' }}
-                                        >
+                            )}
+
+                            {isScanning && (
+                                <div className="space-y-3">
+                                    <div className="relative overflow-hidden rounded-lg bg-gray-900">
+                                        <video ref={videoRef} className="h-[400px] w-full object-cover" autoPlay playsInline muted>
                                             Video stream not available.
                                         </video>
 

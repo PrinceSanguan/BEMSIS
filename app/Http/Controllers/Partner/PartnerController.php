@@ -96,15 +96,24 @@ class PartnerController extends Controller
 
         $targetAllResidents = $request->input('target_all_residents', false);
 
+        // Normalize empty venue to null
+        $normalizedVenue = trim($request->venue ?? '') !== '' ? trim($request->venue) : null;
+
         // Check for duplicate events (same venue, date/time, and participant type)
         $duplicateQuery = Event::where('start_date', $request->start_date)
             ->where('status', '!=', 'declined'); // Exclude declined events
 
-        // Check venue match (handle nullable)
-        if ($request->venue) {
-            $duplicateQuery->where('venue', $request->venue);
+        // Check venue match (handle both null and empty string)
+        if ($normalizedVenue !== null) {
+            $duplicateQuery->where(function ($q) use ($normalizedVenue) {
+                $q->where('venue', $normalizedVenue)
+                    ->orWhere('venue', '');
+            });
         } else {
-            $duplicateQuery->whereNull('venue');
+            $duplicateQuery->where(function ($q) {
+                $q->whereNull('venue')
+                    ->orWhere('venue', '');
+            });
         }
 
         // Check end_date match
@@ -145,7 +154,7 @@ class PartnerController extends Controller
             'purok_ids' => $targetAllResidents ? null : (empty($request->purok_ids) ? null : $request->purok_ids),
             'title' => $request->title,
             'description' => $request->description,
-            'venue' => $request->venue,
+            'venue' => $normalizedVenue,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'has_certificate' => $request->has_certificate ?? false,

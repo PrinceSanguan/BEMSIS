@@ -505,11 +505,11 @@ class SecretaryController extends Controller
         // Determine if this is time-in or time-out
         if (!$attendance->time_in) {
             // TIME-IN LOGIC
-            $startTime = new \DateTime($event->start_date);
-            $minutesAfterStart = ($now->getTimestamp() - $startTime->getTimestamp()) / 60;
+            $startTime = \Carbon\Carbon::parse($event->start_date);
+            $minutesAfterStart = $now->diffInMinutes($startTime, false);
 
-            // Label: On-Time (within 30 min) or Late (>30 min after start)
-            $timeInLabel = $minutesAfterStart <= 30 ? 'On-Time' : 'Late';
+            // Label: On-Time (< 30 min) or Late (>= 30 min after start)
+            $timeInLabel = $minutesAfterStart < 30 ? 'On-Time' : 'Late';
 
             $attendance->update([
                 'time_in' => $now,
@@ -523,11 +523,11 @@ class SecretaryController extends Controller
             return back()->with('success', $message);
         } elseif (!$attendance->time_out) {
             // TIME-OUT LOGIC
-            $endTime = new \DateTime($eventEndTime);
-            $minutesBeforeEnd = ($endTime->getTimestamp() - $now->getTimestamp()) / 60;
+            $endTime = \Carbon\Carbon::parse($eventEndTime);
+            $minutesBeforeEnd = $endTime->diffInMinutes($now, false);
 
-            // Label: Completed (last 30 min or up to end time) or Not Completed (before last 30 min)
-            $timeOutLabel = $minutesBeforeEnd <= 30 && $minutesBeforeEnd >= 0 ? 'Completed' : 'Not Completed';
+            // Label: Completed (last 30 min window before end) or Not Completed
+            $timeOutLabel = ($minutesBeforeEnd <= 30 && $minutesBeforeEnd >= 0) ? 'Completed' : 'Not Completed';
 
             $attendance->update([
                 'time_out' => $now,

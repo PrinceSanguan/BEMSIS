@@ -526,10 +526,10 @@ class SecretaryController extends Controller
         if (!$attendance->time_in) {
             // TIME-IN LOGIC
             $startTime = \Carbon\Carbon::parse($event->start_date);
-            $minutesAfterStart = $now->diffInMinutes($startTime, false);
+            $minutesAfterStart = $startTime->diffInMinutes($now, false);
 
-            // Label: On-Time (< 30 min) or Late (>= 30 min after start)
-            $timeInLabel = $minutesAfterStart < 30 ? 'On-Time' : 'Late';
+            // Label: On-Time (within 30 min after start) or Late (more than 30 min after start)
+            $timeInLabel = ($minutesAfterStart >= 0 && $minutesAfterStart <= 30) ? 'On-Time' : 'Late';
 
             $attendance->update([
                 'time_in' => $now,
@@ -542,23 +542,13 @@ class SecretaryController extends Controller
 
             return back()->with('success', $message);
         } elseif (!$attendance->time_out) {
-            // TIME-OUT LOGIC
-            $endTime = \Carbon\Carbon::parse($eventEndTime);
-            $minutesBeforeEnd = $endTime->diffInMinutes($now, false);
-
-            // Label: Completed (last 30 min window before end) or Not Completed
-            $timeOutLabel = ($minutesBeforeEnd <= 30 && $minutesBeforeEnd >= 0) ? 'Completed' : 'Not Completed';
-
+            // TIME-OUT LOGIC - Simplified: Always mark as "Completed"
             $attendance->update([
                 'time_out' => $now,
-                'time_out_label' => $timeOutLabel
+                'time_out_label' => 'Completed'
             ]);
 
-            $message = $timeOutLabel === 'Completed'
-                ? "✅ Time-Out recorded for {$attendance->user->name} - Event Completed!"
-                : "📤 Time-Out recorded for {$attendance->user->name} - Early departure";
-
-            return back()->with('success', $message);
+            return back()->with('success', "✅ Time-Out recorded for {$attendance->user->name} - Event Completed! You can now submit feedback.");
         } else {
             return back()->withErrors(['message' => 'Attendance already fully recorded (Time-In & Time-Out)']);
         }

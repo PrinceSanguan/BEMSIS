@@ -178,7 +178,13 @@ class ResidentController extends Controller
             ->with('event')
             ->get()
             ->filter(function ($attendance) {
-                return $attendance->event !== null && $attendance->event->start_date >= now();
+                if ($attendance->event === null) {
+                    return false;
+                }
+
+                // Show events that haven't ended yet (ongoing or upcoming)
+                $eventEndTime = $attendance->event->end_date ?: $attendance->event->start_date;
+                return \Carbon\Carbon::parse($eventEndTime) >= now();
             })
             ->map(function ($attendance) {
                 // Generate QR code if not exists
@@ -215,7 +221,13 @@ class ResidentController extends Controller
             ->with('event')
             ->get()
             ->filter(function ($attendance) {
-                return $attendance->event !== null && $attendance->event->start_date < now();
+                if ($attendance->event === null) {
+                    return false;
+                }
+
+                // Show only past events (already ended)
+                $eventEndTime = $attendance->event->end_date ?: $attendance->event->start_date;
+                return \Carbon\Carbon::parse($eventEndTime) < now();
             })
             ->map(function ($attendance) {
                 return [

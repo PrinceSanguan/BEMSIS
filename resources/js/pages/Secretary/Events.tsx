@@ -27,6 +27,7 @@ import {
     Upload,
     Users,
     X,
+    XCircle,
 } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -79,7 +80,7 @@ interface PageProps {
 }
 
 export default function Events({ events, puroks, filters }: EventsProps) {
-    const { flash } = usePage<PageProps>().props;
+    const { flash, errors: pageErrors } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [processing, setProcessing] = useState(new Set<number>());
@@ -801,6 +802,14 @@ export default function Events({ events, puroks, filters }: EventsProps) {
                     </DialogHeader>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Duplicate Error Alert */}
+                        {pageErrors?.duplicate && (
+                            <Alert className="border-red-200 bg-red-50">
+                                <XCircle className="h-4 w-4 text-red-600" />
+                                <AlertDescription className="text-red-800">{pageErrors.duplicate}</AlertDescription>
+                            </Alert>
+                        )}
+
                         {/* Event Title */}
                         <div>
                             <Label htmlFor="title">Event Title *</Label>

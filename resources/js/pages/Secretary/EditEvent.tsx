@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Header from '@/pages/Secretary/Header';
 import Sidebar from '@/pages/Secretary/Sidebar';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Upload, X } from 'lucide-react';
+import { ArrowLeft, Upload, X, XCircle } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 interface Purok {
@@ -44,7 +44,7 @@ interface PageProps {
 }
 
 export default function EditEvent({ event, puroks }: EditEventProps) {
-    const { flash } = usePage<PageProps>().props;
+    const { flash, errors: pageErrors } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [imagePreview, setImagePreview] = useState<string | null>(event.image_path ? `/storage/${event.image_path}` : null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -185,6 +185,14 @@ export default function EditEvent({ event, puroks }: EditEventProps) {
                                 </CardHeader>
                                 <CardContent>
                                     <form onSubmit={handleSubmit} className="space-y-6">
+                                        {/* Duplicate Error Alert */}
+                                        {pageErrors?.duplicate && (
+                                            <Alert className="border-red-200 bg-red-50">
+                                                <XCircle className="h-4 w-4 text-red-600" />
+                                                <AlertDescription className="text-red-800">{pageErrors.duplicate}</AlertDescription>
+                                            </Alert>
+                                        )}
+
                                         {/* Event Title */}
                                         <div>
                                             <Label htmlFor="title">Event Title *</Label>

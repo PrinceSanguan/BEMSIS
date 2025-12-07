@@ -46,7 +46,7 @@ interface PageProps {
 }
 
 export default function Events({ events, puroks }: EventsProps) {
-    const { flash } = usePage<PageProps>().props;
+    const { flash, errors: pageErrors } = usePage<PageProps>().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<number | null>(null);
@@ -209,6 +209,14 @@ export default function Events({ events, puroks }: EventsProps) {
                                         <DialogTitle>Create New Event Request</DialogTitle>
                                     </DialogHeader>
                                     <form onSubmit={handleSubmit} className="space-y-4">
+                                        {/* Duplicate Error Alert */}
+                                        {pageErrors?.duplicate && (
+                                            <Alert className="border-red-200 bg-red-50">
+                                                <XCircle className="h-4 w-4 text-red-600" />
+                                                <AlertDescription className="text-red-800">{pageErrors.duplicate}</AlertDescription>
+                                            </Alert>
+                                        )}
+
                                         {/* Event Title */}
                                         <div>
                                             <Label htmlFor="title">Event Title *</Label>

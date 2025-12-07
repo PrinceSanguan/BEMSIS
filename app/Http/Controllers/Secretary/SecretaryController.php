@@ -118,7 +118,7 @@ class SecretaryController extends Controller
 
             $url = 'https://sms.iprogtech.com/api/v1/sms_messages';
             $message = sprintf(
-                "Hello %s, your account is already approved.",
+                "Hello %s, Your account has been approved and you now have access to the Barangay Event Management System. You may now log in to start joining and viewing upcoming events. Approved by the Barangay Secretary.",
                 $user->name
             );
 

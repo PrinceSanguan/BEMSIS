@@ -13,8 +13,8 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
         { icon: BarChart3, label: 'Dashboard', route: 'resident.dashboard' },
         { icon: Calendar, label: 'Events', route: 'resident.events' },
         { icon: QrCode, label: 'Attendance', route: 'resident.attendance' },
-        { icon: Award, label: 'Certificates', route: 'resident.certificates' },
         { icon: MessageSquare, label: 'Feedback', route: 'resident.feedback' },
+        { icon: Award, label: 'Certificates', route: 'resident.certificates' },
         { icon: Bell, label: 'Announcements', route: 'resident.announcements' },
         { icon: Settings, label: 'Profile', route: 'resident.profile' },
     ];

@@ -461,7 +461,7 @@ export default function Attendance({ events, className }: Props) {
             >
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>Barcode Scanner</DialogTitle>
+                        <DialogTitle>QR Code Scanner</DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-4">

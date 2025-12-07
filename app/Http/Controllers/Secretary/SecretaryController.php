@@ -518,7 +518,7 @@ class SecretaryController extends Controller
 
         // Check if event has already ended
         $eventEndTime = $event->end_date ?: $event->start_date;
-        if (new \DateTime($eventEndTime) < new \DateTime()) {
+        if (\Carbon\Carbon::parse($eventEndTime)->lt(now())) {
             return back()->withErrors(['message' => 'The event is already expired']);
         }
 

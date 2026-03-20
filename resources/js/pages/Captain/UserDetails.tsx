@@ -256,7 +256,7 @@ export default function UserDetail({ user, className }: Props) {
                                                     <Button
                                                         variant="outline"
                                                         onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
-                                                        className="border-green-300 text-green-600 hover:border-green-400 hover:text-green-700"
+                                                        className="border-indigo-300 text-indigo-600 hover:border-indigo-400 hover:text-indigo-700"
                                                     >
                                                         <CheckCircle className="mr-2 h-4 w-4" />
                                                         Activate Account

@@ -499,7 +499,7 @@ export default function Certificates({ certificates }: Props) {
                                         <div className="flex flex-col gap-2">
                                             <Button
                                                 onClick={() => window.open(scanResult.downloadUrl, '_blank')}
-                                                className="w-full bg-green-600 hover:bg-green-700"
+                                                className="w-full bg-indigo-600 hover:bg-indigo-700"
                                             >
                                                 Download Certificate
                                             </Button>

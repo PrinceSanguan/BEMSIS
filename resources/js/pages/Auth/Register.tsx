@@ -133,7 +133,7 @@ export default function Register() {
                 <Card className="w-full max-w-4xl rounded-2xl border-0 shadow-xl">
                     <CardContent className="p-8">
                         <div className="mb-8 text-center">
-                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600">
+                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600">
                                 <UserPlus className="h-8 w-8 text-white" />
                             </div>
                             <h1 className="text-3xl font-bold text-gray-800">Create Account</h1>
@@ -166,9 +166,9 @@ export default function Register() {
                                                 <RadioGroupItem value="resident" id="resident" className="peer sr-only" />
                                                 <Label
                                                     htmlFor="resident"
-                                                    className="flex cursor-pointer items-center space-x-4 rounded-lg border-2 border-gray-200 p-4 transition-all peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-gray-50"
+                                                    className="flex cursor-pointer items-center space-x-4 rounded-lg border-2 border-gray-200 p-4 transition-all peer-checked:border-indigo-600 peer-checked:bg-indigo-50 hover:bg-gray-50"
                                                 >
-                                                    <UserPlus className="h-8 w-8 text-blue-600" />
+                                                    <UserPlus className="h-8 w-8 text-indigo-600" />
                                                     <div>
                                                         <div className="font-semibold text-gray-800">Resident</div>
                                                         <div className="text-sm text-gray-500">Community member registration</div>
@@ -179,7 +179,7 @@ export default function Register() {
                                                 <RadioGroupItem value="partner_agency" id="partner_agency" className="peer sr-only" />
                                                 <Label
                                                     htmlFor="partner_agency"
-                                                    className="flex cursor-pointer items-center space-x-4 rounded-lg border-2 border-gray-200 p-4 transition-all peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-gray-50"
+                                                    className="flex cursor-pointer items-center space-x-4 rounded-lg border-2 border-gray-200 p-4 transition-all peer-checked:border-indigo-600 peer-checked:bg-indigo-50 hover:bg-gray-50"
                                                 >
                                                     <Building2 className="h-8 w-8 text-green-600" />
                                                     <div>
@@ -196,7 +196,7 @@ export default function Register() {
                                 <div className="flex items-center justify-between border-b pb-4">
                                     <div className="flex items-center space-x-3">
                                         {registrationType === 'resident' ? (
-                                            <UserPlus className="h-6 w-6 text-blue-600" />
+                                            <UserPlus className="h-6 w-6 text-indigo-600" />
                                         ) : (
                                             <Building2 className="h-6 w-6 text-green-600" />
                                         )}
@@ -514,11 +514,11 @@ export default function Register() {
                                         {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                                     </div>
 
-                                    <div className="rounded-lg bg-blue-50 p-4">
-                                        <h4 className="mb-2 font-semibold text-blue-800">Password Requirements:</h4>
+                                    <div className="rounded-lg bg-indigo-50 p-4">
+                                        <h4 className="mb-2 font-semibold text-indigo-800">Password Requirements:</h4>
                                         <ul className="space-y-1 text-sm">
                                             <li
-                                                className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-600' : 'text-blue-700'}`}
+                                                className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-600' : 'text-indigo-700'}`}
                                             >
                                                 <span className={`text-xs ${passwordValidation.length ? '✓' : '•'}`}>
                                                     {passwordValidation.length ? '✓' : '•'}
@@ -526,7 +526,7 @@ export default function Register() {
                                                 8-12 characters long
                                             </li>
                                             <li
-                                                className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-600' : 'text-blue-700'}`}
+                                                className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-600' : 'text-indigo-700'}`}
                                             >
                                                 <span className={`text-xs ${passwordValidation.uppercase ? '✓' : '•'}`}>
                                                     {passwordValidation.uppercase ? '✓' : '•'}
@@ -534,7 +534,7 @@ export default function Register() {
                                                 At least 1 uppercase letter (A-Z)
                                             </li>
                                             <li
-                                                className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-600' : 'text-blue-700'}`}
+                                                className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-600' : 'text-indigo-700'}`}
                                             >
                                                 <span className={`text-xs ${passwordValidation.lowercase ? '✓' : '•'}`}>
                                                     {passwordValidation.lowercase ? '✓' : '•'}
@@ -542,7 +542,7 @@ export default function Register() {
                                                 At least 1 lowercase letter (a-z)
                                             </li>
                                             <li
-                                                className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-600' : 'text-blue-700'}`}
+                                                className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-600' : 'text-indigo-700'}`}
                                             >
                                                 <span className={`text-xs ${passwordValidation.number ? '✓' : '•'}`}>
                                                     {passwordValidation.number ? '✓' : '•'}
@@ -550,7 +550,7 @@ export default function Register() {
                                                 At least 1 number (0-9)
                                             </li>
                                             <li
-                                                className={`flex items-center gap-2 ${passwordValidation.special ? 'text-green-600' : 'text-blue-700'}`}
+                                                className={`flex items-center gap-2 ${passwordValidation.special ? 'text-green-600' : 'text-indigo-700'}`}
                                             >
                                                 <span className={`text-xs ${passwordValidation.special ? '✓' : '•'}`}>
                                                     {passwordValidation.special ? '✓' : '•'}
@@ -626,7 +626,7 @@ export default function Register() {
                                         </div>
                                     </div>
 
-                                    <Button type="submit" className="h-12 w-full bg-blue-600 text-lg hover:bg-blue-700" disabled={processing}>
+                                    <Button type="submit" className="h-12 w-full bg-indigo-600 text-lg hover:bg-indigo-700" disabled={processing}>
                                         {processing ? 'Creating Account...' : 'Create Account'}
                                     </Button>
                                 </div>

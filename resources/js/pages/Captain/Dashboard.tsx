@@ -57,8 +57,8 @@ export default function Dashboard({ stats }: Props) {
             title: 'Total Events',
             value: stats.totalEvents,
             icon: Calendar,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-100',
+            color: 'text-indigo-600',
+            bgColor: 'bg-indigo-100',
             description: 'All time events',
         },
     ];
@@ -171,7 +171,7 @@ export default function Dashboard({ stats }: Props) {
                             <Card className="shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Users className="h-5 w-5 text-blue-600" />
+                                        <Users className="h-5 w-5 text-indigo-600" />
                                         Event Overview
                                     </CardTitle>
                                 </CardHeader>

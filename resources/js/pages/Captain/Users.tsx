@@ -377,7 +377,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                     size="sm"
                                                                     variant="outline"
                                                                     onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
-                                                                    className="text-green-600 hover:text-green-700"
+                                                                    className="text-indigo-600 hover:text-indigo-700"
                                                                 >
                                                                     Activate
                                                                 </Button>
@@ -478,7 +478,7 @@ export default function Users({ residents, partners, puroks, filters }: Props) {
                                                                     size="sm"
                                                                     variant="outline"
                                                                     onClick={() => router.patch(`/captain/users/${user.id}/activate`)}
-                                                                    className="text-green-600 hover:text-green-700"
+                                                                    className="text-indigo-600 hover:text-indigo-700"
                                                                 >
                                                                     Activate
                                                                 </Button>

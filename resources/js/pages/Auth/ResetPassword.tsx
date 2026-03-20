@@ -65,22 +65,22 @@ export default function ResetPassword() {
                         )}
 
                         {/* Password Policy Info */}
-                        <div className="mb-4 rounded-lg bg-blue-50 p-4">
-                            <h3 className="mb-2 font-semibold text-blue-800">Password Requirements:</h3>
+                        <div className="mb-4 rounded-lg bg-indigo-50 p-4">
+                            <h3 className="mb-2 font-semibold text-indigo-800">Password Requirements:</h3>
                             <ul className="space-y-1 text-sm">
-                                <li className={passwordRules.length ? 'text-green-700' : 'text-blue-700'}>
+                                <li className={passwordRules.length ? 'text-green-700' : 'text-indigo-700'}>
                                     • 8-12 characters long {passwordRules.length && '✓'}
                                 </li>
-                                <li className={passwordRules.uppercase ? 'text-green-700' : 'text-blue-700'}>
+                                <li className={passwordRules.uppercase ? 'text-green-700' : 'text-indigo-700'}>
                                     • At least 1 uppercase letter (A-Z) {passwordRules.uppercase && '✓'}
                                 </li>
-                                <li className={passwordRules.lowercase ? 'text-green-700' : 'text-blue-700'}>
+                                <li className={passwordRules.lowercase ? 'text-green-700' : 'text-indigo-700'}>
                                     • At least 1 lowercase letter (a-z) {passwordRules.lowercase && '✓'}
                                 </li>
-                                <li className={passwordRules.number ? 'text-green-700' : 'text-blue-700'}>
+                                <li className={passwordRules.number ? 'text-green-700' : 'text-indigo-700'}>
                                     • At least 1 number (0-9) {passwordRules.number && '✓'}
                                 </li>
-                                <li className={passwordRules.special ? 'text-green-700' : 'text-blue-700'}>
+                                <li className={passwordRules.special ? 'text-green-700' : 'text-indigo-700'}>
                                     • At least 1 special character (!@#$%^&*) {passwordRules.special && '✓'}
                                 </li>
                             </ul>
@@ -140,7 +140,7 @@ export default function ResetPassword() {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-green-600 hover:bg-green-700"
+                                className="w-full bg-indigo-600 hover:bg-indigo-700"
                                 disabled={processing || !isPasswordValid || data.password !== data.password_confirmation}
                             >
                                 {processing ? 'Updating Password...' : 'Update Password'}

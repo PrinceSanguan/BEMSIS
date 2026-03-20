@@ -47,20 +47,20 @@ export default function DeviceVerificationFailed({ message }: Props) {
                             <h3 className="mb-3 text-lg font-medium text-gray-900">What can you do?</h3>
                             <div className="space-y-3 text-sm text-gray-600">
                                 <div className="flex items-start">
-                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100">
-                                        <span className="text-xs font-bold text-blue-600">1</span>
+                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100">
+                                        <span className="text-xs font-bold text-indigo-600">1</span>
                                     </div>
                                     <p>Try logging in again to receive a new verification email</p>
                                 </div>
                                 <div className="flex items-start">
-                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100">
-                                        <span className="text-xs font-bold text-blue-600">2</span>
+                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100">
+                                        <span className="text-xs font-bold text-indigo-600">2</span>
                                     </div>
                                     <p>Check if you received multiple emails and use the latest one</p>
                                 </div>
                                 <div className="flex items-start">
-                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100">
-                                        <span className="text-xs font-bold text-blue-600">3</span>
+                                    <div className="mt-0.5 mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100">
+                                        <span className="text-xs font-bold text-indigo-600">3</span>
                                     </div>
                                     <p>Contact support if the problem persists</p>
                                 </div>
@@ -71,7 +71,7 @@ export default function DeviceVerificationFailed({ message }: Props) {
                     <div className="space-y-4 text-center">
                         <Link
                             href={route('auth.login')}
-                            className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                            className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Try Login Again

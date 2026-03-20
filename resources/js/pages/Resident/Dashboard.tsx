@@ -32,7 +32,7 @@ export default function Dashboard({ stats, upcomingEvents, recentCertificates }:
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const dashboardStats = [
-        { title: 'Events Attended', value: stats.eventsAttended.toString(), icon: Calendar, color: 'text-blue-600' },
+        { title: 'Events Attended', value: stats.eventsAttended.toString(), icon: Calendar, color: 'text-indigo-600' },
         { title: 'QR Codes Generated', value: stats.qrCodesGenerated.toString(), icon: QrCode, color: 'text-green-600' },
         { title: 'Certificates Earned', value: stats.certificatesEarned.toString(), icon: Award, color: 'text-purple-600' },
         { title: 'Feedback Submitted', value: stats.feedbackSubmitted.toString(), icon: MessageSquare, color: 'text-orange-600' },
@@ -45,7 +45,7 @@ export default function Dashboard({ stats, upcomingEvents, recentCertificates }:
             case 'pending':
                 return 'text-yellow-600 bg-yellow-100';
             default:
-                return 'text-blue-600 bg-blue-100';
+                return 'text-indigo-600 bg-indigo-100';
         }
     };
 
@@ -102,7 +102,7 @@ export default function Dashboard({ stats, upcomingEvents, recentCertificates }:
                                         <Award className="h-5 w-5 text-purple-600" />
                                         Recent Certificates
                                     </CardTitle>
-                                    <a href={route('resident.certificates')} className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                    <a href={route('resident.certificates')} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                                         View All
                                     </a>
                                 </CardHeader>

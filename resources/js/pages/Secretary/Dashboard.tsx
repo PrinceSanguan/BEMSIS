@@ -33,8 +33,8 @@ export default function Dashboard({ stats }: Props) {
             value: stats.pendingEvents,
             icon: Calendar,
             description: 'Events awaiting captain approval',
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
+            color: 'text-indigo-600',
+            bgColor: 'bg-indigo-50',
         },
         {
             title: 'Total Attendees',
@@ -144,11 +144,11 @@ export default function Dashboard({ stats }: Props) {
                                     <CardContent>
                                         <p className="mb-4 text-gray-600">Create and manage community events</p>
                                         {stats.pendingEvents > 0 ? (
-                                            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                                                <p className="font-medium text-blue-800">{stats.pendingEvents} events awaiting captain approval</p>
+                                            <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+                                                <p className="font-medium text-indigo-800">{stats.pendingEvents} events awaiting captain approval</p>
                                                 <a
                                                     href="/secretary/events"
-                                                    className="mt-2 inline-block text-sm font-medium text-blue-600 hover:text-blue-700"
+                                                    className="mt-2 inline-block text-sm font-medium text-indigo-600 hover:text-indigo-700"
                                                 >
                                                     Manage events →
                                                 </a>
@@ -158,7 +158,7 @@ export default function Dashboard({ stats }: Props) {
                                                 <p className="text-sm text-gray-600">All events are up to date</p>
                                                 <a
                                                     href="/secretary/events"
-                                                    className="inline-block text-sm font-medium text-blue-600 hover:text-blue-700"
+                                                    className="inline-block text-sm font-medium text-indigo-600 hover:text-indigo-700"
                                                 >
                                                     Create new event →
                                                 </a>
@@ -171,7 +171,7 @@ export default function Dashboard({ stats }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Users className="h-5 w-5 text-blue-600" />
+                                        <Users className="h-5 w-5 text-indigo-600" />
                                         Quick Navigation
                                     </CardTitle>
                                 </CardHeader>
@@ -187,10 +187,10 @@ export default function Dashboard({ stats }: Props) {
                                         </Button>
                                         <Button
                                             variant="outline"
-                                            className="w-full justify-start gap-2 hover:border-blue-300 hover:bg-blue-50"
+                                            className="w-full justify-start gap-2 hover:border-indigo-300 hover:bg-indigo-50"
                                             onClick={() => (window.location.href = '/secretary/events')}
                                         >
-                                            <Calendar className="h-4 w-4 text-blue-600" />
+                                            <Calendar className="h-4 w-4 text-indigo-600" />
                                             Manage Events
                                         </Button>
                                         <Button

@@ -290,7 +290,7 @@ export default function UserDetail({ user, className }: Props) {
                                                 <Button
                                                     onClick={handleApproveUser}
                                                     disabled={processing}
-                                                    className="bg-green-600 text-white hover:bg-green-700"
+                                                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                                                 >
                                                     <UserCheck className="mr-2 h-4 w-4" />
                                                     {processing ? 'Processing...' : 'Approve'}
@@ -319,7 +319,7 @@ export default function UserDetail({ user, className }: Props) {
                                                         onClick={handleActivateUser}
                                                         disabled={processing}
                                                         variant="outline"
-                                                        className="border-green-300 text-green-600 hover:border-green-400 hover:text-green-700"
+                                                        className="border-indigo-300 text-indigo-600 hover:border-indigo-400 hover:text-indigo-700"
                                                     >
                                                         <UserCheck className="mr-2 h-4 w-4" />
                                                         {processing ? 'Processing...' : 'Activate Account'}

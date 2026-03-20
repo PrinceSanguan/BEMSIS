@@ -258,7 +258,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                             <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
-                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
+                                                                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                                                                     size="sm"
                                                                 >
                                                                     <Eye className="mr-2 h-4 w-4" />
@@ -371,7 +371,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                             <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
-                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
+                                                                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                                                                     size="sm"
                                                                 >
                                                                     <Eye className="mr-2 h-4 w-4" />
@@ -440,7 +440,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                             <div className="flex flex-col gap-2 sm:flex-row">
                                                                 <Button
                                                                     onClick={() => router.get(`/secretary/users/${user.id}/details`)}
-                                                                    className="bg-blue-600 text-white hover:bg-blue-700"
+                                                                    className="bg-indigo-600 text-white hover:bg-indigo-700"
                                                                     size="sm"
                                                                 >
                                                                     <Eye className="mr-2 h-4 w-4" />
@@ -462,7 +462,7 @@ export default function Users({ pendingUsers, approvedUsers, approvedPartners, p
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => router.patch(`/secretary/users/${user.id}/activate`)}
-                                                                        className="flex items-center gap-2 text-green-600 hover:text-green-700"
+                                                                        className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700"
                                                                     >
                                                                         <UserCheck className="h-4 w-4" />
                                                                         Activate

@@ -1,3 +1,4 @@
+import CivicHubLogo from '@/components/civic-hub-logo';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,10 +70,12 @@ export default function Login({ flash }: LoginProps) {
         <>
             <Head title="Login" />
             <div className="flex min-h-screen items-center justify-center bg-white p-6 text-black dark:bg-black dark:text-white">
-                <Card className="w-full max-w-sm rounded-2xl border border-green-600 bg-white shadow-xl dark:bg-black">
+                <Card className="w-full max-w-sm rounded-2xl border border-indigo-600 bg-white shadow-xl dark:bg-black">
                     <CardContent className="p-8">
                         <div className="mb-6 text-center">
-                            <img src="/assets/images/Bemsis.jpg" alt="Bemsis Logo" className="mx-auto mb-4 h-16 w-auto" />
+                            <div className="mb-4 flex justify-center">
+                                <CivicHubLogo size="lg" />
+                            </div>
                             <h1 className="text-3xl font-bold text-gray-800">Welcome Back!</h1>
                         </div>
 
@@ -129,7 +132,7 @@ export default function Login({ flash }: LoginProps) {
                             {/* Submit Button */}
                             <Button
                                 type="submit"
-                                className="mt-4 w-full bg-green-600 text-white hover:bg-green-700"
+                                className="mt-4 w-full bg-indigo-600 text-white hover:bg-indigo-700"
                                 disabled={processing || Boolean(authError?.includes('locked'))}
                             >
                                 {processing ? 'Logging in...' : authError?.includes('locked') ? 'Account Locked' : 'Login'}

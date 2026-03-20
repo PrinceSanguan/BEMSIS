@@ -1,3 +1,4 @@
+import CivicHubLogo from '@/components/civic-hub-logo';
 import { Button } from '@/components/ui/button';
 import { SparklesCore } from '@/components/ui/sparkles';
 import { Link } from '@inertiajs/react';
@@ -18,19 +19,19 @@ export default function HeroLanding() {
                     maxSize={1.4}
                     particleDensity={100}
                     className="h-full w-full"
-                    particleColor="#16A34A"
+                    particleColor="#4F46E5"
                 />
             </div>
 
             {/* Border Effects */}
             <div className="absolute inset-y-0 left-0 h-full w-px bg-white/80 dark:bg-black/80">
-                <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-green-600 to-transparent" />
+                <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-indigo-600 to-transparent" />
             </div>
             <div className="absolute inset-y-0 right-0 h-full w-px bg-white/80 dark:bg-black/80">
-                <div className="absolute h-40 w-px bg-gradient-to-b from-transparent via-green-600 to-transparent" />
+                <div className="absolute h-40 w-px bg-gradient-to-b from-transparent via-indigo-600 to-transparent" />
             </div>
             <div className="absolute inset-x-0 bottom-0 h-px w-full bg-white/80 dark:bg-black/80">
-                <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-green-600 to-transparent" />
+                <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-indigo-600 to-transparent" />
             </div>
 
             <div className="relative z-20 px-4 py-10 md:py-20">
@@ -42,11 +43,11 @@ export default function HeroLanding() {
                         transition={{ duration: 0.6, ease: 'easeInOut' }}
                         className="mb-6"
                     >
-                        <img src="/assets/images/Bemsis.jpg" alt="Barangay Logo" className="mx-auto h-24 w-24 object-contain md:h-32 md:w-32" />
+                        <CivicHubLogo size="lg" showText={true} />
                     </motion.div>
 
                     <h1 className="relative z-20 mx-auto max-w-4xl text-center text-2xl font-bold text-black md:text-4xl lg:text-7xl dark:text-white">
-                        {'Barangay Event Management System with Integrated SMS and QR Code Technology'.split(' ').map((word, index) => (
+                        {'CivicHub — Community Event Management with SMS Notifications and QR Code Technology'.split(' ').map((word, index) => (
                             <motion.span
                                 key={index}
                                 initial={{ opacity: 0, filter: 'blur(4px)', y: 10 }}
@@ -75,9 +76,9 @@ export default function HeroLanding() {
                         duration: 0.3,
                         delay: 1.2,
                     }}
-                    className="relative z-20 mt-8 flex flex-wrap items-center justify-center gap-4 text-green-800 dark:text-green-200"
+                    className="relative z-20 mt-8 flex flex-wrap items-center justify-center gap-4 text-indigo-800 dark:text-indigo-200"
                 >
-                    Streamline your barangay events with our comprehensive management system. Send SMS notifications and generate QR codes for
+                    Streamline your community events with CivicHub's comprehensive management platform. Send SMS notifications and generate QR codes for
                     seamless event coordination.
                 </motion.p>
 
@@ -96,14 +97,14 @@ export default function HeroLanding() {
                 >
                     <Button
                         size="lg"
-                        className="w-48 transform rounded-lg bg-green-600 px-6 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-xl"
+                        className="w-48 transform rounded-lg bg-indigo-600 px-6 py-3 font-medium text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl"
                         asChild
                     >
                         <Link href={route('auth.login')}>Login</Link>
                     </Button>
                     <Button
                         size="lg"
-                        className="w-48 transform rounded-lg border-2 border-green-600 bg-white px-6 py-3 font-medium text-green-600 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-600 hover:text-white hover:shadow-xl dark:bg-black"
+                        className="w-48 transform rounded-lg border-2 border-indigo-600 bg-white px-6 py-3 font-medium text-indigo-600 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-600 hover:text-white hover:shadow-xl dark:bg-black"
                         asChild
                     >
                         <Link href={route('auth.register')}>Register</Link>
@@ -122,10 +123,10 @@ export default function HeroLanding() {
                         duration: 0.3,
                         delay: 1.2,
                     }}
-                    className="relative z-20 mt-20 rounded-3xl border border-green-600 bg-white p-4 shadow-md dark:border-green-600 dark:bg-black"
+                    className="relative z-20 mt-20 rounded-3xl border border-indigo-500 bg-white p-4 shadow-md dark:border-indigo-500 dark:bg-black"
                 >
-                    <div className="w-full overflow-hidden rounded-xl border border-green-600">
-                        <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-green-50 to-green-100 dark:from-black dark:to-green-900">
+                    <div className="w-full overflow-hidden rounded-xl border border-indigo-500">
+                        <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-black dark:to-indigo-900">
                             <div className="p-8 text-center">
                                 <img
                                     src="/assets/images/landing.png"
@@ -133,7 +134,7 @@ export default function HeroLanding() {
                                     className="mx-auto mb-4 h-32 w-auto object-contain"
                                 />
                                 <h3 className="mb-2 text-2xl font-bold text-black dark:text-white">Event Management Dashboard</h3>
-                                <p className="text-green-800 dark:text-green-200">SMS • QR Codes • Real-time Updates</p>
+                                <p className="text-indigo-800 dark:text-indigo-200">SMS • QR Codes • Real-time Updates</p>
                             </div>
                         </div>
                     </div>

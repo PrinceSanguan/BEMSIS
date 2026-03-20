@@ -255,7 +255,7 @@ export default function Events({ pendingEvents }: Props) {
                                                 <Button
                                                     onClick={() => handleEventAction(event.id, 'approve')}
                                                     disabled={processing === event.id}
-                                                    className="w-full bg-green-600 hover:bg-green-700 sm:w-auto"
+                                                    className="w-full bg-indigo-600 hover:bg-indigo-700 sm:w-auto"
                                                     size="sm"
                                                 >
                                                     {processing === event.id ? (

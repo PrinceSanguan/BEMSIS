@@ -78,7 +78,7 @@ export default function Header({ userName, onMobileMenuToggle }: HeaderProps) {
 
                 {/* Title */}
                 <div className="flex items-center gap-2">
-                    <Home className="h-6 w-6 text-blue-600" />
+                    <Home className="h-6 w-6 text-indigo-600" />
                     <h1 className="text-xl font-semibold text-gray-800 lg:text-2xl">Community Portal</h1>
                 </div>
             </div>
@@ -91,7 +91,7 @@ export default function Header({ userName, onMobileMenuToggle }: HeaderProps) {
                         <Button variant="ghost" className="flex h-10 items-center gap-2 px-3">
                             <Avatar className="h-8 w-8">
                                 <AvatarImage src="" alt={displayName} />
-                                <AvatarFallback className="bg-blue-100 text-sm font-medium text-blue-600">{getInitials(displayName)}</AvatarFallback>
+                                <AvatarFallback className="bg-indigo-100 text-sm font-medium text-indigo-600">{getInitials(displayName)}</AvatarFallback>
                             </Avatar>
                             <div className="hidden flex-col text-left sm:flex">
                                 <span className="text-sm font-medium text-gray-900">{displayName}</span>
@@ -105,7 +105,7 @@ export default function Header({ userName, onMobileMenuToggle }: HeaderProps) {
                                 <div className="flex items-center gap-3">
                                     <Avatar className="h-10 w-10">
                                         <AvatarImage src="" alt={displayName} />
-                                        <AvatarFallback className="bg-blue-100 text-blue-600">{getInitials(displayName)}</AvatarFallback>
+                                        <AvatarFallback className="bg-indigo-100 text-indigo-600">{getInitials(displayName)}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-gray-900">{displayName}</p>

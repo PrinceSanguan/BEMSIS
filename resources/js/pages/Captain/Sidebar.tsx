@@ -1,3 +1,4 @@
+import CivicHubLogo from '@/components/civic-hub-logo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Calendar, Home, LogOut, Users } from 'lucide-react';
@@ -15,15 +16,11 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
     };
 
     return (
-        <div className={cn('flex h-full w-64 flex-col border-r bg-white', className)}>
+        <div className={cn('flex h-full w-64 flex-col border-r bg-[#1E1B4B]', className)}>
             <div className="p-6">
                 <div className="flex flex-col items-center space-y-3">
-                    <img
-                        src="/assets/images/Bemsis.jpg"
-                        alt="Barangay Logo"
-                        className="h-16 w-16 rounded-full border-2 border-gray-200 object-cover"
-                    />
-                    <h2 className="text-lg font-semibold text-gray-800">Admin Panel</h2>
+                    <CivicHubLogo size="md" />
+                    <h2 className="text-lg font-semibold text-white">Admin Panel</h2>
                 </div>
             </div>
 
@@ -31,8 +28,8 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
                 <Button
                     variant={currentPage === 'captain.dashboard' ? 'secondary' : 'ghost'}
                     className={cn(
-                        'w-full justify-start gap-3 text-left',
-                        currentPage === 'captain.dashboard' && 'bg-blue-100 text-blue-900 hover:bg-blue-200',
+                        'w-full justify-start gap-3 text-left text-indigo-100 hover:bg-indigo-700 hover:text-white',
+                        currentPage === 'captain.dashboard' && 'bg-indigo-700 text-white hover:bg-indigo-600',
                     )}
                     onClick={() => (window.location.href = route('captain.dashboard'))}
                 >
@@ -43,8 +40,8 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
                 <Button
                     variant={currentPage === 'captain.events' ? 'secondary' : 'ghost'}
                     className={cn(
-                        'w-full justify-start gap-3 text-left',
-                        currentPage === 'captain.events' && 'bg-blue-100 text-blue-900 hover:bg-blue-200',
+                        'w-full justify-start gap-3 text-left text-indigo-100 hover:bg-indigo-700 hover:text-white',
+                        currentPage === 'captain.events' && 'bg-indigo-700 text-white hover:bg-indigo-600',
                     )}
                     onClick={() => (window.location.href = route('captain.events'))}
                 >
@@ -55,8 +52,8 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
                 <Button
                     variant={currentPage === 'captain.users' ? 'secondary' : 'ghost'}
                     className={cn(
-                        'w-full justify-start gap-3 text-left',
-                        currentPage === 'captain.users' && 'bg-blue-100 text-blue-900 hover:bg-blue-200',
+                        'w-full justify-start gap-3 text-left text-indigo-100 hover:bg-indigo-700 hover:text-white',
+                        currentPage === 'captain.users' && 'bg-indigo-700 text-white hover:bg-indigo-600',
                     )}
                     onClick={() => (window.location.href = route('captain.users'))}
                 >

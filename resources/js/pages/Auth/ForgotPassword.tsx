@@ -45,8 +45,8 @@ export default function ForgotPassword() {
                         )}
 
                         {flash?.success && (
-                            <Alert className="mb-4 border-green-600 bg-green-100">
-                                <AlertDescription className="text-green-800">{flash.success}</AlertDescription>
+                            <Alert className="mb-4 border-indigo-600 bg-indigo-100">
+                                <AlertDescription className="text-indigo-800">{flash.success}</AlertDescription>
                             </Alert>
                         )}
 
@@ -74,7 +74,7 @@ export default function ForgotPassword() {
                                 {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
                             </div>
 
-                            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={processing}>
+                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={processing}>
                                 {processing ? 'Sending OTP...' : 'Send OTP'}
                             </Button>
                         </form>

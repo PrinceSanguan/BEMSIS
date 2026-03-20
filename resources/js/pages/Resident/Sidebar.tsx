@@ -1,3 +1,4 @@
+import CivicHubLogo from '@/components/civic-hub-logo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Award, BarChart3, Bell, Calendar, LogOut, MessageSquare, QrCode, Settings } from 'lucide-react';
@@ -24,15 +25,11 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
     };
 
     return (
-        <div className={cn('flex h-full w-64 flex-col border-r bg-white', className)}>
+        <div className={cn('flex h-full w-64 flex-col border-r bg-[#1E1B4B]', className)}>
             <div className="p-6">
                 <div className="flex flex-col items-center space-y-3">
-                    <img
-                        src="/assets/images/Bemsis.jpg"
-                        alt="Barangay Logo"
-                        className="h-16 w-16 rounded-full border-2 border-gray-200 object-cover"
-                    />
-                    <h2 className="text-lg font-semibold text-gray-800">Resident Portal</h2>
+                    <CivicHubLogo size="md" />
+                    <h2 className="text-lg font-semibold text-white">Resident Portal</h2>
                 </div>
             </div>
 
@@ -41,7 +38,7 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
                     <Button
                         key={item.route}
                         variant={currentPage === item.route ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-3 text-left"
+                        className="w-full justify-start gap-3 text-left text-indigo-100 hover:bg-indigo-700 hover:text-white"
                         onClick={() => (window.location.href = route(item.route))}
                     >
                         <item.icon className="h-4 w-4" />
@@ -49,10 +46,10 @@ export default function Sidebar({ className, currentPage }: SidebarProps) {
                     </Button>
                 ))}
 
-                <div className="mt-4 border-t pt-4">
+                <div className="mt-4 border-t border-white/20 pt-4">
                     <Button
                         variant="ghost"
-                        className="w-full justify-start gap-3 text-left text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="w-full justify-start gap-3 text-left text-red-400 hover:bg-red-950 hover:text-red-300"
                         onClick={handleLogout}
                     >
                         <LogOut className="h-4 w-4" />

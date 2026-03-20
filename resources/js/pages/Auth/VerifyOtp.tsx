@@ -65,7 +65,7 @@ export default function VerifyOtp() {
                                 {errors.otp && <p className="text-sm text-red-500">{errors.otp}</p>}
                             </div>
 
-                            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={processing || data.otp.length !== 6}>
+                            <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={processing || data.otp.length !== 6}>
                                 {processing ? 'Verifying...' : 'Verify OTP'}
                             </Button>
                         </form>

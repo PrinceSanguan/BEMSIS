@@ -26,7 +26,7 @@ export default function Dashboard({ stats }: DashboardProps) {
             case 'completed':
                 return 'text-gray-600';
             default:
-                return 'text-blue-600';
+                return 'text-indigo-600';
         }
     };
 
@@ -68,7 +68,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                                             <p className="text-sm font-medium text-gray-600">Total Events</p>
                                             <p className="text-3xl font-bold text-gray-900">{stats.myEvents}</p>
                                         </div>
-                                        <Calendar className="h-8 w-8 text-blue-600" />
+                                        <Calendar className="h-8 w-8 text-indigo-600" />
                                     </div>
                                 </CardContent>
                             </Card>

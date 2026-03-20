@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file /d/CAPSTONE-PROJECT/BEMSIS/public/assets/images/*.*)",
+      "Bash(find /d/CAPSTONE-PROJECT/BEMSIS/config -type f -name *.php)"
+    ]
+  }
+}

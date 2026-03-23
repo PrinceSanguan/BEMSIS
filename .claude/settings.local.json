@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(file /d/CAPSTONE-PROJECT/BEMSIS/public/assets/images/*.*)",
-      "Bash(find /d/CAPSTONE-PROJECT/BEMSIS/config -type f -name *.php)"
+      "Bash(find /d/CAPSTONE-PROJECT/BEMSIS/config -type f -name *.php)",
+      "Bash(find D:CAPSTONE-PROJECTBEMSISpublic -type f \\\\\\(-name *.png -o -name *.jpg -o -name *.jpeg -o -name *.gif \\\\\\))",
+      "Bash(npm run:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)"
     ]
   }
 }

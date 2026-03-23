@@ -13,7 +13,21 @@ A modern, full-stack web application for managing barangay events, tracking atte
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Visit_Now-28a745?style=for-the-badge&logo=vercel&logoColor=white)](https://civichub.psanguan.com/)
+
+**[View Live Demo](https://civichub.psanguan.com/)**
+
 </div>
+
+---
+
+## Live Demo
+
+Want to explore CivicHub without setting it up locally? Check out the live demo:
+
+**https://civichub.psanguan.com/**
+
+Use the demo credentials on the login page to try out each role.
 
 ---
 

@@ -30,34 +30,40 @@ Whether you're a barangay looking to digitize operations or a developer studying
 ## Key Features
 
 **Event Management & Approval Workflow**
+
 - Create, edit, and manage barangay events with rich details (venue, date, description, poster image)
 - Multi-purok targeting — scope events to specific puroks or broadcast to all residents
 - Captain approval workflow — events require approval before going live
 - Partner agency event requests with endorsement support
 
 **QR Code Attendance Tracking**
+
 - Automatic QR code generation per registered attendee
 - Real-time QR scanning interface for secretaries
 - Time-in / time-out logging with on-time and late tracking
 - Attendance status management (confirmed, declined)
 
 **Certificate Generation**
+
 - Automatic certificate creation for event attendees
 - Unique certificate codes for verification
 - Public certificate verification via shareable links
 
-**SMS Notifications & Reminders** *(Optional)*
+**SMS Notifications & Reminders** _(Optional)_
+
 - Automated event reminders sent the day before an event
 - Configurable SMS integration via sms.iprogtech.com
 - SMS logging for audit trails
 
 **Role-Based Access Control**
+
 - **Captain** — System administrator: approve/decline events, activate/deactivate users
 - **Secretary** — Event coordinator: full event CRUD, QR attendance scanning, certificate assignment, announcements
 - **Partner Agency** — External organizations: submit event requests, upload feedback and certificates
 - **Resident** — Community members: browse events, register, view attendance history, download certificates, submit feedback
 
 **Security & Authentication**
+
 - Account lockout after 5 failed login attempts (15-minute cooldown)
 - Device verification with trusted device management
 - OTP-based password reset via email
@@ -65,6 +71,7 @@ Whether you're a barangay looking to digitize operations or a developer studying
 - Real-time online/offline status tracking
 
 **Announcements System**
+
 - Create purok-targeted or barangay-wide announcements
 - Secretary-managed content distribution
 
@@ -72,36 +79,34 @@ Whether you're a barangay looking to digitize operations or a developer studying
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Laravel 12 (PHP 8.2+) |
-| **Frontend** | React 19 with TypeScript (strict mode) |
-| **Bridge** | Inertia.js — SPA feel with server-side routing |
-| **Database** | MySQL 8+ |
-| **UI Components** | Shadcn/UI + Radix UI primitives |
-| **Styling** | Tailwind CSS v4 |
-| **Build Tool** | Vite |
-| **API Auth** | Laravel Sanctum |
-| **QR Codes** | simplesoftwareio/simple-qrcode |
-| **Icons** | Lucide React |
-| **Animations** | Framer Motion |
+| Layer             | Technology                                     |
+| ----------------- | ---------------------------------------------- |
+| **Backend**       | Laravel 12 (PHP 8.2+)                          |
+| **Frontend**      | React 19 with TypeScript (strict mode)         |
+| **Bridge**        | Inertia.js — SPA feel with server-side routing |
+| **Database**      | MySQL 8+                                       |
+| **UI Components** | Shadcn/UI + Radix UI primitives                |
+| **Styling**       | Tailwind CSS v4                                |
+| **Build Tool**    | Vite                                           |
+| **API Auth**      | Laravel Sanctum                                |
+| **QR Codes**      | simplesoftwareio/simple-qrcode                 |
+| **Icons**         | Lucide React                                   |
+| **Animations**    | Framer Motion                                  |
 
 ---
 
 ## Screenshots
 
-> Add your screenshots to a `docs/screenshots/` directory and update the paths below.
-
-| Landing Page | Dashboard |
-|:---:|:---:|
+|                 Landing Page                  |                  Dashboard                   |
+| :-------------------------------------------: | :------------------------------------------: |
 | ![Landing Page](docs/screenshots/landing.png) | ![Dashboard](docs/screenshots/dashboard.png) |
 
-| Event Management | QR Attendance |
-|:---:|:---:|
+|            Event Management            |                 QR Attendance                  |
+| :------------------------------------: | :--------------------------------------------: |
 | ![Events](docs/screenshots/events.png) | ![QR Scanner](docs/screenshots/qr-scanner.png) |
 
-| Certificates | Announcements |
-|:---:|:---:|
+|                    Certificates                    |                    Announcements                     |
+| :------------------------------------------------: | :--------------------------------------------------: |
 | ![Certificates](docs/screenshots/certificates.png) | ![Announcements](docs/screenshots/announcements.png) |
 
 ---
@@ -175,12 +180,12 @@ Visit **http://localhost:8000** in your browser.
 
 After running the seeders, you can log in with these accounts:
 
-| Role | Email | Password |
-|------|-------|----------|
-| **Captain** (Admin) | `captain@gmail.com` | `password123` |
+| Role                        | Email                 | Password      |
+| --------------------------- | --------------------- | ------------- |
+| **Captain** (Admin)         | `captain@gmail.com`   | `password123` |
 | **Secretary** (Coordinator) | `secretary@gmail.com` | `password123` |
-| **Resident** | `resident@gmail.com` | `password123` |
-| **Partner Agency** | `partner@gmail.com` | `password123` |
+| **Resident**                | `resident@gmail.com`  | `password123` |
+| **Partner Agency**          | `partner@gmail.com`   | `password123` |
 
 > The login page also has a **Demo Accounts** section — click any role to auto-fill credentials.
 

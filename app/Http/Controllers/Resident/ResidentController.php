@@ -101,9 +101,9 @@ class ResidentController extends Controller
                         $q->whereNull('purok_ids')
                             ->where('target_all_residents', true);
                     })
-                    // OR show events where purok_ids is empty array and target_all_residents is true  
+                    // OR show events where purok_ids is empty array and target_all_residents is true
                     ->orWhere(function ($q) {
-                        $q->where('purok_ids', '[]')
+                        $q->whereJsonLength('purok_ids', 0)
                             ->where('target_all_residents', true);
                     });
             })

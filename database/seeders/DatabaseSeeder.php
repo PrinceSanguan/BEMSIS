@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EventSeeder::class,
             AttendanceSeeder::class,
+            CertificateSeeder::class,
             FeedbackSeeder::class,
             AnnouncementSeeder::class,
         ]);

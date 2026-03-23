@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -19,10 +20,13 @@ class AttendanceSeeder extends Seeder
             ->where('status', 'approved')
             ->get();
 
+        $cleanUpStart = Carbon::parse($cleanUp->start_date);
+        $cleanUpEnd = Carbon::parse($cleanUp->end_date);
+
         // Attendance for Clean-Up Drive (all approved residents attended)
         foreach ($residents as $index => $resident) {
             $minutesLate = $index * 8; // stagger arrivals
-            $timeIn = $cleanUp->start_date->copy()->addMinutes($minutesLate);
+            $timeIn = $cleanUpStart->copy()->addMinutes($minutesLate);
             $isLate = $minutesLate > 15;
 
             Attendance::create([
@@ -31,18 +35,21 @@ class AttendanceSeeder extends Seeder
                 'status' => 'confirmed',
                 'qr_code' => 'QR-' . $cleanUp->id . '-' . $resident->id . '-' . Str::upper(Str::random(8)),
                 'time_in' => $timeIn,
-                'time_in_label' => $isLate ? 'Late' : 'On Time',
-                'time_out' => $index < 3 ? $cleanUp->end_date->copy()->subMinutes($index * 5) : null,
+                'time_in_label' => $isLate ? 'Late' : 'On-Time',
+                'time_out' => $index < 3 ? $cleanUpEnd->copy()->subMinutes($index * 5) : null,
                 'time_out_label' => $index < 3 ? 'Completed' : null,
             ]);
         }
 
-        // Attendance for Medical Mission (first 3 residents — event targets Puroks 1-3)
+        $medicalStart = Carbon::parse($medical->start_date);
+        $medicalEnd = Carbon::parse($medical->end_date);
+
+        // Attendance for Medical Mission (residents from Puroks 1-3)
         $eligibleResidents = $residents->filter(fn ($r) => in_array($r->purok_id, [1, 2, 3]));
 
         foreach ($eligibleResidents as $index => $resident) {
             $minutesLate = $index * 12;
-            $timeIn = $medical->start_date->copy()->addMinutes($minutesLate);
+            $timeIn = $medicalStart->copy()->addMinutes($minutesLate);
 
             Attendance::create([
                 'event_id' => $medical->id,
@@ -50,8 +57,8 @@ class AttendanceSeeder extends Seeder
                 'status' => 'confirmed',
                 'qr_code' => 'QR-' . $medical->id . '-' . $resident->id . '-' . Str::upper(Str::random(8)),
                 'time_in' => $timeIn,
-                'time_in_label' => $minutesLate > 15 ? 'Late' : 'On Time',
-                'time_out' => $medical->end_date->copy()->subMinutes($index * 10),
+                'time_in_label' => $minutesLate > 15 ? 'Late' : 'On-Time',
+                'time_out' => $medicalEnd->copy()->subMinutes($index * 10),
                 'time_out_label' => 'Completed',
             ]);
         }

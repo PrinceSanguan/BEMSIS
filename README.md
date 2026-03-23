@@ -124,8 +124,8 @@ Whether you're a barangay looking to digitize operations or a developer studying
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/civichub.git
-cd civichub
+git clone https://github.com/PrinceSanguan/BEMSIS.git
+cd BEMSIS
 
 # Install PHP dependencies
 composer install

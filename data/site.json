@@ -1,0 +1,14 @@
+{
+  "name": "BEMSIS",
+  "full_name": "Barangay Event Management & Information System",
+  "tagline": "Community Event Management with SMS Notifications and QR Code Technology",
+  "seed_anchor_date": "2026-10-07",
+  "barangay": "Barangay Calatagan Tibang",
+  "municipality": "Virac",
+  "province": "Catanduanes",
+  "captain_name": "Maristela T. Ubalde",
+  "late_threshold_minutes": 30,
+  "lockout_max_attempts": 5,
+  "lockout_minutes": 15,
+  "otp_minutes": 10
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "created_by": 2,
+    "id": 1,
+    "title": "Scheduled Water Interruption Notice",
+    "content": "Please be advised that there will be a scheduled water interruption this coming Saturday from 8:00 AM to 5:00 PM due to maintenance work by the local water district. Residents are advised to store enough water for the day. Thank you for your understanding.",
+    "target_all_puroks": true,
+    "target_puroks": null,
+    "created_at": "2026-10-06T08:15:00",
+    "updated_at": "2026-10-06T08:15:00"
+  },
+  {
+    "created_by": 2,
+    "id": 2,
+    "title": "Barangay ID Distribution Schedule",
+    "content": "Residents of Purok 1, 2, and 3 may claim their Barangay IDs at the Barangay Hall from Monday to Thursday next week. Please bring one valid government ID for verification. Distribution hours: 8:00 AM to 4:00 PM.",
+    "target_all_puroks": false,
+    "target_puroks": [1, 2, 3],
+    "created_at": "2026-10-03T10:00:00",
+    "updated_at": "2026-10-03T10:00:00"
+  },
+  {
+    "created_by": 2,
+    "id": 3,
+    "title": "Reminder: Proper Waste Segregation",
+    "content": "All residents are reminded to follow the proper waste segregation schedule: Biodegradable (Monday, Wednesday, Friday), Non-Biodegradable (Tuesday, Thursday), and Recyclables (Saturday). Let us keep our barangay clean and green. Violators may face penalties as per Barangay Ordinance No. 2025-003.",
+    "target_all_puroks": true,
+    "target_puroks": null,
+    "created_at": "2026-09-28T07:45:00",
+    "updated_at": "2026-09-28T07:45:00"
+  }
+]

@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+
+*.jpg binary
+*.png binary
+*.glb binary
